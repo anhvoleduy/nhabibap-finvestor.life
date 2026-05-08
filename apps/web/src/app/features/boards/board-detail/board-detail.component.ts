@@ -7,7 +7,6 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
@@ -44,7 +43,6 @@ const STATIC_TABS = new Set(['overview', 'nav', 'cash-flow']);
   imports: [
     RouterLink,
     DragDropModule,
-    MatToolbarModule,
     MatButtonModule,
     MatIconModule,
     MatDialogModule,
@@ -57,54 +55,56 @@ const STATIC_TABS = new Set(['overview', 'nav', 'cash-flow']);
     CashFlowTabComponent,
   ],
   template: `
-    <mat-toolbar color="primary">
-      <button mat-icon-button routerLink="/boards">
-        <mat-icon>arrow_back</mat-icon>
-      </button>
-      <span>{{ board()?.name ?? '...' }}</span>
-      @if (canEdit()) {
-        <button
-          mat-icon-button
-          (click)="openRename()"
-          matTooltip="Đổi tên"
-          style="margin-left:2px;opacity:0.8"
-        >
-          <mat-icon style="font-size:18px;width:18px;height:18px"
-            >edit</mat-icon
-          >
-        </button>
-      }
-      @if (board()?.role) {
-        <span class="role-badge" [style.background]="roleColor()">
-          {{ roleLabel() }}
-        </span>
-      }
-      <span style="flex:1"></span>
-      @if (isOwner()) {
-        <button
-          mat-icon-button
-          color="warn"
-          (click)="deleteBoard()"
-          matTooltip="Xóa bảng"
-          style="margin-right:4px"
-        >
-          <mat-icon>delete</mat-icon>
-        </button>
-      }
-      <button mat-stroked-button (click)="openShare()" style="margin-right:8px">
-        <mat-icon>person_add</mat-icon> Chia sẻ
-      </button>
-      <button mat-flat-button [routerLink]="['/boards', boardId(), 'entry']">
-        <mat-icon>edit_note</mat-icon> Cập nhật giá trị
-      </button>
-    </mat-toolbar>
-
     @if (loading()) {
       <mat-progress-bar mode="indeterminate" />
     }
 
     <div class="page">
       @if (!loading()) {
+        <div class="page__header">
+          <div class="page__header-left">
+            <div class="page__title-row">
+              <h2 class="page__title">{{ board()?.name ?? '...' }}</h2>
+              @if (canEdit()) {
+                <button
+                  mat-icon-button
+                  class="rename-btn"
+                  (click)="openRename()"
+                  matTooltip="Đổi tên"
+                >
+                  <mat-icon>edit</mat-icon>
+                </button>
+              }
+              @if (board()?.role) {
+                <span [class]="roleBadgeClass()">
+                  {{ roleLabel() }}
+                </span>
+              }
+            </div>
+          </div>
+          <div class="page__header-actions">
+            @if (isOwner()) {
+              <button
+                mat-icon-button
+                color="warn"
+                (click)="deleteBoard()"
+                matTooltip="Xóa bảng"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            }
+            <button mat-stroked-button (click)="openShare()">
+              <mat-icon>person_add</mat-icon> Chia sẻ
+            </button>
+            <button
+              mat-flat-button
+              [routerLink]="['/boards', boardId(), 'entry']"
+            >
+              <mat-icon>edit_note</mat-icon> Cập nhật giá trị
+            </button>
+          </div>
+        </div>
+
         <div class="tab-bar">
           <button
             class="tab-btn"
@@ -199,19 +199,83 @@ const STATIC_TABS = new Set(['overview', 'nav', 'cash-flow']);
   `,
   styles: [
     `
-      .role-badge {
-        margin-left: 12px;
-        padding: 2px 10px;
-        border-radius: 12px;
-        font-size: 12px;
-        font-weight: 500;
-        color: #fff;
-      }
-
       .page {
-        padding: 0 24px 24px;
+        padding: 24px 32px;
         max-width: 1400px;
         margin: 0 auto;
+      }
+
+      .page__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+
+      .page__header-left {
+        min-width: 0;
+      }
+
+      .page__title-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .page__title {
+        margin: 0;
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--mat-sys-on-surface);
+        letter-spacing: -0.5px;
+      }
+
+      .rename-btn {
+        opacity: 0.5;
+        transition: opacity 150ms;
+
+        &:hover {
+          opacity: 1;
+        }
+
+        ::ng-deep mat-icon {
+          font-size: 18px;
+          width: 18px;
+          height: 18px;
+        }
+      }
+
+      .role-badge {
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+      }
+
+      .role-badge--owner {
+        background: #ede9fe;
+        color: #6d28d9;
+      }
+
+      .role-badge--editor {
+        background: #dbeafe;
+        color: #1d4ed8;
+      }
+
+      .role-badge--viewer {
+        background: var(--mat-sys-surface-container);
+        color: var(--mat-sys-on-surface-variant);
+      }
+
+      .page__header-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
       }
 
       .tab-bar {
@@ -235,7 +299,7 @@ const STATIC_TABS = new Set(['overview', 'nav', 'cash-flow']);
         align-items: center;
         gap: 2px;
         padding: 0 16px;
-        height: 48px;
+        height: 44px;
         border: none;
         border-bottom: 2px solid transparent;
         background: transparent;
@@ -290,7 +354,7 @@ const STATIC_TABS = new Set(['overview', 'nav', 'cash-flow']);
 
       .tab-placeholder {
         width: 80px;
-        height: 44px;
+        height: 40px;
         background: color-mix(in srgb, var(--mat-sys-primary) 12%, transparent);
         border-radius: 4px;
         border: 1px dashed var(--mat-sys-primary);
@@ -319,7 +383,7 @@ const STATIC_TABS = new Set(['overview', 'nav', 'cash-flow']);
         align-items: center;
         gap: 4px;
         padding: 0 12px;
-        height: 48px;
+        height: 44px;
         border: 1px dashed var(--mat-sys-outline-variant);
         border-bottom: none;
         border-radius: 4px 4px 0 0;
@@ -379,9 +443,10 @@ export class BoardDetailComponent implements OnInit {
     const r = this.board()?.role;
     return r === 'OWNER' ? 'Chủ sở hữu' : r === 'EDITOR' ? 'Chỉnh sửa' : 'Xem';
   });
-  roleColor = computed(() => {
+  roleBadgeClass = computed(() => {
     const r = this.board()?.role;
-    return r === 'OWNER' ? '#7c3aed' : r === 'EDITOR' ? '#1d4ed8' : '#6b7280';
+    const mod = r === 'OWNER' ? 'owner' : r === 'EDITOR' ? 'editor' : 'viewer';
+    return `role-badge role-badge--${mod}`;
   });
   canEdit = computed(() => {
     const r = this.board()?.role;

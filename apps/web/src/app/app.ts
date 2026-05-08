@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { ThemeService } from './core/theme.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -8,4 +9,6 @@ import { RouterOutlet } from '@angular/router';
   template: '<router-outlet />',
   styleUrl: './app.scss',
 })
-export class App {}
+export class App {
+  private readonly _theme = inject(ThemeService);
+}

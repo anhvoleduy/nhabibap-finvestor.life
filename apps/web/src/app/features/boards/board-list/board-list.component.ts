@@ -6,8 +6,7 @@ import {
   signal,
 } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
-import { MatToolbarModule } from '@angular/material/toolbar';
+import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -16,7 +15,6 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatChipsModule } from '@angular/material/chips';
 import { BoardSummaryDto } from '@nhabibap-myportfolio/shared-types';
 import { BoardApiService } from '../../../core/board-api.service';
-import { AuthService } from '../../../core/auth.service';
 import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
 import { CreateBoardDialogComponent } from './create-board-dialog.component';
 
@@ -27,7 +25,6 @@ import { CreateBoardDialogComponent } from './create-board-dialog.component';
   imports: [
     RouterLink,
     DecimalPipe,
-    MatToolbarModule,
     MatButtonModule,
     MatCardModule,
     MatIconModule,
@@ -37,21 +34,6 @@ import { CreateBoardDialogComponent } from './create-board-dialog.component';
     VndCurrencyPipe,
   ],
   template: `
-    <mat-toolbar color="primary">
-      <mat-icon style="margin-right:8px">trending_up</mat-icon>
-      <span>Portfolio Tracker</span>
-      <span style="flex:1"></span>
-      <span style="font-size:14px; margin-right:12px; opacity:0.9">
-        {{ auth.currentUser()?.name }}
-      </span>
-      <button mat-icon-button routerLink="/settings" matTooltip="Cài đặt">
-        <mat-icon>settings</mat-icon>
-      </button>
-      <button mat-icon-button (click)="auth.logout()" matTooltip="Đăng xuất">
-        <mat-icon>logout</mat-icon>
-      </button>
-    </mat-toolbar>
-
     @if (loading()) {
       <mat-progress-bar mode="indeterminate" />
     }
@@ -137,7 +119,7 @@ import { CreateBoardDialogComponent } from './create-board-dialog.component';
   styles: [
     `
       .page {
-        padding: 24px;
+        padding: 32px;
         max-width: 1200px;
         margin: 0 auto;
       }
@@ -146,14 +128,15 @@ import { CreateBoardDialogComponent } from './create-board-dialog.component';
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
-        margin-bottom: 28px;
+        margin-bottom: 32px;
       }
 
       .page__title {
         margin: 0 0 4px;
-        font-size: 24px;
-        font-weight: 500;
+        font-size: 26px;
+        font-weight: 700;
         color: var(--mat-sys-on-surface);
+        letter-spacing: -0.5px;
       }
 
       .page__subtitle {
@@ -167,7 +150,7 @@ import { CreateBoardDialogComponent } from './create-board-dialog.component';
         flex-direction: column;
         align-items: center;
         gap: 8px;
-        padding: 64px 24px;
+        padding: 80px 24px;
         color: var(--mat-sys-on-surface-variant);
         text-align: center;
       }
@@ -176,13 +159,13 @@ import { CreateBoardDialogComponent } from './create-board-dialog.component';
         font-size: 64px;
         width: 64px;
         height: 64px;
-        opacity: 0.4;
+        opacity: 0.3;
       }
 
       .empty-title {
         margin: 8px 0 0;
         font-size: 18px;
-        font-weight: 500;
+        font-weight: 600;
         color: var(--mat-sys-on-surface);
       }
 
@@ -193,8 +176,8 @@ import { CreateBoardDialogComponent } from './create-board-dialog.component';
 
       .boards-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 16px;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 20px;
       }
 
       .board-card {
@@ -202,9 +185,13 @@ import { CreateBoardDialogComponent } from './create-board-dialog.component';
         transition:
           box-shadow 0.2s,
           transform 0.15s;
+        border-radius: 16px !important;
 
         &:hover {
-          transform: translateY(-2px);
+          transform: translateY(-3px);
+          box-shadow:
+            0 8px 24px -4px rgba(0, 0, 0, 0.15),
+            0 4px 8px -2px rgba(0, 0, 0, 0.08);
         }
       }
 
@@ -265,10 +252,8 @@ import { CreateBoardDialogComponent } from './create-board-dialog.component';
   ],
 })
 export class BoardListComponent implements OnInit {
-  readonly auth = inject(AuthService);
   private readonly api = inject(BoardApiService);
   private readonly dialog = inject(MatDialog);
-  private readonly router = inject(Router);
 
   boards = signal<BoardSummaryDto[]>([]);
   loading = signal(true);

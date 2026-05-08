@@ -23,36 +23,42 @@ export const routes: Routes = [
     ],
   },
   {
-    path: 'boards',
+    path: '',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./features/boards/board-list/board-list.component').then(
-        (m) => m.BoardListComponent,
+      import('./shared/components/shell/shell.component').then(
+        (m) => m.ShellComponent,
       ),
-  },
-  {
-    path: 'boards/:id',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/boards/board-detail/board-detail.component').then(
-        (m) => m.BoardDetailComponent,
-      ),
-  },
-  {
-    path: 'boards/:id/entry',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/boards/daily-entry/daily-entry.component').then(
-        (m) => m.DailyEntryComponent,
-      ),
-  },
-  {
-    path: 'settings',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/settings/settings.component').then(
-        (m) => m.SettingsComponent,
-      ),
+    children: [
+      {
+        path: 'boards',
+        loadComponent: () =>
+          import('./features/boards/board-list/board-list.component').then(
+            (m) => m.BoardListComponent,
+          ),
+      },
+      {
+        path: 'boards/:id',
+        loadComponent: () =>
+          import('./features/boards/board-detail/board-detail.component').then(
+            (m) => m.BoardDetailComponent,
+          ),
+      },
+      {
+        path: 'boards/:id/entry',
+        loadComponent: () =>
+          import('./features/boards/daily-entry/daily-entry.component').then(
+            (m) => m.DailyEntryComponent,
+          ),
+      },
+      {
+        path: 'settings',
+        loadComponent: () =>
+          import('./features/settings/settings.component').then(
+            (m) => m.SettingsComponent,
+          ),
+      },
+    ],
   },
   { path: '**', redirectTo: 'boards' },
 ];

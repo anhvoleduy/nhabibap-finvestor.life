@@ -15,7 +15,6 @@ import {
 } from '@angular/forms';
 import { forkJoin, of, Subscription } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -52,7 +51,6 @@ interface AssetRow {
   imports: [
     RouterLink,
     ReactiveFormsModule,
-    MatToolbarModule,
     MatButtonModule,
     MatIconModule,
     MatFormFieldModule,
@@ -64,20 +62,6 @@ interface AssetRow {
     DecimalPipe,
   ],
   template: `
-    <mat-toolbar color="primary">
-      <button mat-icon-button [routerLink]="['/boards', boardId()]">
-        <mat-icon>arrow_back</mat-icon>
-      </button>
-      <span>Cập nhật giá trị</span>
-      <span style="flex:1"></span>
-      @if (!loading() && assetRows().length > 0) {
-        <button mat-flat-button (click)="submit()" [disabled]="submitting()">
-          <mat-icon>save</mat-icon>
-          {{ submitting() ? 'Đang lưu...' : 'Lưu tất cả' }}
-        </button>
-      }
-    </mat-toolbar>
-
     @if (loading() || submitting()) {
       <mat-progress-bar mode="indeterminate" />
     }
@@ -85,17 +69,30 @@ interface AssetRow {
     <div class="page">
       <div class="page__header">
         <div>
+          <h2 class="page__title">Cập nhật giá trị</h2>
           <p class="entry-hint">
             Cập nhật giá trị thị trường cho tất cả tài sản
           </p>
         </div>
-        <input
-          type="date"
-          class="date-picker"
-          [value]="selectedDate()"
-          [max]="today"
-          (change)="onDateChange($event)"
-        />
+        <div class="page__header-actions">
+          <input
+            type="date"
+            class="date-picker"
+            [value]="selectedDate()"
+            [max]="today"
+            (change)="onDateChange($event)"
+          />
+          @if (!loading() && assetRows().length > 0) {
+            <button
+              mat-flat-button
+              (click)="submit()"
+              [disabled]="submitting()"
+            >
+              <mat-icon>save</mat-icon>
+              {{ submitting() ? 'Đang lưu...' : 'Lưu tất cả' }}
+            </button>
+          }
+        </div>
       </div>
 
       @if (!loading() && assetRows().length === 0) {
@@ -214,16 +211,33 @@ interface AssetRow {
   styles: [
     `
       .page {
-        padding: 24px;
+        padding: 32px;
         max-width: 1200px;
         margin: 0 auto;
       }
 
       .page__header {
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: space-between;
-        margin-bottom: 28px;
+        gap: 16px;
+        margin-bottom: 32px;
+        flex-wrap: wrap;
+      }
+
+      .page__title {
+        margin: 0 0 4px;
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--mat-sys-on-surface);
+        letter-spacing: -0.5px;
+      }
+
+      .page__header-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-shrink: 0;
       }
 
       .entry-hint {
@@ -235,7 +249,7 @@ interface AssetRow {
       .date-picker {
         padding: 8px 12px;
         border: 1px solid var(--mat-sys-outline);
-        border-radius: 4px;
+        border-radius: 8px;
         font-size: 14px;
         background: transparent;
         color: var(--mat-sys-on-surface);

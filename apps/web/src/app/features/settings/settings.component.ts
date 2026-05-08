@@ -5,8 +5,6 @@ import {
   signal,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -22,8 +20,6 @@ import { AuthService } from '../../core/auth.service';
   standalone: true,
   imports: [
     ReactiveFormsModule,
-    RouterLink,
-    MatToolbarModule,
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
@@ -33,15 +29,12 @@ import { AuthService } from '../../core/auth.service';
     MatDividerModule,
   ],
   template: `
-    <mat-toolbar color="primary">
-      <button mat-icon-button routerLink="/boards">
-        <mat-icon>arrow_back</mat-icon>
-      </button>
-      <mat-icon style="margin: 0 8px">settings</mat-icon>
-      <span>Cài đặt tài khoản</span>
-    </mat-toolbar>
-
     <div class="page">
+      <div class="page__header">
+        <h2 class="page__title">Cài đặt tài khoản</h2>
+        <p class="page__subtitle">Quản lý thông tin và bảo mật tài khoản</p>
+      </div>
+
       <mat-card class="section-card">
         @if (profileLoading()) {
           <mat-progress-bar mode="indeterminate" />
@@ -166,22 +159,41 @@ import { AuthService } from '../../core/auth.service';
   styles: [
     `
       .page {
-        padding: 24px;
-        max-width: 560px;
+        padding: 32px;
+        max-width: 600px;
         margin: 0 auto;
         display: flex;
         flex-direction: column;
-        gap: 20px;
+        gap: 24px;
+      }
+
+      .page__header {
+        margin-bottom: 4px;
+      }
+
+      .page__title {
+        margin: 0 0 4px;
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--mat-sys-on-surface);
+        letter-spacing: -0.5px;
+      }
+
+      .page__subtitle {
+        margin: 0;
+        font-size: 14px;
+        color: var(--mat-sys-on-surface-variant);
       }
 
       .section-card {
         overflow: hidden;
+        border-radius: 16px !important;
       }
 
       .section-title {
         margin: 0 0 20px;
         font-size: 17px;
-        font-weight: 500;
+        font-weight: 600;
         color: var(--mat-sys-on-surface);
       }
 
@@ -222,7 +234,6 @@ import { AuthService } from '../../core/auth.service';
 export class SettingsComponent {
   readonly auth = inject(AuthService);
   private readonly fb = inject(FormBuilder);
-  private readonly router = inject(Router);
 
   profileForm = this.fb.nonNullable.group({
     name: [this.auth.currentUser()?.name ?? '', Validators.required],

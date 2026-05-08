@@ -5,12 +5,30 @@ html {
     (
       color: (
         theme-type: light,
-        primary: mat.$azure-palette,
+        primary: mat.$violet-palette,
       ),
-      typography: Roboto,
+      typography: (
+        brand-family: 'Inter',
+        plain-family: 'Inter',
+        bold-weight: 700,
+        medium-weight: 500,
+        regular-weight: 400,
+      ),
       density: 0,
     )
   );
+}
+
+html[data-theme='dark'] {
+  @include mat.theme(
+    (
+      color: (
+        theme-type: dark,
+        primary: mat.$violet-palette,
+      ),
+    )
+  );
+  color-scheme: dark;
 }
 
 *,
@@ -21,7 +39,7 @@ html {
 
 body {
   margin: 0;
-  font-family: Roboto, 'Helvetica Neue', sans-serif;
+  font-family: 'Inter', 'Helvetica Neue', sans-serif;
   background-color: var(--mat-sys-background);
   color: var(--mat-sys-on-background);
   -webkit-font-smoothing: antialiased;
@@ -29,7 +47,7 @@ body {
 }
 
 .positive {
-  color: #16a34a;
+  color: #10b981;
 }
 .negative {
   color: var(--mat-sys-error);

@@ -2,7 +2,15 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "../../dist/out-tsc",
-    "types": []
+    "types": [],
+    "paths": {
+      "@nhabibap-myportfolio/shared-types": [
+        "../../libs/shared-types/src/index.ts"
+      ],
+      "@nestjs/swagger": ["./src/stubs/nestjs-swagger.ts"],
+      "class-validator": ["./src/stubs/class-validator.ts"],
+      "class-transformer": ["./src/stubs/class-transformer.ts"]
+    }
   },
   "include": ["src/**/*.ts"],
   "exclude": ["src/**/*.spec.ts", "src/**/*.test.ts"]

@@ -1,13 +1,11 @@
-import { Component } from '@angular/core';
-import { RouterModule } from '@angular/router';
-import { NxWelcome } from './nx-welcome';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
-  imports: [NxWelcome, RouterModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [RouterOutlet],
   selector: 'app-root',
-  templateUrl: './app.html',
+  template: '<router-outlet />',
   styleUrl: './app.scss',
 })
-export class App {
-  protected title = 'web';
-}
+export class App {}

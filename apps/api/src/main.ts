@@ -1,0 +1,31 @@
+import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { ConfigService } from '@nestjs/config';
+import helmet from 'helmet';
+import { AppModule } from './app/app.module';
+import { AllExceptionsFilter } from './common/filters/http-exception.filter';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  const cfg = app.get(ConfigService);
+
+  app.use(helmet());
+  app.setGlobalPrefix('api');
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+  app.useGlobalFilters(new AllExceptionsFilter());
+
+  const config = new DocumentBuilder()
+    .setTitle('My API')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
+  SwaggerModule.setup(
+    'api/docs',
+    app,
+    SwaggerModule.createDocument(app, config),
+  );
+
+  await app.listen(cfg.get<number>('PORT') ?? 3000);
+}
+bootstrap();

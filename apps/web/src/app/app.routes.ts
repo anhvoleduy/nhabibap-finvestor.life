@@ -1,3 +1,50 @@
-import { Route } from '@angular/router';
+import { Routes } from '@angular/router';
+import { authGuard } from './core/auth.guard';
 
-export const appRoutes: Route[] = [];
+export const routes: Routes = [
+  { path: '', redirectTo: 'boards', pathMatch: 'full' },
+  {
+    path: 'auth',
+    children: [
+      {
+        path: 'login',
+        loadComponent: () =>
+          import('./features/auth/login/login.component').then(
+            (m) => m.LoginComponent,
+          ),
+      },
+      {
+        path: 'register',
+        loadComponent: () =>
+          import('./features/auth/register/register.component').then(
+            (m) => m.RegisterComponent,
+          ),
+      },
+    ],
+  },
+  {
+    path: 'boards',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/boards/board-list/board-list.component').then(
+        (m) => m.BoardListComponent,
+      ),
+  },
+  {
+    path: 'boards/:id',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/boards/board-detail/board-detail.component').then(
+        (m) => m.BoardDetailComponent,
+      ),
+  },
+  {
+    path: 'boards/:id/entry',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/boards/daily-entry/daily-entry.component').then(
+        (m) => m.DailyEntryComponent,
+      ),
+  },
+  { path: '**', redirectTo: 'boards' },
+];

@@ -1,0 +1,45 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm install)",
+      "Bash(pnpm dev)",
+      "Bash(pnpm test:*)",
+      "Bash(pnpm lint:*)",
+      "Bash(pnpm migration:*)",
+      "Bash(nx g:*)",
+      "Bash(nx serve:*)",
+      "Bash(nx test:*)",
+      "Bash(nx lint:*)",
+      "Bash(nx affected:*)",
+      "Bash(nx run-many:*)",
+      "Bash(nx graph)",
+      "Bash(docker compose:*)",
+      "Bash(git status)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(pnpm build:*)",
+      "Bash(pnpm exec nx:*)",
+      "Bash(nx build:*)"
+    ],
+    "deny": [
+      "Bash(rm -rf:*)",
+      "Bash(git push:*)",
+      "Bash(pnpm publish:*)",
+      "Read(./.env)",
+      "Read(./.env.*)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pnpm exec prettier --write \"$CLAUDE_FILE_PATHS\" 2>/dev/null || true"
+          }
+        ]
+      }
+    ]
+  }
+}

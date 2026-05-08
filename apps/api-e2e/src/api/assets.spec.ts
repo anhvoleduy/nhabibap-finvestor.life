@@ -230,4 +230,68 @@ describe('Assets', () => {
       expect(res.status).toBe(204);
     });
   });
+
+  describe('Cash assets (no capital / profit)', () => {
+    let cashCatId: string;
+    let cashAssetId: string;
+
+    beforeAll(async () => {
+      const cat = await axios.post(
+        `/boards/${boardId}/categories`,
+        { type: 'CASH' },
+        { headers: authHeader(token) },
+      );
+      cashCatId = cat.data.id;
+    });
+
+    it('creates cash asset without capital', async () => {
+      const res = await axios.post(
+        `/boards/${boardId}/categories/${cashCatId}/assets`,
+        { name: 'Tiền mặt' },
+        { headers: authHeader(token) },
+      );
+
+      expect(res.status).toBe(201);
+      expect(res.data.name).toBe('Tiền mặt');
+      expect(res.data.capital).toBeNull();
+      expect(res.data.profit).toBeNull();
+      expect(res.data.profitPct).toBeNull();
+      cashAssetId = res.data.id;
+    });
+
+    it('ignores capital when creating cash asset', async () => {
+      const res = await axios.post(
+        `/boards/${boardId}/categories/${cashCatId}/assets`,
+        { name: 'Chờ mua', capital: 999999 },
+        { headers: authHeader(token) },
+      );
+
+      expect(res.status).toBe(201);
+      expect(res.data.capital).toBeNull();
+      expect(res.data.profit).toBeNull();
+    });
+
+    it('category returns null totalCapital and profitPct for CASH', async () => {
+      const res = await axios.get(`/boards/${boardId}/categories`, {
+        headers: authHeader(token),
+      });
+
+      const cat = res.data.find((c: { id: string }) => c.id === cashCatId);
+      expect(cat).toBeDefined();
+      expect(cat.totalCapital).toBeNull();
+      expect(cat.profitPct).toBeNull();
+    });
+
+    it('PATCH cash asset updates name only', async () => {
+      const res = await axios.patch(
+        `/boards/${boardId}/categories/${cashCatId}/assets/${cashAssetId}`,
+        { name: 'Tiền mặt VND' },
+        { headers: authHeader(token) },
+      );
+
+      expect(res.status).toBe(200);
+      expect(res.data.name).toBe('Tiền mặt VND');
+      expect(res.data.capital).toBeNull();
+    });
+  });
 });

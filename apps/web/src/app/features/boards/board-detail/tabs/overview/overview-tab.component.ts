@@ -78,8 +78,12 @@ const CATEGORY_COLORS: Record<CategoryType, string> = {
                 <td>{{ cat.label }}</td>
                 <td>{{ cat.totalCapital | vnd }}</td>
                 <td>{{ cat.totalValue | vnd }}</td>
-                <td [style.color]="cat.profitPct >= 0 ? '#22c55e' : '#ef4444'">
-                  {{ cat.profitPct | number: '1.2-2' }}%
+                <td
+                  [style.color]="
+                    (cat.profitPct ?? 0) >= 0 ? '#22c55e' : '#ef4444'
+                  "
+                >
+                  {{ cat.profitPct ?? 0 | number: '1.2-2' }}%
                 </td>
                 <td>
                   {{
@@ -141,7 +145,7 @@ export class OverviewTabComponent {
   categories = input.required<AssetCategoryDto[]>();
 
   totalCapital = computed(() =>
-    this.categories().reduce((s, c) => s + c.totalCapital, 0),
+    this.categories().reduce((s, c) => s + (c.totalCapital ?? 0), 0),
   );
   totalValue = computed(() =>
     this.categories().reduce((s, c) => s + c.totalValue, 0),

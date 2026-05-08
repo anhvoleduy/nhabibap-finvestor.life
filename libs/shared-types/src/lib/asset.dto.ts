@@ -14,10 +14,11 @@ export class CreateAssetDto {
   @MinLength(1)
   name!: string;
 
-  @ApiProperty({ minimum: 0 })
+  @ApiPropertyOptional({ minimum: 0 })
   @IsNumber()
   @Min(0)
-  capital!: number;
+  @IsOptional()
+  capital?: number;
 
   @ApiPropertyOptional({ additionalProperties: true })
   @IsObject()
@@ -54,8 +55,8 @@ export class AssetDto {
   @ApiProperty()
   name!: string;
 
-  @ApiProperty()
-  capital!: number;
+  @ApiProperty({ nullable: true })
+  capital!: number | null;
 
   @ApiProperty({ additionalProperties: true, nullable: true })
   metadata!: Record<string, unknown> | null;

@@ -35,7 +35,7 @@ import { CashFlowTabComponent } from './tabs/cash-flow-tab/cash-flow-tab.compone
 import { ShareBoardDialogComponent } from './share-board-dialog.component';
 import { AddCategoryDialogComponent } from './add-category-dialog.component';
 
-const STATIC_TABS = new Set(['overview', 'add-category', 'nav', 'cash-flow']);
+const STATIC_TABS = new Set(['overview', 'nav', 'cash-flow']);
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -137,13 +137,15 @@ const STATIC_TABS = new Set(['overview', 'add-category', 'nav', 'cash-flow']);
             }
           </div>
 
-          <button
-            class="tab-btn"
-            [class.tab-btn--active]="activeTab() === 'add-category'"
-            (click)="activeTab.set('add-category')"
-          >
-            + Danh mục
-          </button>
+          @if (canEdit()) {
+            <button
+              class="add-cat-btn"
+              (click)="openAddCategory()"
+              matTooltip="Thêm danh mục"
+            >
+              <mat-icon>add</mat-icon> Danh mục
+            </button>
+          }
 
           <button
             class="tab-btn"
@@ -179,21 +181,6 @@ const STATIC_TABS = new Set(['overview', 'add-category', 'nav', 'cash-flow']);
               />
             </div>
           }
-        }
-
-        @if (activeTab() === 'add-category') {
-          <div class="tab-content">
-            <div class="add-cat-prompt">
-              <mat-icon class="add-cat-icon">add_circle_outline</mat-icon>
-              <p class="add-cat-title">Thêm danh mục đầu tư</p>
-              <p class="add-cat-sub">
-                Vàng, Quỹ mở, ETF, Crypto, Tiết kiệm, Tiền mặt
-              </p>
-              <button mat-flat-button (click)="openAddCategory()">
-                <mat-icon>add</mat-icon> Thêm danh mục
-              </button>
-            </div>
-          </div>
         }
 
         @if (activeTab() === 'nav') {
@@ -333,33 +320,38 @@ const STATIC_TABS = new Set(['overview', 'add-category', 'nav', 'cash-flow']);
         transition: transform 150ms ease;
       }
 
-      .add-cat-prompt {
+      .add-cat-btn {
         display: flex;
-        flex-direction: column;
         align-items: center;
-        gap: 8px;
-        padding: 64px 24px;
-        color: var(--mat-sys-on-surface-variant);
-        text-align: center;
-      }
-
-      .add-cat-icon {
-        font-size: 48px;
-        width: 48px;
+        gap: 4px;
+        padding: 0 12px;
         height: 48px;
-        opacity: 0.5;
-      }
-
-      .add-cat-title {
-        margin: 8px 0 0;
-        font-size: 18px;
+        border: 1px dashed var(--mat-sys-outline-variant);
+        border-bottom: none;
+        border-radius: 4px 4px 0 0;
+        background: transparent;
+        cursor: pointer;
+        font-size: 13px;
         font-weight: 500;
-        color: var(--mat-sys-on-surface);
+        font-family: inherit;
+        color: var(--mat-sys-on-surface-variant);
+        white-space: nowrap;
+        transition:
+          color 150ms,
+          background 150ms,
+          border-color 150ms;
       }
 
-      .add-cat-sub {
-        margin: 0 0 16px;
-        font-size: 14px;
+      .add-cat-btn mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+      }
+
+      .add-cat-btn:hover {
+        color: var(--mat-sys-primary);
+        border-color: var(--mat-sys-primary);
+        background: color-mix(in srgb, var(--mat-sys-primary) 8%, transparent);
       }
     `,
   ],

@@ -81,15 +81,16 @@ export class AssetsService {
     dto: CreateAssetDto,
   ): Promise<AssetDto> {
     await this.assertMember(boardId, userId);
-    await this.assertCategoryInBoard(catId, boardId);
+    const cat = await this.assertCategoryInBoard(catId, boardId);
+    const isCash = cat.type === CategoryType.CASH;
     const asset = this.assetRepo.create({
       categoryId: catId,
       name: dto.name,
-      capital: dto.capital,
+      capital: isCash ? null : (dto.capital ?? 0),
       metadata: dto.metadata ?? null,
     });
     const saved = await this.assetRepo.save(asset);
-    return this.mapAsset(saved, null);
+    return this.mapAsset(saved, null, null, isCash);
   }
 
   async updateAsset(
@@ -100,17 +101,23 @@ export class AssetsService {
     dto: UpdateAssetDto,
   ): Promise<AssetDto> {
     await this.assertMember(boardId, userId);
-    await this.assertCategoryInBoard(catId, boardId);
+    const cat = await this.assertCategoryInBoard(catId, boardId);
+    const isCash = cat.type === CategoryType.CASH;
     const asset = await this.assetRepo.findOneBy({
       id: assetId,
       categoryId: catId,
     });
     if (!asset) throw new NotFoundException();
     if (dto.name !== undefined) asset.name = dto.name;
-    if (dto.capital !== undefined) asset.capital = dto.capital;
+    if (!isCash && dto.capital !== undefined) asset.capital = dto.capital;
     if (dto.metadata !== undefined) asset.metadata = dto.metadata ?? null;
     const saved = await this.assetRepo.save(asset);
-    return this.mapAsset(saved, await this.getLatestEntry(assetId));
+    return this.mapAsset(
+      saved,
+      await this.getLatestEntry(assetId),
+      null,
+      isCash,
+    );
   }
 
   async deleteAsset(
@@ -327,16 +334,19 @@ export class AssetsService {
 
   private async mapCategory(cat: AssetCategory): Promise<AssetCategoryDto> {
     const isGold = cat.type === CategoryType.GOLD;
+    const isCash = cat.type === CategoryType.CASH;
     const assets = await Promise.all(
       cat.assets.map(async (a) => {
         const latestEntry = await this.getLatestEntry(a.id);
         const totalChi = isGold ? await this.getTotalChi(a.id) : null;
-        return this.mapAsset(a, latestEntry, totalChi);
+        return this.mapAsset(a, latestEntry, totalChi, isCash);
       }),
     );
-    const totalCapital = assets.reduce((s, a) => s + Number(a.capital), 0);
+    const totalCapital = isCash
+      ? null
+      : assets.reduce((s, a) => s + Number(a.capital ?? 0), 0);
     const totalValue = assets.reduce(
-      (s, a) => s + Number(a.currentValue ?? a.capital),
+      (s, a) => s + Number(a.currentValue ?? (isCash ? 0 : (a.capital ?? 0))),
       0,
     );
     return {
@@ -348,9 +358,9 @@ export class AssetsService {
       totalCapital,
       totalValue,
       profitPct:
-        totalCapital > 0
+        totalCapital !== null && totalCapital > 0
           ? ((totalValue - totalCapital) / totalCapital) * 100
-          : 0,
+          : null,
     };
   }
 
@@ -358,12 +368,18 @@ export class AssetsService {
     asset: Asset,
     latestEntry: AssetEntry | null,
     totalChi: number | null = null,
+    isCash = false,
   ): AssetDto {
-    const capital = Number(asset.capital);
+    const capital = isCash ? null : Number(asset.capital ?? 0);
     const currentValue = latestEntry ? Number(latestEntry.currentValue) : null;
-    const profit = currentValue !== null ? currentValue - capital : null;
+    const profit =
+      !isCash && capital !== null && currentValue !== null
+        ? currentValue - capital
+        : null;
     const profitPct =
-      profit !== null && capital > 0 ? (profit / capital) * 100 : null;
+      profit !== null && capital !== null && capital > 0
+        ? (profit / capital) * 100
+        : null;
     return {
       id: asset.id,
       categoryId: asset.categoryId,
@@ -402,8 +418,9 @@ export class AssetsService {
   private async assertCategoryInBoard(
     catId: string,
     boardId: string,
-  ): Promise<void> {
+  ): Promise<AssetCategory> {
     const cat = await this.catRepo.findOneBy({ id: catId, boardId });
     if (!cat) throw new NotFoundException('Category not found in board');
+    return cat;
   }
 }

@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   inject,
   input,
   output,
@@ -40,17 +41,23 @@ import { CryptoBuyDialogComponent } from './crypto-buy-dialog.component';
   template: `
     <div class="cat-tab">
       <div class="cat-tab__stats">
-        <app-stat-card label="Tổng vốn" [value]="category().totalCapital" />
+        @if (!isCash()) {
+          <app-stat-card label="Tổng vốn" [value]="category().totalCapital" />
+        }
         <app-stat-card
           label="Giá trị hiện tại"
           [value]="category().totalValue"
         />
-        <app-stat-card
-          label="Lợi nhuận %"
-          [value]="category().profitPct"
-          [isPercent]="true"
-          [valueClass]="category().profitPct >= 0 ? 'positive' : 'negative'"
-        />
+        @if (!isCash()) {
+          <app-stat-card
+            label="Lợi nhuận %"
+            [value]="category().profitPct"
+            [isPercent]="true"
+            [valueClass]="
+              (category().profitPct ?? 0) >= 0 ? 'positive' : 'negative'
+            "
+          />
+        }
       </div>
 
       <div class="cat-tab__toolbar">
@@ -65,10 +72,12 @@ import { CryptoBuyDialogComponent } from './crypto-buy-dialog.component';
             <mat-label>Tên</mat-label>
             <input matInput formControlName="name" />
           </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Vốn đầu tư (VND)</mat-label>
-            <input matInput type="number" formControlName="capital" />
-          </mat-form-field>
+          @if (!isCash()) {
+            <mat-form-field appearance="outline">
+              <mat-label>Vốn đầu tư (VND)</mat-label>
+              <input matInput type="number" formControlName="capital" />
+            </mat-form-field>
+          }
           <button mat-flat-button type="submit" [disabled]="addForm.invalid">
             Thêm
           </button>
@@ -82,10 +91,14 @@ import { CryptoBuyDialogComponent } from './crypto-buy-dialog.component';
         <thead>
           <tr>
             <th>Tên</th>
-            <th>Vốn đầu tư</th>
+            @if (!isCash()) {
+              <th>Vốn đầu tư</th>
+            }
             <th>Giá trị hiện tại</th>
-            <th>Lợi nhuận</th>
-            <th>Tỷ lệ %</th>
+            @if (!isCash()) {
+              <th>Lợi nhuận</th>
+              <th>Tỷ lệ %</th>
+            }
             <th>Cập nhật lần cuối</th>
             <th></th>
           </tr>
@@ -101,29 +114,33 @@ import { CryptoBuyDialogComponent } from './crypto-buy-dialog.component';
                     placeholder="Tên"
                   />
                 </td>
-                <td>
-                  @if (
-                    category().type !== 'GOLD' && category().type !== 'CRYPTO'
-                  ) {
-                    <input
-                      class="inline-input"
-                      type="number"
-                      [formControl]="editForm.controls.capital"
-                      placeholder="Vốn đầu tư"
-                    />
-                  } @else {
-                    {{ editForm.controls.capital.value | vnd }}
-                  }
-                </td>
+                @if (!isCash()) {
+                  <td>
+                    @if (
+                      category().type !== 'GOLD' && category().type !== 'CRYPTO'
+                    ) {
+                      <input
+                        class="inline-input"
+                        type="number"
+                        [formControl]="editForm.controls.capital"
+                        placeholder="Vốn đầu tư"
+                      />
+                    } @else {
+                      {{ editForm.controls.capital.value | vnd }}
+                    }
+                  </td>
+                }
                 <td>{{ asset.currentValue | vnd }}</td>
-                <td>{{ asset.profit | vnd }}</td>
-                <td>
-                  {{
-                    asset.profitPct !== null
-                      ? (asset.profitPct | number: '1.2-2') + '%'
-                      : '—'
-                  }}
-                </td>
+                @if (!isCash()) {
+                  <td>{{ asset.profit | vnd }}</td>
+                  <td>
+                    {{
+                      asset.profitPct !== null
+                        ? (asset.profitPct | number: '1.2-2') + '%'
+                        : '—'
+                    }}
+                  </td>
+                }
                 <td>{{ asset.lastEntryDate ?? '—' }}</td>
                 <td style="white-space:nowrap">
                   <button
@@ -142,26 +159,30 @@ import { CryptoBuyDialogComponent } from './crypto-buy-dialog.component';
             } @else {
               <tr>
                 <td>{{ asset.name }}</td>
-                <td>{{ asset.capital | vnd }}</td>
+                @if (!isCash()) {
+                  <td>{{ asset.capital | vnd }}</td>
+                }
                 <td>{{ asset.currentValue | vnd }}</td>
-                <td
-                  [style.color]="
-                    (asset.profit ?? 0) >= 0 ? '#22c55e' : '#ef4444'
-                  "
-                >
-                  {{ asset.profit | vnd }}
-                </td>
-                <td
-                  [style.color]="
-                    (asset.profitPct ?? 0) >= 0 ? '#22c55e' : '#ef4444'
-                  "
-                >
-                  {{
-                    asset.profitPct !== null
-                      ? (asset.profitPct | number: '1.2-2') + '%'
-                      : '—'
-                  }}
-                </td>
+                @if (!isCash()) {
+                  <td
+                    [style.color]="
+                      (asset.profit ?? 0) >= 0 ? '#22c55e' : '#ef4444'
+                    "
+                  >
+                    {{ asset.profit | vnd }}
+                  </td>
+                  <td
+                    [style.color]="
+                      (asset.profitPct ?? 0) >= 0 ? '#22c55e' : '#ef4444'
+                    "
+                  >
+                    {{
+                      asset.profitPct !== null
+                        ? (asset.profitPct | number: '1.2-2') + '%'
+                        : '—'
+                    }}
+                  </td>
+                }
                 <td>{{ asset.lastEntryDate ?? '—' }}</td>
                 <td style="white-space:nowrap">
                   @if (category().type === 'GOLD') {
@@ -203,7 +224,7 @@ import { CryptoBuyDialogComponent } from './crypto-buy-dialog.component';
           @if (category().assets.length === 0) {
             <tr>
               <td
-                colspan="7"
+                [attr.colspan]="isCash() ? 4 : 7"
                 style="text-align:center; color:var(--mat-sys-on-surface-variant); padding:20px"
               >
                 Chưa có tài sản
@@ -282,6 +303,8 @@ export class CategoryAssetsTabComponent {
   private readonly fb = inject(FormBuilder);
   private readonly dialog = inject(MatDialog);
 
+  isCash = computed(() => this.category().type === 'CASH');
+
   showAddForm = signal(false);
   editingAssetId = signal<string | null>(null);
   saving = signal(false);
@@ -299,8 +322,9 @@ export class CategoryAssetsTabComponent {
   addAsset() {
     if (this.addForm.invalid) return;
     const { name, capital } = this.addForm.getRawValue();
+    const dto = this.isCash() ? { name } : { name, capital };
     this.api
-      .createAsset(this.boardId(), this.category().id, { name, capital })
+      .createAsset(this.boardId(), this.category().id, dto)
       .subscribe(() => {
         this.addForm.reset({ name: '', capital: 0 });
         this.showAddForm.set(false);
@@ -314,8 +338,8 @@ export class CategoryAssetsTabComponent {
   }
 
   startEditAsset(asset: AssetDto) {
-    this.editForm.setValue({ name: asset.name, capital: asset.capital });
-    if (this.capitalManagedByHistory) {
+    this.editForm.setValue({ name: asset.name, capital: asset.capital ?? 0 });
+    if (this.capitalManagedByHistory || this.isCash()) {
       this.editForm.controls.capital.disable();
     } else {
       this.editForm.controls.capital.enable();
@@ -328,9 +352,10 @@ export class CategoryAssetsTabComponent {
     const id = this.editingAssetId();
     if (!id) return;
     const { name } = this.editForm.getRawValue();
-    const dto = this.capitalManagedByHistory
-      ? { name }
-      : { name, capital: this.editForm.controls.capital.value };
+    const dto =
+      this.capitalManagedByHistory || this.isCash()
+        ? { name }
+        : { name, capital: this.editForm.controls.capital.value };
     this.saving.set(true);
     this.api
       .updateAsset(this.boardId(), this.category().id, id, dto)

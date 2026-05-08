@@ -42,12 +42,12 @@ export class AssetCategoryDto {
   @ApiProperty({ type: () => [AssetDto] })
   assets!: AssetDto[];
 
-  @ApiProperty()
-  totalCapital!: number;
+  @ApiProperty({ nullable: true })
+  totalCapital!: number | null;
 
   @ApiProperty()
   totalValue!: number;
 
-  @ApiProperty()
-  profitPct!: number;
+  @ApiProperty({ nullable: true })
+  profitPct!: number | null;
 }

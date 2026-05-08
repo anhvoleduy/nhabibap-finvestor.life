@@ -24,8 +24,8 @@ export class Asset {
   @Column()
   name!: string;
 
-  @Column({ type: 'bigint', default: 0 })
-  capital!: number;
+  @Column({ type: 'bigint', default: 0, nullable: true })
+  capital!: number | null;
 
   @Column({ type: 'jsonb', nullable: true })
   metadata!: Record<string, unknown> | null;

@@ -39,7 +39,7 @@ interface AssetRow {
   assetName: string;
   categoryType: CategoryType;
   categoryLabel: string;
-  capital: number;
+  capital: number | null;
   lastValue: number | null;
   lastDate: string | null;
   totalChi: number | null;
@@ -177,7 +177,7 @@ interface AssetRow {
                           @if (interest !== '' && +interest > 0) {
                             Giá trị = {{ row.capital | vnd }} +
                             {{ +interest | vnd }} =
-                            {{ row.capital + +interest | vnd }}
+                            {{ (row.capital ?? 0) + +interest | vnd }}
                           } @else {
                             Giá trị = {{ row.capital | vnd }} + lãi
                           }
@@ -414,7 +414,7 @@ export class DailyEntryComponent implements OnInit {
             ) {
               prefill = Math.round(source.currentValue / row.totalChi);
             } else if (row.categoryType === CategoryType.SAVINGS) {
-              prefill = source.currentValue - row.capital;
+              prefill = source.currentValue - (row.capital ?? 0);
             } else {
               prefill = source.currentValue;
             }
@@ -458,7 +458,7 @@ export class DailyEntryComponent implements OnInit {
         ) {
           currentValue = Math.round(Number(inputValue) * row.totalChi);
         } else if (row?.categoryType === CategoryType.SAVINGS) {
-          currentValue = Number(inputValue) + row.capital;
+          currentValue = Number(inputValue) + (row.capital ?? 0);
         }
         return { assetId, currentValue };
       });

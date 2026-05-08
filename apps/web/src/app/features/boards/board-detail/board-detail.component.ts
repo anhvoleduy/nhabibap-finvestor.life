@@ -191,13 +191,7 @@ const STATIC_TABS = new Set(['overview', 'nav', 'cash-flow']);
 
         @if (activeTab() === 'cash-flow') {
           <div class="tab-content">
-            <app-cash-flow-tab
-              [boardId]="boardId()"
-              [bankBalance]="board()?.bankBalance ?? 0"
-              [cashBalance]="board()?.cashBalance ?? 0"
-              [canEdit]="canEdit()"
-              (walletSaved)="onWalletSaved($event)"
-            />
+            <app-cash-flow-tab [boardId]="boardId()" [canEdit]="canEdit()" />
           </div>
         }
       }
@@ -498,10 +492,6 @@ export class BoardDetailComponent implements OnInit {
           .subscribe(() => this.loadCategories());
       }
     });
-  }
-
-  onWalletSaved(wallet: { bankBalance: number; cashBalance: number }) {
-    this.board.update((b) => (b ? { ...b, ...wallet } : b));
   }
 
   deleteBoard() {

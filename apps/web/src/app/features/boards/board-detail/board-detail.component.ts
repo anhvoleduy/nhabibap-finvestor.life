@@ -109,7 +109,7 @@ const STATIC_TABS = new Set(['overview', 'nav', 'cash-flow']);
           <button
             class="tab-btn"
             [class.tab-btn--active]="activeTab() === 'overview'"
-            (click)="activeTab.set('overview')"
+            (click)="setTab('overview')"
           >
             Tổng quan
           </button>
@@ -124,7 +124,7 @@ const STATIC_TABS = new Set(['overview', 'nav', 'cash-flow']);
               <button
                 class="tab-btn tab-btn--draggable"
                 [class.tab-btn--active]="activeTab() === cat.id"
-                (click)="activeTab.set(cat.id)"
+                (click)="setTab(cat.id)"
                 cdkDrag
                 cdkDragLockAxis="x"
               >
@@ -150,7 +150,7 @@ const STATIC_TABS = new Set(['overview', 'nav', 'cash-flow']);
           <button
             class="tab-btn"
             [class.tab-btn--active]="activeTab() === 'nav'"
-            (click)="activeTab.set('nav')"
+            (click)="setTab('nav')"
           >
             NAV
           </button>
@@ -158,7 +158,7 @@ const STATIC_TABS = new Set(['overview', 'nav', 'cash-flow']);
           <button
             class="tab-btn"
             [class.tab-btn--active]="activeTab() === 'cash-flow'"
-            (click)="activeTab.set('cash-flow')"
+            (click)="setTab('cash-flow')"
           >
             Dòng tiền
           </button>
@@ -391,8 +391,20 @@ export class BoardDetailComponent implements OnInit {
 
   ngOnInit() {
     this.boardId.set(this.route.snapshot.paramMap.get('id') ?? '');
+    const tabParam = this.route.snapshot.queryParamMap.get('tab');
+    if (tabParam) this.activeTab.set(tabParam);
     this.restoreOrder();
     this.loadAll();
+  }
+
+  setTab(tab: string) {
+    this.activeTab.set(tab);
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { tab },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
   }
 
   private orderKey() {
@@ -444,10 +456,9 @@ export class BoardDetailComponent implements OnInit {
       if (newIds.length > 0) {
         this.persistOrder([...currentOrder, ...newIds]);
       }
-      // Guard: if active category tab was deleted, fall back to overview
       const catIds = new Set(cats.map((c) => c.id));
       if (!STATIC_TABS.has(this.activeTab()) && !catIds.has(this.activeTab())) {
-        this.activeTab.set('overview');
+        this.setTab('overview');
       }
     });
   }

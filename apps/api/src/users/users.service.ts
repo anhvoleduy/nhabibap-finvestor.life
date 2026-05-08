@@ -1,6 +1,17 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import * as bcrypt from 'bcrypt';
+import {
+  UpdatePasswordDto,
+  UpdateProfileDto,
+} from '@nhabibap-myportfolio/shared-types';
 import { User } from '../auth/entities/user.entity';
 
 @Injectable()
@@ -37,5 +48,28 @@ export class UsersService {
     if (existing) throw new ConflictException('Email already in use');
     const user = this.repo.create({ email, passwordHash, name });
     return this.repo.save(user);
+  }
+
+  async updateProfile(userId: string, dto: UpdateProfileDto): Promise<User> {
+    const user = await this.findById(userId);
+    if (!user) throw new NotFoundException('User not found');
+    if (dto.email && dto.email !== user.email) {
+      const conflict = await this.findByEmail(dto.email);
+      if (conflict) throw new ConflictException('Email already in use');
+      user.email = dto.email;
+    }
+    if (dto.name) user.name = dto.name;
+    return this.repo.save(user);
+  }
+
+  async updatePassword(userId: string, dto: UpdatePasswordDto): Promise<void> {
+    const user = await this.findById(userId);
+    if (!user) throw new NotFoundException('User not found');
+    const valid = await bcrypt.compare(dto.currentPassword, user.passwordHash);
+    if (!valid) throw new UnauthorizedException('Current password incorrect');
+    if (dto.currentPassword === dto.newPassword)
+      throw new BadRequestException('New password must differ from current');
+    user.passwordHash = await bcrypt.hash(dto.newPassword, 12);
+    await this.repo.save(user);
   }
 }

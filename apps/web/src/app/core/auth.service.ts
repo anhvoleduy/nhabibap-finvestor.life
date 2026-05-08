@@ -6,6 +6,9 @@ import {
   AuthResponseDto,
   LoginDto,
   RegisterDto,
+  UpdatePasswordDto,
+  UpdateProfileDto,
+  UserDto,
 } from '@nhabibap-myportfolio/shared-types';
 
 const TOKEN_KEY = 'pt_token';
@@ -35,6 +38,23 @@ export class AuthService {
     return this.http
       .post<AuthResponseDto>('/api/auth/login', dto)
       .pipe(tap((res) => this.persist(res)));
+  }
+
+  updateProfile(dto: UpdateProfileDto) {
+    return this.http.patch<UserDto>('/api/users/me', dto).pipe(
+      tap((user) => {
+        const updated = {
+          ...this.currentUser(),
+          ...user,
+        } as AuthResponseDto['user'];
+        localStorage.setItem(USER_KEY, JSON.stringify(updated));
+        this.currentUser.set(updated);
+      }),
+    );
+  }
+
+  updatePassword(dto: UpdatePasswordDto) {
+    return this.http.patch<void>('/api/users/me/password', dto);
   }
 
   logout() {

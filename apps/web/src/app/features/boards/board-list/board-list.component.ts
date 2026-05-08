@@ -44,6 +44,9 @@ import { CreateBoardDialogComponent } from './create-board-dialog.component';
       <span style="font-size:14px; margin-right:12px; opacity:0.9">
         {{ auth.currentUser()?.name }}
       </span>
+      <button mat-icon-button routerLink="/settings" matTooltip="Cài đặt">
+        <mat-icon>settings</mat-icon>
+      </button>
       <button mat-icon-button (click)="auth.logout()" matTooltip="Đăng xuất">
         <mat-icon>logout</mat-icon>
       </button>

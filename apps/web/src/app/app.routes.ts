@@ -46,5 +46,13 @@ export const routes: Routes = [
         (m) => m.DailyEntryComponent,
       ),
   },
+  {
+    path: 'settings',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/settings/settings.component').then(
+        (m) => m.SettingsComponent,
+      ),
+  },
   { path: '**', redirectTo: 'boards' },
 ];

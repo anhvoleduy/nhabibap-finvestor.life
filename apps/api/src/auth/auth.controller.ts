@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Post, Query, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Patch,
+  Post,
+  Query,
+  Req,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -9,6 +18,8 @@ import {
   AuthResponseDto,
   LoginDto,
   RegisterDto,
+  UpdatePasswordDto,
+  UpdateProfileDto,
   UserDto,
 } from '@nhabibap-myportfolio/shared-types';
 import { AuthService } from './auth.service';
@@ -60,5 +71,23 @@ export class UsersController {
   @ApiResponse({ status: 200, type: [UserDto] })
   search(@Query('email') email: string) {
     return this.usersService.searchByEmail(email ?? '');
+  }
+
+  @Patch('me')
+  @ApiOperation({ summary: 'Update current user profile' })
+  @ApiResponse({ status: 200, type: UserDto })
+  updateMe(@Req() req: AuthenticatedRequest, @Body() dto: UpdateProfileDto) {
+    return this.usersService.updateProfile(req.user.sub, dto);
+  }
+
+  @Patch('me/password')
+  @HttpCode(204)
+  @ApiOperation({ summary: 'Update current user password' })
+  @ApiResponse({ status: 204 })
+  updatePassword(
+    @Req() req: AuthenticatedRequest,
+    @Body() dto: UpdatePasswordDto,
+  ) {
+    return this.usersService.updatePassword(req.user.sub, dto);
   }
 }

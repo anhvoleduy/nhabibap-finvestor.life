@@ -13,7 +13,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { forkJoin, of } from 'rxjs';
+import { forkJoin, of, Subscription } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
@@ -149,10 +149,14 @@ interface AssetRow {
                             [formControlName]="row.assetId"
                             min="0"
                           />
-                          <mat-hint
-                            >×
-                            {{ row.totalChi | number: '1.0-4' }} Chỉ</mat-hint
-                          >
+                          <mat-hint>
+                            × {{ row.totalChi | number: '1.0-4' }} Chỉ
+                            @let goldVal = formValues()[row.assetId];
+                            @if (goldVal !== '' && +goldVal > 0) {
+                              &nbsp;=
+                              {{ +goldVal * row.totalChi! | vnd }}
+                            }
+                          </mat-hint>
                         </mat-form-field>
                       } @else {
                         <p class="no-chi-hint">
@@ -168,9 +172,16 @@ interface AssetRow {
                           [formControlName]="row.assetId"
                           min="0"
                         />
-                        <mat-hint
-                          >Giá trị = {{ row.capital | vnd }} + lãi</mat-hint
-                        >
+                        <mat-hint>
+                          @let interest = formValues()[row.assetId];
+                          @if (interest !== '' && +interest > 0) {
+                            Giá trị = {{ row.capital | vnd }} +
+                            {{ +interest | vnd }} =
+                            {{ row.capital + +interest | vnd }}
+                          } @else {
+                            Giá trị = {{ row.capital | vnd }} + lãi
+                          }
+                        </mat-hint>
                       </mat-form-field>
                     } @else {
                       <mat-form-field appearance="outline" class="value-field">
@@ -183,6 +194,12 @@ interface AssetRow {
                           [formControlName]="row.assetId"
                           min="0"
                         />
+                        <mat-hint>
+                          @let otherVal = formValues()[row.assetId];
+                          @if (otherVal !== '' && +otherVal > 0) {
+                            {{ +otherVal | vnd }}
+                          }
+                        </mat-hint>
                       </mat-form-field>
                     }
                   </mat-card-content>
@@ -312,7 +329,9 @@ export class DailyEntryComponent implements OnInit {
   submitting = signal(false);
   assetRows = signal<AssetRow[]>([]);
   selectedDate = signal(this.today);
-  form!: FormGroup;
+  form: FormGroup = this.fb.group({});
+  formValues = signal<Record<string, number | ''>>({});
+  private formSub?: Subscription;
 
   groupedRows = computed(() => {
     const map = new Map<string, AssetRow[]>();
@@ -384,22 +403,32 @@ export class DailyEntryComponent implements OnInit {
         for (const row of rows) {
           const dateEntry = dateMap.get(row.assetId);
           let prefill: number | '' = '';
-          if (dateEntry) {
+          const source =
+            dateEntry ??
+            (row.lastValue != null ? { currentValue: row.lastValue } : null);
+          if (source) {
             if (
               row.categoryType === CategoryType.GOLD &&
               row.totalChi &&
               row.totalChi > 0
             ) {
-              prefill = Math.round(dateEntry.currentValue / row.totalChi);
+              prefill = Math.round(source.currentValue / row.totalChi);
             } else if (row.categoryType === CategoryType.SAVINGS) {
-              prefill = dateEntry.currentValue - row.capital;
+              prefill = source.currentValue - row.capital;
             } else {
-              prefill = dateEntry.currentValue;
+              prefill = source.currentValue;
             }
           }
           controls[row.assetId] = [prefill, Validators.min(0)];
         }
         this.form = this.fb.group(controls);
+        this.formSub?.unsubscribe();
+        this.formValues.set(
+          this.form.getRawValue() as Record<string, number | ''>,
+        );
+        this.formSub = this.form.valueChanges.subscribe((v) =>
+          this.formValues.set(v as Record<string, number | ''>),
+        );
         this.loading.set(false);
       },
       error: () => this.loading.set(false),

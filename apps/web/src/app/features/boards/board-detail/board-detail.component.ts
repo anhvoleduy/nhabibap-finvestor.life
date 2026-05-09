@@ -18,6 +18,7 @@ import {
   DragDropModule,
   moveItemInArray,
 } from '@angular/cdk/drag-drop';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
   AssetCategoryDto,
   BoardDto,
@@ -49,6 +50,7 @@ const STATIC_TABS = new Set(['overview', 'nav', 'cash-flow']);
     MatChipsModule,
     MatProgressBarModule,
     MatTooltipModule,
+    TranslateModule,
     OverviewTabComponent,
     CategoryAssetsTabComponent,
     NavTabComponent,
@@ -70,7 +72,7 @@ const STATIC_TABS = new Set(['overview', 'nav', 'cash-flow']);
                   mat-icon-button
                   class="rename-btn"
                   (click)="openRename()"
-                  matTooltip="Đổi tên"
+                  [matTooltip]="'BOARDS.DETAIL.RENAME' | translate"
                 >
                   <mat-icon>edit</mat-icon>
                 </button>
@@ -88,19 +90,21 @@ const STATIC_TABS = new Set(['overview', 'nav', 'cash-flow']);
                 mat-icon-button
                 color="warn"
                 (click)="deleteBoard()"
-                matTooltip="Xóa bảng"
+                [matTooltip]="'BOARDS.DETAIL.DELETE' | translate"
               >
                 <mat-icon>delete</mat-icon>
               </button>
             }
             <button mat-stroked-button (click)="openShare()">
-              <mat-icon>person_add</mat-icon> Chia sẻ
+              <mat-icon>person_add</mat-icon>
+              {{ 'BOARDS.DETAIL.SHARE' | translate }}
             </button>
             <button
               mat-flat-button
               [routerLink]="['/boards', boardId(), 'entry']"
             >
-              <mat-icon>edit_note</mat-icon> Cập nhật giá trị
+              <mat-icon>edit_note</mat-icon>
+              {{ 'BOARDS.DETAIL.UPDATE_VALUES' | translate }}
             </button>
           </div>
         </div>
@@ -111,7 +115,7 @@ const STATIC_TABS = new Set(['overview', 'nav', 'cash-flow']);
             [class.tab-btn--active]="activeTab() === 'overview'"
             (click)="setTab('overview')"
           >
-            Tổng quan
+            {{ 'BOARDS.DETAIL.TABS.OVERVIEW' | translate }}
           </button>
 
           <div
@@ -141,9 +145,10 @@ const STATIC_TABS = new Set(['overview', 'nav', 'cash-flow']);
             <button
               class="add-cat-btn"
               (click)="openAddCategory()"
-              matTooltip="Thêm danh mục"
+              [matTooltip]="'BOARDS.DETAIL.ADD_CATEGORY' | translate"
             >
-              <mat-icon>add</mat-icon> Danh mục
+              <mat-icon>add</mat-icon>
+              {{ 'BOARDS.DETAIL.ADD_CATEGORY' | translate }}
             </button>
           }
 
@@ -160,7 +165,7 @@ const STATIC_TABS = new Set(['overview', 'nav', 'cash-flow']);
             [class.tab-btn--active]="activeTab() === 'cash-flow'"
             (click)="setTab('cash-flow')"
           >
-            Dòng tiền
+            {{ 'BOARDS.DETAIL.TABS.CASH_FLOW' | translate }}
           </button>
         </div>
         <div class="tab-bar__divider"></div>
@@ -418,6 +423,7 @@ export class BoardDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly api = inject(BoardApiService);
+  private readonly translate = inject(TranslateService);
   readonly auth = inject(AuthService);
   private readonly dialog = inject(MatDialog);
 
@@ -441,7 +447,11 @@ export class BoardDetailComponent implements OnInit {
 
   roleLabel = computed(() => {
     const r = this.board()?.role;
-    return r === 'OWNER' ? 'Chủ sở hữu' : r === 'EDITOR' ? 'Chỉnh sửa' : 'Xem';
+    return r === 'OWNER'
+      ? this.translate.instant('ROLES.OWNER')
+      : r === 'EDITOR'
+        ? this.translate.instant('ROLES.EDITOR')
+        : this.translate.instant('ROLES.VIEWER');
   });
   roleBadgeClass = computed(() => {
     const r = this.board()?.role;
@@ -571,8 +581,11 @@ export class BoardDetailComponent implements OnInit {
   }
 
   deleteBoard() {
-    const name = this.board()?.name ?? 'bảng này';
-    if (!confirm(`Xóa "${name}"? Thao tác không thể hoàn tác.`)) return;
+    const name = this.board()?.name ?? '';
+    const msg = this.translate.instant('BOARDS.DETAIL.DELETE_CONFIRM', {
+      name,
+    });
+    if (!confirm(msg)) return;
     this.api.deleteBoard(this.boardId()).subscribe(() => {
       this.router.navigate(['/boards']);
     });

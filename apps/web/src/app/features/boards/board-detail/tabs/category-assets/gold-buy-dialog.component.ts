@@ -17,6 +17,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { TranslateModule } from '@ngx-translate/core';
 import { AssetDto, GoldBuyDto } from '@nhabibap-myportfolio/shared-types';
 import { BoardApiService } from '../../../../../core/board-api.service';
 import { VndCurrencyPipe } from '../../../../../shared/pipes/vnd-currency.pipe';
@@ -41,9 +42,12 @@ export interface GoldBuyDialogData {
     MatIconModule,
     MatProgressBarModule,
     VndCurrencyPipe,
+    TranslateModule,
   ],
   template: `
-    <h2 mat-dialog-title>Lịch sử mua vàng — {{ data.asset.name }}</h2>
+    <h2 mat-dialog-title>
+      {{ 'GOLD.TITLE' | translate: { name: data.asset.name } }}
+    </h2>
 
     @if (loading()) {
       <mat-progress-bar mode="indeterminate" />
@@ -52,11 +56,11 @@ export interface GoldBuyDialogData {
     <mat-dialog-content style="min-width:480px">
       <form [formGroup]="form" (ngSubmit)="addBuy()" class="buy-form">
         <mat-form-field appearance="outline" class="field-date">
-          <mat-label>Ngày mua</mat-label>
+          <mat-label>{{ 'GOLD.BUY_DATE' | translate }}</mat-label>
           <input matInput type="date" formControlName="buyDate" [max]="today" />
         </mat-form-field>
         <mat-form-field appearance="outline" class="field-chi">
-          <mat-label>Số Chỉ</mat-label>
+          <mat-label>{{ 'GOLD.CHI_AMOUNT' | translate }}</mat-label>
           <input
             matInput
             type="number"
@@ -66,7 +70,7 @@ export interface GoldBuyDialogData {
           />
         </mat-form-field>
         <mat-form-field appearance="outline" class="field-vnd">
-          <mat-label>Số tiền (VND)</mat-label>
+          <mat-label>{{ 'COMMON.AMOUNT_VND' | translate }}</mat-label>
           <input matInput type="number" formControlName="amountVnd" min="1" />
         </mat-form-field>
         <button
@@ -74,7 +78,7 @@ export interface GoldBuyDialogData {
           type="submit"
           [disabled]="form.invalid || saving()"
         >
-          <mat-icon>add</mat-icon> Thêm
+          <mat-icon>add</mat-icon> {{ 'COMMON.ADD' | translate }}
         </button>
       </form>
 
@@ -82,10 +86,10 @@ export interface GoldBuyDialogData {
         <table class="buy-table">
           <thead>
             <tr>
-              <th>Ngày</th>
-              <th>Số Chỉ</th>
-              <th>Số tiền</th>
-              <th>Giá/Chỉ</th>
+              <th>{{ 'COMMON.DATE' | translate }}</th>
+              <th>{{ 'GOLD.CHI_AMOUNT' | translate }}</th>
+              <th>{{ 'COMMON.AMOUNT' | translate }}</th>
+              <th>{{ 'GOLD.PRICE_PER_CHI' | translate }}</th>
               <th></th>
             </tr>
           </thead>
@@ -136,7 +140,10 @@ export interface GoldBuyDialogData {
               } @else {
                 <tr>
                   <td>{{ buy.buyDate }}</td>
-                  <td>{{ buy.chiAmount | number: '1.0-4' }} Chỉ</td>
+                  <td>
+                    {{ buy.chiAmount | number: '1.0-4' }}
+                    {{ 'GOLD.CHI_UNIT' | translate }}
+                  </td>
                   <td>{{ buy.amountVnd | vnd }}</td>
                   <td>{{ pricePerChi(buy) | vnd }}</td>
                   <td style="white-space:nowrap">
@@ -162,8 +169,11 @@ export interface GoldBuyDialogData {
           </tbody>
           <tfoot>
             <tr class="total-row">
-              <td>Tổng</td>
-              <td>{{ totalChi() | number: '1.0-4' }} Chỉ</td>
+              <td>{{ 'COMMON.TOTAL' | translate }}</td>
+              <td>
+                {{ totalChi() | number: '1.0-4' }}
+                {{ 'GOLD.CHI_UNIT' | translate }}
+              </td>
               <td>{{ totalVnd() | vnd }}</td>
               <td></td>
               <td></td>
@@ -171,12 +181,14 @@ export interface GoldBuyDialogData {
           </tfoot>
         </table>
       } @else if (!loading()) {
-        <p class="empty-hint">Chưa có giao dịch mua nào.</p>
+        <p class="empty-hint">{{ 'GOLD.EMPTY' | translate }}</p>
       }
     </mat-dialog-content>
 
     <mat-dialog-actions align="end">
-      <button mat-button (click)="close()">Đóng</button>
+      <button mat-button (click)="close()">
+        {{ 'COMMON.CLOSE' | translate }}
+      </button>
     </mat-dialog-actions>
   `,
   styles: [

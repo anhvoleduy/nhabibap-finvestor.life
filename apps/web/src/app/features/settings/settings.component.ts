@@ -12,6 +12,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDividerModule } from '@angular/material/divider';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../core/auth.service';
 
 @Component({
@@ -27,12 +28,13 @@ import { AuthService } from '../../core/auth.service';
     MatIconModule,
     MatProgressBarModule,
     MatDividerModule,
+    TranslateModule,
   ],
   template: `
     <div class="page">
       <div class="page__header">
-        <h2 class="page__title">Cài đặt tài khoản</h2>
-        <p class="page__subtitle">Quản lý thông tin và bảo mật tài khoản</p>
+        <h2 class="page__title">{{ 'SETTINGS.TITLE' | translate }}</h2>
+        <p class="page__subtitle">{{ 'SETTINGS.SUBTITLE' | translate }}</p>
       </div>
 
       <mat-card class="section-card">
@@ -40,17 +42,19 @@ import { AuthService } from '../../core/auth.service';
           <mat-progress-bar mode="indeterminate" />
         }
         <mat-card-content>
-          <h3 class="section-title">Thông tin cá nhân</h3>
+          <h3 class="section-title">
+            {{ 'SETTINGS.PROFILE.TITLE' | translate }}
+          </h3>
 
           <form [formGroup]="profileForm" (ngSubmit)="submitProfile()">
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Họ tên</mat-label>
+              <mat-label>{{ 'SETTINGS.PROFILE.NAME' | translate }}</mat-label>
               <mat-icon matPrefix>person</mat-icon>
               <input matInput formControlName="name" autocomplete="name" />
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Email</mat-label>
+              <mat-label>{{ 'COMMON.EMAIL' | translate }}</mat-label>
               <mat-icon matPrefix>email</mat-icon>
               <input
                 matInput
@@ -69,7 +73,7 @@ import { AuthService } from '../../core/auth.service';
             @if (profileSuccess()) {
               <div class="msg msg--success">
                 <mat-icon>check_circle_outline</mat-icon>
-                <span>Cập nhật thành công</span>
+                <span>{{ 'SETTINGS.PROFILE.SUCCESS' | translate }}</span>
               </div>
             }
 
@@ -80,7 +84,7 @@ import { AuthService } from '../../core/auth.service';
                 profileLoading() || profileForm.invalid || profileForm.pristine
               "
             >
-              Lưu thay đổi
+              {{ 'SETTINGS.PROFILE.SAVE' | translate }}
             </button>
           </form>
         </mat-card-content>
@@ -91,11 +95,15 @@ import { AuthService } from '../../core/auth.service';
           <mat-progress-bar mode="indeterminate" />
         }
         <mat-card-content>
-          <h3 class="section-title">Đổi mật khẩu</h3>
+          <h3 class="section-title">
+            {{ 'SETTINGS.PASSWORD.TITLE' | translate }}
+          </h3>
 
           <form [formGroup]="pwForm" (ngSubmit)="submitPassword()">
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Mật khẩu hiện tại</mat-label>
+              <mat-label>{{
+                'SETTINGS.PASSWORD.CURRENT' | translate
+              }}</mat-label>
               <mat-icon matPrefix>lock</mat-icon>
               <input
                 matInput
@@ -106,7 +114,7 @@ import { AuthService } from '../../core/auth.service';
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Mật khẩu mới</mat-label>
+              <mat-label>{{ 'SETTINGS.PASSWORD.NEW' | translate }}</mat-label>
               <mat-icon matPrefix>lock_reset</mat-icon>
               <input
                 matInput
@@ -114,11 +122,13 @@ import { AuthService } from '../../core/auth.service';
                 formControlName="newPassword"
                 autocomplete="new-password"
               />
-              <mat-hint>Tối thiểu 8 ký tự</mat-hint>
+              <mat-hint>{{ 'SETTINGS.PASSWORD.MIN_8' | translate }}</mat-hint>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Xác nhận mật khẩu mới</mat-label>
+              <mat-label>{{
+                'SETTINGS.PASSWORD.CONFIRM' | translate
+              }}</mat-label>
               <mat-icon matPrefix>lock_reset</mat-icon>
               <input
                 matInput
@@ -127,7 +137,9 @@ import { AuthService } from '../../core/auth.service';
                 autocomplete="new-password"
               />
               @if (pwForm.hasError('mismatch')) {
-                <mat-error>Mật khẩu xác nhận không khớp</mat-error>
+                <mat-error>{{
+                  'SETTINGS.PASSWORD.MISMATCH' | translate
+                }}</mat-error>
               }
             </mat-form-field>
 
@@ -140,7 +152,7 @@ import { AuthService } from '../../core/auth.service';
             @if (pwSuccess()) {
               <div class="msg msg--success">
                 <mat-icon>check_circle_outline</mat-icon>
-                <span>Đổi mật khẩu thành công</span>
+                <span>{{ 'SETTINGS.PASSWORD.SUCCESS' | translate }}</span>
               </div>
             }
 
@@ -149,7 +161,7 @@ import { AuthService } from '../../core/auth.service';
               type="submit"
               [disabled]="pwLoading() || pwForm.invalid"
             >
-              Đổi mật khẩu
+              {{ 'SETTINGS.PASSWORD.SUBMIT' | translate }}
             </button>
           </form>
         </mat-card-content>
@@ -234,6 +246,7 @@ import { AuthService } from '../../core/auth.service';
 export class SettingsComponent {
   readonly auth = inject(AuthService);
   private readonly fb = inject(FormBuilder);
+  private readonly translate = inject(TranslateService);
 
   profileForm = this.fb.nonNullable.group({
     name: [this.auth.currentUser()?.name ?? '', Validators.required],
@@ -273,7 +286,10 @@ export class SettingsComponent {
         this.profileLoading.set(false);
       },
       error: (e) => {
-        this.profileError.set(e?.error?.message ?? 'Cập nhật thất bại');
+        this.profileError.set(
+          e?.error?.message ??
+            this.translate.instant('SETTINGS.PROFILE.ERROR_DEFAULT'),
+        );
         this.profileLoading.set(false);
       },
     });
@@ -292,7 +308,10 @@ export class SettingsComponent {
         this.pwLoading.set(false);
       },
       error: (e) => {
-        this.pwError.set(e?.error?.message ?? 'Đổi mật khẩu thất bại');
+        this.pwError.set(
+          e?.error?.message ??
+            this.translate.instant('SETTINGS.PASSWORD.ERROR_DEFAULT'),
+        );
         this.pwLoading.set(false);
       },
     });

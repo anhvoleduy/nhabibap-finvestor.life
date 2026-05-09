@@ -7,6 +7,8 @@ import {
 import { DecimalPipe } from '@angular/common';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartData, ChartOptions } from 'chart.js';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { inject } from '@angular/core';
 import {
   AssetCategoryDto,
   CATEGORY_LABELS,
@@ -33,19 +35,26 @@ const CATEGORY_COLORS: Record<CategoryType, string> = {
     BaseChartDirective,
     VndCurrencyPipe,
     StatCardComponent,
+    TranslateModule,
   ],
   template: `
     <div class="overview">
       <div class="overview__stats">
-        <app-stat-card label="Tổng vốn" [value]="totalCapital()" />
-        <app-stat-card label="Giá trị hiện tại" [value]="totalValue()" />
         <app-stat-card
-          label="Lợi nhuận"
+          [label]="'STATS.TOTAL_CAPITAL' | translate"
+          [value]="totalCapital()"
+        />
+        <app-stat-card
+          [label]="'STATS.TOTAL_VALUE' | translate"
+          [value]="totalValue()"
+        />
+        <app-stat-card
+          [label]="'STATS.PROFIT' | translate"
           [value]="profit()"
           [valueClass]="profit() >= 0 ? 'positive' : 'negative'"
         />
         <app-stat-card
-          label="Tỷ lệ lợi nhuận"
+          [label]="'STATS.PROFIT_PCT' | translate"
           [value]="profitPct()"
           [isPercent]="true"
           [valueClass]="profitPct() >= 0 ? 'positive' : 'negative'"
@@ -65,11 +74,11 @@ const CATEGORY_COLORS: Record<CategoryType, string> = {
         <table class="cat-table">
           <thead>
             <tr>
-              <th>Danh mục</th>
-              <th>Tổng vốn</th>
-              <th>Giá trị</th>
-              <th>Lợi nhuận %</th>
-              <th>Tỷ trọng</th>
+              <th>{{ 'OVERVIEW.CATEGORY' | translate }}</th>
+              <th>{{ 'STATS.TOTAL_CAPITAL' | translate }}</th>
+              <th>{{ 'STATS.VALUE' | translate }}</th>
+              <th>{{ 'STATS.PROFIT_PCT_COL' | translate }}</th>
+              <th>{{ 'OVERVIEW.WEIGHT' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -142,6 +151,8 @@ const CATEGORY_COLORS: Record<CategoryType, string> = {
   ],
 })
 export class OverviewTabComponent {
+  private readonly translate = inject(TranslateService);
+
   categories = input.required<AssetCategoryDto[]>();
 
   totalCapital = computed(() =>

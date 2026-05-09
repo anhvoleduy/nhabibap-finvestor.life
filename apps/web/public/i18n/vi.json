@@ -1,0 +1,194 @@
+{
+  "COMMON": {
+    "CANCEL": "Huỷ",
+    "SAVE": "Lưu",
+    "CREATE": "Tạo",
+    "ADD": "Thêm",
+    "EDIT": "Sửa",
+    "DELETE": "Xóa",
+    "CLOSE": "Đóng",
+    "SHARE": "Chia sẻ",
+    "NAME": "Tên",
+    "EMAIL": "Email",
+    "DATE": "Ngày",
+    "AMOUNT": "Số tiền",
+    "AMOUNT_VND": "Số tiền (VND)",
+    "DESCRIPTION": "Mô tả",
+    "TOTAL": "Tổng",
+    "NO_DATA": "Chưa có dữ liệu",
+    "OK": "OK"
+  },
+  "AUTH": {
+    "PASSWORD": "Mật khẩu",
+    "FULL_NAME": "Họ và tên",
+    "PASSWORD_MIN_6": "Tối thiểu 6 ký tự",
+    "LOGIN": {
+      "TITLE": "Đăng nhập",
+      "SUBMIT": "Đăng nhập",
+      "NO_ACCOUNT": "Chưa có tài khoản?",
+      "REGISTER_LINK": "Đăng ký ngay",
+      "ERROR_DEFAULT": "Đăng nhập thất bại"
+    },
+    "REGISTER": {
+      "TITLE": "Tạo tài khoản",
+      "SUBMIT": "Đăng ký",
+      "HAS_ACCOUNT": "Đã có tài khoản?",
+      "LOGIN_LINK": "Đăng nhập",
+      "ERROR_DEFAULT": "Đăng ký thất bại"
+    }
+  },
+  "SHELL": {
+    "NAV": {
+      "BOARDS": "Danh mục",
+      "SETTINGS": "Cài đặt"
+    },
+    "LIGHT_MODE": "Chế độ sáng",
+    "DARK_MODE": "Chế độ tối",
+    "LOGOUT": "Đăng xuất",
+    "LANG_VI": "Tiếng Việt",
+    "LANG_EN": "English"
+  },
+  "ROLES": {
+    "OWNER": "Chủ sở hữu",
+    "EDITOR": "Chỉnh sửa",
+    "VIEWER": "Xem"
+  },
+  "STATS": {
+    "TOTAL_CAPITAL": "Tổng vốn",
+    "TOTAL_VALUE": "Giá trị hiện tại",
+    "VALUE": "Giá trị",
+    "PROFIT": "Lợi nhuận",
+    "PROFIT_PCT": "Tỷ lệ lợi nhuận",
+    "PROFIT_PCT_COL": "Lợi nhuận %",
+    "PCT": "Tỷ lệ %"
+  },
+  "BOARDS": {
+    "LIST": {
+      "TITLE": "Danh mục đầu tư",
+      "SUBTITLE": "Quản lý và theo dõi tài sản của bạn",
+      "CREATE": "Tạo mới",
+      "EMPTY_TITLE": "Chưa có danh mục nào",
+      "EMPTY_SUB": "Tạo danh mục đầu tư đầu tiên của bạn"
+    },
+    "CREATE": {
+      "TITLE": "Tạo danh mục mới",
+      "CATEGORY_NAME": "Tên danh mục"
+    },
+    "DETAIL": {
+      "RENAME": "Đổi tên",
+      "DELETE": "Xóa bảng",
+      "DELETE_CONFIRM": "Xóa \"{{name}}\"? Thao tác không thể hoàn tác.",
+      "SHARE": "Chia sẻ",
+      "UPDATE_VALUES": "Cập nhật giá trị",
+      "ADD_CATEGORY": "Danh mục",
+      "TABS": {
+        "OVERVIEW": "Tổng quan",
+        "CASH_FLOW": "Dòng tiền"
+      }
+    },
+    "RENAME": {
+      "TITLE": "Đổi tên danh mục",
+      "NEW_NAME": "Tên mới"
+    },
+    "SHARE": {
+      "TITLE": "Chia sẻ bảng",
+      "EMAIL": "Email người dùng",
+      "ROLE": "Quyền",
+      "SUCCESS": "Đã chia sẻ thành công!",
+      "MEMBERS": "Thành viên hiện tại"
+    },
+    "ADD_CAT": {
+      "TITLE": "Thêm danh mục",
+      "TYPE": "Loại danh mục"
+    }
+  },
+  "OVERVIEW": {
+    "CATEGORY": "Danh mục",
+    "WEIGHT": "Tỷ trọng"
+  },
+  "ASSETS": {
+    "ADD": "Thêm tài sản",
+    "CAPITAL": "Vốn đầu tư",
+    "CAPITAL_VND": "Vốn đầu tư (VND)",
+    "LAST_UPDATED": "Cập nhật lần cuối",
+    "EMPTY": "Chưa có tài sản"
+  },
+  "NAV": {
+    "ADD_HISTORICAL": "Thêm dữ liệu quá khứ",
+    "DATE_FIELD": "Ngày (YYYY-MM-DD)",
+    "TOTAL_VALUE_VND": "Tổng giá trị tài sản (VND)",
+    "TOTAL_CAPITAL_VND_OPTIONAL": "Tổng vốn (VND, tuỳ chọn)",
+    "PERIOD": "Kỳ",
+    "NET_VALUE": "Giá trị tài sản ròng",
+    "GROWTH_PERIOD": "Tăng trưởng {{period}}",
+    "CHART_NAV": "Giá trị tài sản ròng",
+    "CHART_GROWTH": "Tăng trưởng (%)"
+  },
+  "TIME": {
+    "MONTH": "Tháng",
+    "QUARTER": "Quý",
+    "YEAR": "Năm",
+    "MONTH_SHORT": "tháng",
+    "QUARTER_SHORT": "quý",
+    "YEAR_SHORT": "năm"
+  },
+  "CASH_FLOW": {
+    "TOTAL_INCOME": "Tổng thu",
+    "TOTAL_EXPENSE": "Tổng chi",
+    "NET": "Ròng",
+    "INCOME": "Thu nhập",
+    "EXPENSE": "Chi tiêu"
+  },
+  "SETTINGS": {
+    "TITLE": "Cài đặt tài khoản",
+    "SUBTITLE": "Quản lý thông tin và bảo mật tài khoản",
+    "PROFILE": {
+      "TITLE": "Thông tin cá nhân",
+      "NAME": "Họ tên",
+      "SAVE": "Lưu thay đổi",
+      "SUCCESS": "Cập nhật thành công",
+      "ERROR_DEFAULT": "Cập nhật thất bại"
+    },
+    "PASSWORD": {
+      "TITLE": "Đổi mật khẩu",
+      "CURRENT": "Mật khẩu hiện tại",
+      "NEW": "Mật khẩu mới",
+      "CONFIRM": "Xác nhận mật khẩu mới",
+      "MIN_8": "Tối thiểu 8 ký tự",
+      "MISMATCH": "Mật khẩu xác nhận không khớp",
+      "SUBMIT": "Đổi mật khẩu",
+      "SUCCESS": "Đổi mật khẩu thành công",
+      "ERROR_DEFAULT": "Đổi mật khẩu thất bại"
+    }
+  },
+  "GOLD": {
+    "TITLE": "Lịch sử mua vàng — {{name}}",
+    "BUY_HISTORY": "Lịch sử mua",
+    "BUY_DATE": "Ngày mua",
+    "CHI_AMOUNT": "Số Chỉ",
+    "PRICE_PER_CHI": "Giá/Chỉ",
+    "CHI_UNIT": "Chỉ",
+    "EMPTY": "Chưa có giao dịch mua nào."
+  },
+  "CRYPTO": {
+    "TITLE": "Lịch sử nạp tiền — {{name}}",
+    "DEPOSIT_HISTORY": "Lịch sử nạp tiền",
+    "DEPOSIT_DATE": "Ngày nạp",
+    "EMPTY": "Chưa có giao dịch nào."
+  },
+  "DAILY_ENTRY": {
+    "TITLE": "Cập nhật giá trị",
+    "SUBTITLE": "Cập nhật giá trị thị trường cho tất cả tài sản",
+    "SAVING": "Đang lưu...",
+    "SAVE_ALL": "Lưu tất cả",
+    "EMPTY_SUB": "Hãy thêm tài sản vào bảng trước khi nhập giá trị",
+    "BACK": "Về trang bảng",
+    "CAPITAL_LABEL": "Vốn:",
+    "GOLD_PRICE_LABEL": "Giá/Chỉ {{date}} (VND)",
+    "SAVINGS_INTEREST": "Lãi nhận được cuối kỳ (VND)",
+    "VALUE_LABEL": "Giá trị {{date}} (VND)",
+    "ADD_GOLD_FIRST": "Hãy thêm giao dịch mua Vàng trước.",
+    "SAVE_SUCCESS": "Đã lưu thành công!",
+    "SAVE_ERROR": "Lỗi khi lưu. Vui lòng thử lại."
+  }
+}

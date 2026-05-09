@@ -11,6 +11,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { BoardDto } from '@nhabibap-myportfolio/shared-types';
 import { BoardApiService } from '../../../core/board-api.service';
 
@@ -26,9 +27,10 @@ import { BoardApiService } from '../../../core/board-api.service';
     MatSelectModule,
     MatButtonModule,
     MatIconModule,
+    TranslateModule,
   ],
   template: `
-    <h2 mat-dialog-title>Chia sẻ bảng</h2>
+    <h2 mat-dialog-title>{{ 'BOARDS.SHARE.TITLE' | translate }}</h2>
     <mat-dialog-content>
       <form
         [formGroup]="form"
@@ -36,27 +38,35 @@ import { BoardApiService } from '../../../core/board-api.service';
         style="display:flex;flex-direction:column;gap:12px;padding-top:8px"
       >
         <mat-form-field appearance="outline">
-          <mat-label>Email người dùng</mat-label>
+          <mat-label>{{ 'BOARDS.SHARE.EMAIL' | translate }}</mat-label>
           <input matInput formControlName="email" type="email" />
         </mat-form-field>
         <mat-form-field appearance="outline">
-          <mat-label>Quyền</mat-label>
+          <mat-label>{{ 'BOARDS.SHARE.ROLE' | translate }}</mat-label>
           <mat-select formControlName="role">
-            <mat-option value="EDITOR">Chỉnh sửa</mat-option>
-            <mat-option value="VIEWER">Xem</mat-option>
+            <mat-option value="EDITOR">{{
+              'ROLES.EDITOR' | translate
+            }}</mat-option>
+            <mat-option value="VIEWER">{{
+              'ROLES.VIEWER' | translate
+            }}</mat-option>
           </mat-select>
         </mat-form-field>
         @if (error()) {
           <p style="color:#ef4444;font-size:13px">{{ error() }}</p>
         }
         @if (success()) {
-          <p style="color:#22c55e;font-size:13px">Đã chia sẻ thành công!</p>
+          <p style="color:#22c55e;font-size:13px">
+            {{ 'BOARDS.SHARE.SUCCESS' | translate }}
+          </p>
         }
       </form>
 
       @if (data.board.members.length > 0) {
         <div style="margin-top:16px">
-          <p style="font-weight:600;margin-bottom:8px">Thành viên hiện tại</p>
+          <p style="font-weight:600;margin-bottom:8px">
+            {{ 'BOARDS.SHARE.MEMBERS' | translate }}
+          </p>
           @for (m of data.board.members; track m.userId) {
             <div
               style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #e5e7eb"
@@ -65,7 +75,11 @@ import { BoardApiService } from '../../../core/board-api.service';
                 <div style="font-weight:500">{{ m.name }}</div>
                 <div style="font-size:12px;color:#6b7280">
                   {{ m.email }} ·
-                  {{ m.role === 'EDITOR' ? 'Chỉnh sửa' : 'Xem' }}
+                  {{
+                    m.role === 'EDITOR'
+                      ? ('ROLES.EDITOR' | translate)
+                      : ('ROLES.VIEWER' | translate)
+                  }}
                 </div>
               </div>
               <button mat-icon-button color="warn" (click)="remove(m.userId)">
@@ -77,13 +91,15 @@ import { BoardApiService } from '../../../core/board-api.service';
       }
     </mat-dialog-content>
     <mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close>Đóng</button>
+      <button mat-button mat-dialog-close>
+        {{ 'COMMON.CLOSE' | translate }}
+      </button>
       <button
         mat-flat-button
         (click)="share()"
         [disabled]="form.invalid || loading()"
       >
-        Chia sẻ
+        {{ 'COMMON.SHARE' | translate }}
       </button>
     </mat-dialog-actions>
   `,
@@ -92,6 +108,7 @@ export class ShareBoardDialogComponent {
   readonly data = inject<{ board: BoardDto }>(MAT_DIALOG_DATA);
   private readonly api = inject(BoardApiService);
   private readonly fb = inject(FormBuilder);
+  private readonly translate = inject(TranslateService);
 
   form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
@@ -113,7 +130,9 @@ export class ShareBoardDialogComponent {
         this.form.reset({ email: '', role: 'EDITOR' });
       },
       error: (e) => {
-        this.error.set(e?.error?.message ?? 'Lỗi');
+        this.error.set(
+          e?.error?.message ?? this.translate.instant('COMMON.NO_DATA'),
+        );
         this.loading.set(false);
       },
     });

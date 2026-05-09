@@ -36,6 +36,8 @@
     "@nestjs/swagger": "^11.4.2",
     "@nestjs/typeorm": "^11.0.1",
     "@ngrx/signals": "^21.1.0",
+    "@ngx-translate/core": "^17.0.0",
+    "@ngx-translate/http-loader": "^17.0.0",
     "axios": "^1.6.0",
     "bcrypt": "^6.0.0",
     "chart.js": "^4.5.1",

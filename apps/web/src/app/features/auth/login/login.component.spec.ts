@@ -3,6 +3,7 @@ import { ComponentFixture } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { Observable, of, throwError } from 'rxjs';
+import { provideTranslateService } from '@ngx-translate/core';
 import { LoginComponent } from './login.component';
 import { AuthService } from '../../../core/auth.service';
 
@@ -20,6 +21,7 @@ describe('LoginComponent', () => {
       providers: [
         provideRouter([{ path: 'boards', component: LoginComponent }]),
         provideAnimationsAsync(),
+        provideTranslateService(),
         { provide: AuthService, useValue: authService },
       ],
     }).compileComponents();
@@ -100,7 +102,7 @@ describe('LoginComponent', () => {
 
     component.submit();
 
-    expect(component.error()).toBe('Đăng nhập thất bại');
+    expect(component.error()).toBe('AUTH.LOGIN.ERROR_DEFAULT');
   });
 
   it('sets loading to true while request is in flight', () => {

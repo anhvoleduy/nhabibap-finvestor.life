@@ -16,6 +16,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { switchMap } from 'rxjs';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NavSnapshotDto } from '@nhabibap-myportfolio/shared-types';
 import { BoardApiService } from '../../../../../core/board-api.service';
 import { VndCurrencyPipe } from '../../../../../shared/pipes/vnd-currency.pipe';
@@ -35,6 +36,7 @@ type Granularity = 'monthly' | 'quarterly' | 'yearly';
     MatFormFieldModule,
     MatInputModule,
     VndCurrencyPipe,
+    TranslateModule,
   ],
   template: `
     <div class="nav-tab">
@@ -46,12 +48,12 @@ type Granularity = 'monthly' | 'quarterly' | 'yearly';
               [class.active]="granularity() === g.value"
               (click)="setGranularity(g.value)"
             >
-              {{ g.label }}
+              {{ g.labelKey | translate }}
             </button>
           }
         </div>
         <button mat-stroked-button (click)="showAddForm.set(!showAddForm())">
-          <mat-icon>add</mat-icon> Thêm dữ liệu quá khứ
+          <mat-icon>add</mat-icon> {{ 'NAV.ADD_HISTORICAL' | translate }}
         </button>
       </div>
 
@@ -62,23 +64,25 @@ type Granularity = 'monthly' | 'quarterly' | 'yearly';
           class="add-form"
         >
           <mat-form-field appearance="outline">
-            <mat-label>Ngày (YYYY-MM-DD)</mat-label>
+            <mat-label>{{ 'NAV.DATE_FIELD' | translate }}</mat-label>
             <input matInput formControlName="date" placeholder="2024-01-31" />
           </mat-form-field>
           <mat-form-field appearance="outline">
-            <mat-label>Tổng giá trị tài sản (VND)</mat-label>
+            <mat-label>{{ 'NAV.TOTAL_VALUE_VND' | translate }}</mat-label>
             <input matInput type="number" formControlName="totalValue" />
           </mat-form-field>
           <mat-form-field appearance="outline">
-            <mat-label>Tổng vốn (VND, tuỳ chọn)</mat-label>
+            <mat-label>{{
+              'NAV.TOTAL_CAPITAL_VND_OPTIONAL' | translate
+            }}</mat-label>
             <input matInput type="number" formControlName="totalCapital" />
           </mat-form-field>
           <div class="add-form__actions">
             <button mat-flat-button type="submit" [disabled]="addForm.invalid">
-              Lưu
+              {{ 'COMMON.SAVE' | translate }}
             </button>
             <button mat-button type="button" (click)="showAddForm.set(false)">
-              Huỷ
+              {{ 'COMMON.CANCEL' | translate }}
             </button>
           </div>
         </form>
@@ -96,9 +100,11 @@ type Granularity = 'monthly' | 'quarterly' | 'yearly';
       <table class="nav-table">
         <thead>
           <tr>
-            <th>Kỳ</th>
-            <th>Giá trị tài sản ròng</th>
-            <th>Tăng trưởng {{ periodLabel() }}</th>
+            <th>{{ 'NAV.PERIOD' | translate }}</th>
+            <th>{{ 'NAV.NET_VALUE' | translate }}</th>
+            <th>
+              {{ 'NAV.GROWTH_PERIOD' | translate: { period: periodLabel() } }}
+            </th>
             <th></th>
           </tr>
         </thead>
@@ -168,7 +174,7 @@ type Granularity = 'monthly' | 'quarterly' | 'yearly';
                 colspan="4"
                 style="text-align:center;color:var(--mat-sys-on-surface-variant);padding:20px"
               >
-                Chưa có dữ liệu
+                {{ 'COMMON.NO_DATA' | translate }}
               </td>
             </tr>
           }
@@ -264,6 +270,7 @@ export class NavTabComponent implements OnChanges {
   boardId = input.required<string>();
   private readonly api = inject(BoardApiService);
   private readonly fb = inject(FormBuilder);
+  private readonly translate = inject(TranslateService);
 
   snapshots = signal<NavSnapshotDto[]>([]);
   reversedSnapshots = computed(() => [...this.snapshots()].reverse());
@@ -272,19 +279,19 @@ export class NavTabComponent implements OnChanges {
   editingId = signal<string | null>(null);
   editValue = signal({ date: '', totalValue: 0, totalCapital: 0 });
 
-  granularities: { value: Granularity; label: string }[] = [
-    { value: 'monthly', label: 'Tháng' },
-    { value: 'quarterly', label: 'Quý' },
-    { value: 'yearly', label: 'Năm' },
+  granularities: { value: Granularity; labelKey: string }[] = [
+    { value: 'monthly', labelKey: 'TIME.MONTH' },
+    { value: 'quarterly', labelKey: 'TIME.QUARTER' },
+    { value: 'yearly', labelKey: 'TIME.YEAR' },
   ];
 
   periodLabel = computed(() => {
     const map: Record<Granularity, string> = {
-      monthly: 'tháng',
-      quarterly: 'quý',
-      yearly: 'năm',
+      monthly: 'TIME.MONTH_SHORT',
+      quarterly: 'TIME.QUARTER_SHORT',
+      yearly: 'TIME.YEAR_SHORT',
     };
-    return map[this.granularity()];
+    return this.translate.instant(map[this.granularity()]);
   });
 
   addForm = this.fb.group({
@@ -312,7 +319,7 @@ export class NavTabComponent implements OnChanges {
     labels: this.snapshots().map((s) => this.formatPeriod(s.snapshotDate)),
     datasets: [
       {
-        label: 'Giá trị tài sản ròng',
+        label: this.translate.instant('NAV.CHART_NAV'),
         data: this.snapshots().map((s) => s.totalValue),
         borderColor: '#3b82f6',
         backgroundColor: 'rgba(59,130,246,.1)',
@@ -322,7 +329,7 @@ export class NavTabComponent implements OnChanges {
         yAxisID: 'y',
       },
       {
-        label: `Tăng trưởng (%)`,
+        label: this.translate.instant('NAV.CHART_GROWTH'),
         data: this.snapshots().map((s) => s.periodGrowth ?? 0),
         borderColor: '#10b981',
         backgroundColor: 'rgba(16,185,129,.6)',

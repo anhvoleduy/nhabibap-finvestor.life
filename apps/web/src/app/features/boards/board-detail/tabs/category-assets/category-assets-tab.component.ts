@@ -15,6 +15,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { TranslateModule } from '@ngx-translate/core';
 import { AssetCategoryDto, AssetDto } from '@nhabibap-myportfolio/shared-types';
 import { BoardApiService } from '../../../../../core/board-api.service';
 import { VndCurrencyPipe } from '../../../../../shared/pipes/vnd-currency.pipe';
@@ -37,20 +38,24 @@ import { CryptoBuyDialogComponent } from './crypto-buy-dialog.component';
     MatTooltipModule,
     VndCurrencyPipe,
     StatCardComponent,
+    TranslateModule,
   ],
   template: `
     <div class="cat-tab">
       <div class="cat-tab__stats">
         @if (!isCash()) {
-          <app-stat-card label="Tổng vốn" [value]="category().totalCapital" />
+          <app-stat-card
+            [label]="'STATS.TOTAL_CAPITAL' | translate"
+            [value]="category().totalCapital"
+          />
         }
         <app-stat-card
-          label="Giá trị hiện tại"
+          [label]="'STATS.TOTAL_VALUE' | translate"
           [value]="category().totalValue"
         />
         @if (!isCash()) {
           <app-stat-card
-            label="Lợi nhuận %"
+            [label]="'STATS.PROFIT_PCT_COL' | translate"
             [value]="category().profitPct"
             [isPercent]="true"
             [valueClass]="
@@ -62,27 +67,27 @@ import { CryptoBuyDialogComponent } from './crypto-buy-dialog.component';
 
       <div class="cat-tab__toolbar">
         <button mat-flat-button (click)="showAddForm.set(!showAddForm())">
-          <mat-icon>add</mat-icon> Thêm tài sản
+          <mat-icon>add</mat-icon> {{ 'ASSETS.ADD' | translate }}
         </button>
       </div>
 
       @if (showAddForm()) {
         <form [formGroup]="addForm" (ngSubmit)="addAsset()" class="add-form">
           <mat-form-field appearance="outline">
-            <mat-label>Tên</mat-label>
+            <mat-label>{{ 'COMMON.NAME' | translate }}</mat-label>
             <input matInput formControlName="name" />
           </mat-form-field>
           @if (!isCash()) {
             <mat-form-field appearance="outline">
-              <mat-label>Vốn đầu tư (VND)</mat-label>
+              <mat-label>{{ 'ASSETS.CAPITAL_VND' | translate }}</mat-label>
               <input matInput type="number" formControlName="capital" />
             </mat-form-field>
           }
           <button mat-flat-button type="submit" [disabled]="addForm.invalid">
-            Thêm
+            {{ 'COMMON.ADD' | translate }}
           </button>
           <button mat-button type="button" (click)="showAddForm.set(false)">
-            Huỷ
+            {{ 'COMMON.CANCEL' | translate }}
           </button>
         </form>
       }
@@ -90,16 +95,16 @@ import { CryptoBuyDialogComponent } from './crypto-buy-dialog.component';
       <table class="assets-table">
         <thead>
           <tr>
-            <th>Tên</th>
+            <th>{{ 'COMMON.NAME' | translate }}</th>
             @if (!isCash()) {
-              <th>Vốn đầu tư</th>
+              <th>{{ 'ASSETS.CAPITAL' | translate }}</th>
             }
-            <th>Giá trị hiện tại</th>
+            <th>{{ 'STATS.TOTAL_VALUE' | translate }}</th>
             @if (!isCash()) {
-              <th>Lợi nhuận</th>
-              <th>Tỷ lệ %</th>
+              <th>{{ 'STATS.PROFIT' | translate }}</th>
+              <th>{{ 'STATS.PCT' | translate }}</th>
             }
-            <th>Cập nhật lần cuối</th>
+            <th>{{ 'ASSETS.LAST_UPDATED' | translate }}</th>
             <th></th>
           </tr>
         </thead>
@@ -111,7 +116,7 @@ import { CryptoBuyDialogComponent } from './crypto-buy-dialog.component';
                   <input
                     class="inline-input"
                     [formControl]="editForm.controls.name"
-                    placeholder="Tên"
+                    [placeholder]="'COMMON.NAME' | translate"
                   />
                 </td>
                 @if (!isCash()) {
@@ -123,7 +128,7 @@ import { CryptoBuyDialogComponent } from './crypto-buy-dialog.component';
                         class="inline-input"
                         type="number"
                         [formControl]="editForm.controls.capital"
-                        placeholder="Vốn đầu tư"
+                        [placeholder]="'ASSETS.CAPITAL' | translate"
                       />
                     } @else {
                       {{ editForm.controls.capital.value | vnd }}
@@ -188,7 +193,7 @@ import { CryptoBuyDialogComponent } from './crypto-buy-dialog.component';
                   @if (category().type === 'GOLD') {
                     <button
                       mat-icon-button
-                      matTooltip="Lịch sử mua"
+                      [matTooltip]="'GOLD.BUY_HISTORY' | translate"
                       (click)="openGoldBuys(asset)"
                     >
                       <mat-icon>shopping_cart</mat-icon>
@@ -197,7 +202,7 @@ import { CryptoBuyDialogComponent } from './crypto-buy-dialog.component';
                   @if (category().type === 'CRYPTO') {
                     <button
                       mat-icon-button
-                      matTooltip="Lịch sử nạp tiền"
+                      [matTooltip]="'CRYPTO.DEPOSIT_HISTORY' | translate"
                       (click)="openCryptoBuys(asset)"
                     >
                       <mat-icon>account_balance_wallet</mat-icon>
@@ -205,7 +210,7 @@ import { CryptoBuyDialogComponent } from './crypto-buy-dialog.component';
                   }
                   <button
                     mat-icon-button
-                    matTooltip="Sửa"
+                    [matTooltip]="'COMMON.EDIT' | translate"
                     (click)="startEditAsset(asset)"
                   >
                     <mat-icon>edit</mat-icon>
@@ -227,7 +232,7 @@ import { CryptoBuyDialogComponent } from './crypto-buy-dialog.component';
                 [attr.colspan]="isCash() ? 4 : 7"
                 style="text-align:center; color:var(--mat-sys-on-surface-variant); padding:20px"
               >
-                Chưa có tài sản
+                {{ 'ASSETS.EMPTY' | translate }}
               </td>
             </tr>
           }

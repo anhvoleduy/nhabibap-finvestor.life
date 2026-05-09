@@ -8,8 +8,10 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../../core/auth.service';
 import { ThemeService } from '../../../core/theme.service';
+import { LanguageService } from '../../../core/language.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -22,6 +24,7 @@ import { ThemeService } from '../../../core/theme.service';
     MatIconModule,
     MatButtonModule,
     MatTooltipModule,
+    TranslateModule,
   ],
   template: `
     <div class="shell">
@@ -40,7 +43,7 @@ import { ThemeService } from '../../../core/theme.service';
             class="nav-item"
           >
             <mat-icon>dashboard</mat-icon>
-            <span>Danh mục</span>
+            <span>{{ 'SHELL.NAV.BOARDS' | translate }}</span>
           </a>
           <a
             routerLink="/settings"
@@ -49,7 +52,7 @@ import { ThemeService } from '../../../core/theme.service';
             class="nav-item"
           >
             <mat-icon>settings</mat-icon>
-            <span>Cài đặt</span>
+            <span>{{ 'SHELL.NAV.SETTINGS' | translate }}</span>
           </a>
         </div>
 
@@ -64,8 +67,25 @@ import { ThemeService } from '../../../core/theme.service';
           <div class="footer-actions">
             <button
               mat-icon-button
+              (click)="toggleLang()"
+              [matTooltip]="
+                lang.currentLang() === 'vi'
+                  ? ('SHELL.LANG_EN' | translate)
+                  : ('SHELL.LANG_VI' | translate)
+              "
+            >
+              <span class="lang-badge">{{
+                lang.currentLang() === 'vi' ? 'EN' : 'VI'
+              }}</span>
+            </button>
+            <button
+              mat-icon-button
               (click)="theme.toggle()"
-              [matTooltip]="theme.isDark() ? 'Chế độ sáng' : 'Chế độ tối'"
+              [matTooltip]="
+                theme.isDark()
+                  ? ('SHELL.LIGHT_MODE' | translate)
+                  : ('SHELL.DARK_MODE' | translate)
+              "
             >
               <mat-icon>{{
                 theme.isDark() ? 'light_mode' : 'dark_mode'
@@ -74,7 +94,7 @@ import { ThemeService } from '../../../core/theme.service';
             <button
               mat-icon-button
               (click)="auth.logout()"
-              matTooltip="Đăng xuất"
+              [matTooltip]="'SHELL.LOGOUT' | translate"
             >
               <mat-icon>logout</mat-icon>
             </button>
@@ -251,6 +271,12 @@ import { ThemeService } from '../../../core/theme.service';
         gap: 2px;
       }
 
+      .lang-badge {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+      }
+
       .content {
         flex: 1;
         overflow-y: auto;
@@ -262,6 +288,7 @@ import { ThemeService } from '../../../core/theme.service';
 export class ShellComponent {
   readonly auth = inject(AuthService);
   readonly theme = inject(ThemeService);
+  readonly lang = inject(LanguageService);
 
   initials = computed(() => {
     const name = this.auth.currentUser()?.name ?? '';
@@ -272,4 +299,8 @@ export class ShellComponent {
       .join('')
       .toUpperCase();
   });
+
+  toggleLang() {
+    this.lang.setLanguage(this.lang.currentLang() === 'vi' ? 'en' : 'vi');
+  }
 }

@@ -13,6 +13,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { TranslateModule } from '@ngx-translate/core';
 import { CashFlowEntryDto, FlowType } from '@nhabibap-myportfolio/shared-types';
 import { BoardApiService } from '../../../../../core/board-api.service';
 import { VndCurrencyPipe } from '../../../../../shared/pipes/vnd-currency.pipe';
@@ -29,36 +30,35 @@ import { VndCurrencyPipe } from '../../../../../shared/pipes/vnd-currency.pipe';
     MatInputModule,
     MatSelectModule,
     VndCurrencyPipe,
+    TranslateModule,
   ],
   template: `
     <div class="cf-tab">
-      <!-- Summary cards -->
       <div class="cf-tab__summary">
         <div class="summary-item income">
-          <span>Tổng thu</span>
+          <span>{{ 'CASH_FLOW.TOTAL_INCOME' | translate }}</span>
           <strong>{{ totalIncome() | vnd }}</strong>
         </div>
         <div class="summary-item expense">
-          <span>Tổng chi</span>
+          <span>{{ 'CASH_FLOW.TOTAL_EXPENSE' | translate }}</span>
           <strong>{{ totalExpense() | vnd }}</strong>
         </div>
         <div
           class="summary-item projection"
           [style.color]="net() >= 0 ? '#22c55e' : '#ef4444'"
         >
-          <span>Ròng</span>
+          <span>{{ 'CASH_FLOW.NET' | translate }}</span>
           <strong>{{ net() | vnd }}</strong>
         </div>
       </div>
 
-      <!-- Two-column entry sections -->
       <div class="cf-columns">
         <!-- Income section -->
         <div class="cf-section cf-section--income">
           <div class="cf-section__header">
             <div class="cf-section__title">
               <mat-icon>trending_up</mat-icon>
-              <span>Thu nhập</span>
+              <span>{{ 'CASH_FLOW.INCOME' | translate }}</span>
               <span class="cf-section__total">{{ totalIncome() | vnd }}</span>
             </div>
             @if (canEdit()) {
@@ -75,19 +75,19 @@ import { VndCurrencyPipe } from '../../../../../shared/pipes/vnd-currency.pipe';
           @if (showForm() && formFlowType() === 'INCOME') {
             <form [formGroup]="form" (ngSubmit)="add()" class="add-form">
               <mat-form-field appearance="outline">
-                <mat-label>Mô tả</mat-label>
+                <mat-label>{{ 'COMMON.DESCRIPTION' | translate }}</mat-label>
                 <input matInput formControlName="label" />
               </mat-form-field>
               <mat-form-field appearance="outline">
-                <mat-label>Số tiền</mat-label>
+                <mat-label>{{ 'COMMON.AMOUNT' | translate }}</mat-label>
                 <input matInput type="number" formControlName="amount" />
               </mat-form-field>
               <div class="add-form__actions">
                 <button mat-flat-button type="submit" [disabled]="form.invalid">
-                  Lưu
+                  {{ 'COMMON.SAVE' | translate }}
                 </button>
                 <button mat-button type="button" (click)="showForm.set(false)">
-                  Huỷ
+                  {{ 'COMMON.CANCEL' | translate }}
                 </button>
               </div>
             </form>
@@ -96,8 +96,8 @@ import { VndCurrencyPipe } from '../../../../../shared/pipes/vnd-currency.pipe';
           <table class="cf-table">
             <thead>
               <tr>
-                <th>Mô tả</th>
-                <th>Số tiền</th>
+                <th>{{ 'COMMON.DESCRIPTION' | translate }}</th>
+                <th>{{ 'COMMON.AMOUNT' | translate }}</th>
                 @if (canEdit()) {
                   <th></th>
                 }
@@ -169,7 +169,7 @@ import { VndCurrencyPipe } from '../../../../../shared/pipes/vnd-currency.pipe';
               @if (incomeEntries().length === 0) {
                 <tr>
                   <td [attr.colspan]="canEdit() ? 3 : 2" class="empty-cell">
-                    Chưa có dữ liệu
+                    {{ 'COMMON.NO_DATA' | translate }}
                   </td>
                 </tr>
               }
@@ -182,7 +182,7 @@ import { VndCurrencyPipe } from '../../../../../shared/pipes/vnd-currency.pipe';
           <div class="cf-section__header">
             <div class="cf-section__title">
               <mat-icon>trending_down</mat-icon>
-              <span>Chi tiêu</span>
+              <span>{{ 'CASH_FLOW.EXPENSE' | translate }}</span>
               <span class="cf-section__total">{{ totalExpense() | vnd }}</span>
             </div>
             @if (canEdit()) {
@@ -199,19 +199,19 @@ import { VndCurrencyPipe } from '../../../../../shared/pipes/vnd-currency.pipe';
           @if (showForm() && formFlowType() === 'EXPENSE') {
             <form [formGroup]="form" (ngSubmit)="add()" class="add-form">
               <mat-form-field appearance="outline">
-                <mat-label>Mô tả</mat-label>
+                <mat-label>{{ 'COMMON.DESCRIPTION' | translate }}</mat-label>
                 <input matInput formControlName="label" />
               </mat-form-field>
               <mat-form-field appearance="outline">
-                <mat-label>Số tiền</mat-label>
+                <mat-label>{{ 'COMMON.AMOUNT' | translate }}</mat-label>
                 <input matInput type="number" formControlName="amount" />
               </mat-form-field>
               <div class="add-form__actions">
                 <button mat-flat-button type="submit" [disabled]="form.invalid">
-                  Lưu
+                  {{ 'COMMON.SAVE' | translate }}
                 </button>
                 <button mat-button type="button" (click)="showForm.set(false)">
-                  Huỷ
+                  {{ 'COMMON.CANCEL' | translate }}
                 </button>
               </div>
             </form>
@@ -220,8 +220,8 @@ import { VndCurrencyPipe } from '../../../../../shared/pipes/vnd-currency.pipe';
           <table class="cf-table">
             <thead>
               <tr>
-                <th>Mô tả</th>
-                <th>Số tiền</th>
+                <th>{{ 'COMMON.DESCRIPTION' | translate }}</th>
+                <th>{{ 'COMMON.AMOUNT' | translate }}</th>
                 @if (canEdit()) {
                   <th></th>
                 }
@@ -293,7 +293,7 @@ import { VndCurrencyPipe } from '../../../../../shared/pipes/vnd-currency.pipe';
               @if (expenseEntries().length === 0) {
                 <tr>
                   <td [attr.colspan]="canEdit() ? 3 : 2" class="empty-cell">
-                    Chưa có dữ liệu
+                    {{ 'COMMON.NO_DATA' | translate }}
                   </td>
                 </tr>
               }

@@ -13,6 +13,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatChipsModule } from '@angular/material/chips';
+import { TranslateModule } from '@ngx-translate/core';
 import { BoardSummaryDto } from '@nhabibap-myportfolio/shared-types';
 import { BoardApiService } from '../../../core/board-api.service';
 import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
@@ -32,6 +33,7 @@ import { CreateBoardDialogComponent } from './create-board-dialog.component';
     MatProgressBarModule,
     MatChipsModule,
     VndCurrencyPipe,
+    TranslateModule,
   ],
   template: `
     @if (loading()) {
@@ -41,21 +43,21 @@ import { CreateBoardDialogComponent } from './create-board-dialog.component';
     <div class="page">
       <div class="page__header">
         <div>
-          <h2 class="page__title">Danh mục đầu tư</h2>
-          <p class="page__subtitle">Quản lý và theo dõi tài sản của bạn</p>
+          <h2 class="page__title">{{ 'BOARDS.LIST.TITLE' | translate }}</h2>
+          <p class="page__subtitle">{{ 'BOARDS.LIST.SUBTITLE' | translate }}</p>
         </div>
         <button mat-flat-button (click)="openCreate()">
-          <mat-icon>add</mat-icon> Tạo mới
+          <mat-icon>add</mat-icon> {{ 'BOARDS.LIST.CREATE' | translate }}
         </button>
       </div>
 
       @if (!loading() && boards().length === 0) {
         <div class="empty-state">
           <mat-icon class="empty-icon">account_balance</mat-icon>
-          <p class="empty-title">Chưa có danh mục nào</p>
-          <p class="empty-sub">Tạo danh mục đầu tư đầu tiên của bạn</p>
+          <p class="empty-title">{{ 'BOARDS.LIST.EMPTY_TITLE' | translate }}</p>
+          <p class="empty-sub">{{ 'BOARDS.LIST.EMPTY_SUB' | translate }}</p>
           <button mat-flat-button (click)="openCreate()">
-            <mat-icon>add</mat-icon> Tạo mới
+            <mat-icon>add</mat-icon> {{ 'BOARDS.LIST.CREATE' | translate }}
           </button>
         </div>
       }
@@ -74,10 +76,10 @@ import { CreateBoardDialogComponent } from './create-board-dialog.component';
                 >
                   {{
                     board.role === 'OWNER'
-                      ? 'Chủ sở hữu'
+                      ? ('ROLES.OWNER' | translate)
                       : board.role === 'EDITOR'
-                        ? 'Chỉnh sửa'
-                        : 'Xem'
+                        ? ('ROLES.EDITOR' | translate)
+                        : ('ROLES.VIEWER' | translate)
                   }}
                 </mat-chip>
                 @if (board.role !== 'OWNER') {
@@ -89,17 +91,23 @@ import { CreateBoardDialogComponent } from './create-board-dialog.component';
             <mat-card-content>
               <div class="board-stats">
                 <div class="stat">
-                  <span class="stat__label">Tổng vốn</span>
+                  <span class="stat__label">{{
+                    'STATS.TOTAL_CAPITAL' | translate
+                  }}</span>
                   <span class="stat__value">{{
                     board.totalCapital | vnd
                   }}</span>
                 </div>
                 <div class="stat">
-                  <span class="stat__label">Giá trị hiện tại</span>
+                  <span class="stat__label">{{
+                    'STATS.TOTAL_VALUE' | translate
+                  }}</span>
                   <span class="stat__value">{{ board.totalValue | vnd }}</span>
                 </div>
                 <div class="stat">
-                  <span class="stat__label">Lợi nhuận</span>
+                  <span class="stat__label">{{
+                    'STATS.PROFIT' | translate
+                  }}</span>
                   <span
                     class="stat__value"
                     [class.positive]="board.profitPct >= 0"

@@ -12,6 +12,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/auth.service';
 
 @Component({
@@ -27,6 +28,7 @@ import { AuthService } from '../../../core/auth.service';
     MatButtonModule,
     MatIconModule,
     MatProgressBarModule,
+    TranslateModule,
   ],
   template: `
     <div class="auth-page">
@@ -42,11 +44,11 @@ import { AuthService } from '../../../core/auth.service';
           <mat-progress-bar mode="indeterminate" />
         }
         <mat-card-content>
-          <h2 class="auth-title">Đăng nhập</h2>
+          <h2 class="auth-title">{{ 'AUTH.LOGIN.TITLE' | translate }}</h2>
 
           <form [formGroup]="form" (ngSubmit)="submit()">
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Email</mat-label>
+              <mat-label>{{ 'COMMON.EMAIL' | translate }}</mat-label>
               <mat-icon matPrefix>email</mat-icon>
               <input
                 matInput
@@ -57,7 +59,7 @@ import { AuthService } from '../../../core/auth.service';
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Mật khẩu</mat-label>
+              <mat-label>{{ 'AUTH.PASSWORD' | translate }}</mat-label>
               <mat-icon matPrefix>lock</mat-icon>
               <input
                 matInput
@@ -80,13 +82,15 @@ import { AuthService } from '../../../core/auth.service';
               class="submit-btn"
               [disabled]="loading() || form.invalid"
             >
-              Đăng nhập
+              {{ 'AUTH.LOGIN.SUBMIT' | translate }}
             </button>
           </form>
 
           <div class="auth-footer">
-            <span>Chưa có tài khoản?</span>
-            <a routerLink="/auth/register" class="auth-link">Đăng ký ngay</a>
+            <span>{{ 'AUTH.LOGIN.NO_ACCOUNT' | translate }}</span>
+            <a routerLink="/auth/register" class="auth-link">{{
+              'AUTH.LOGIN.REGISTER_LINK' | translate
+            }}</a>
           </div>
         </mat-card-content>
       </mat-card>
@@ -207,6 +211,7 @@ export class LoginComponent {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
+  private readonly translate = inject(TranslateService);
 
   form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
@@ -222,7 +227,10 @@ export class LoginComponent {
     this.auth.login(this.form.getRawValue()).subscribe({
       next: () => this.router.navigate(['/boards']),
       error: (e) => {
-        this.error.set(e?.error?.message ?? 'Đăng nhập thất bại');
+        this.error.set(
+          e?.error?.message ??
+            this.translate.instant('AUTH.LOGIN.ERROR_DEFAULT'),
+        );
         this.loading.set(false);
       },
     });

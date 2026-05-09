@@ -16,6 +16,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { TranslateModule } from '@ngx-translate/core';
 import { AssetDto, CryptoBuyDto } from '@nhabibap-myportfolio/shared-types';
 import { BoardApiService } from '../../../../../core/board-api.service';
 import { VndCurrencyPipe } from '../../../../../shared/pipes/vnd-currency.pipe';
@@ -39,9 +40,12 @@ export interface CryptoBuyDialogData {
     MatIconModule,
     MatProgressBarModule,
     VndCurrencyPipe,
+    TranslateModule,
   ],
   template: `
-    <h2 mat-dialog-title>Lịch sử nạp tiền — {{ data.asset.name }}</h2>
+    <h2 mat-dialog-title>
+      {{ 'CRYPTO.TITLE' | translate: { name: data.asset.name } }}
+    </h2>
 
     @if (loading()) {
       <mat-progress-bar mode="indeterminate" />
@@ -50,11 +54,11 @@ export interface CryptoBuyDialogData {
     <mat-dialog-content style="min-width:480px">
       <form [formGroup]="form" (ngSubmit)="addBuy()" class="buy-form">
         <mat-form-field appearance="outline" class="field-date">
-          <mat-label>Ngày nạp</mat-label>
+          <mat-label>{{ 'CRYPTO.DEPOSIT_DATE' | translate }}</mat-label>
           <input matInput type="date" formControlName="buyDate" [max]="today" />
         </mat-form-field>
         <mat-form-field appearance="outline" class="field-vnd">
-          <mat-label>Số tiền (VND)</mat-label>
+          <mat-label>{{ 'COMMON.AMOUNT_VND' | translate }}</mat-label>
           <input matInput type="number" formControlName="amountVnd" min="1" />
         </mat-form-field>
         <button
@@ -62,7 +66,7 @@ export interface CryptoBuyDialogData {
           type="submit"
           [disabled]="form.invalid || saving()"
         >
-          <mat-icon>add</mat-icon> Thêm
+          <mat-icon>add</mat-icon> {{ 'COMMON.ADD' | translate }}
         </button>
       </form>
 
@@ -70,8 +74,8 @@ export interface CryptoBuyDialogData {
         <table class="buy-table">
           <thead>
             <tr>
-              <th>Ngày</th>
-              <th>Số tiền</th>
+              <th>{{ 'COMMON.DATE' | translate }}</th>
+              <th>{{ 'COMMON.AMOUNT' | translate }}</th>
               <th></th>
             </tr>
           </thead>
@@ -136,19 +140,21 @@ export interface CryptoBuyDialogData {
           </tbody>
           <tfoot>
             <tr class="total-row">
-              <td>Tổng</td>
+              <td>{{ 'COMMON.TOTAL' | translate }}</td>
               <td>{{ totalVnd() | vnd }}</td>
               <td></td>
             </tr>
           </tfoot>
         </table>
       } @else if (!loading()) {
-        <p class="empty-hint">Chưa có giao dịch nào.</p>
+        <p class="empty-hint">{{ 'CRYPTO.EMPTY' | translate }}</p>
       }
     </mat-dialog-content>
 
     <mat-dialog-actions align="end">
-      <button mat-button (click)="close()">Đóng</button>
+      <button mat-button (click)="close()">
+        {{ 'COMMON.CLOSE' | translate }}
+      </button>
     </mat-dialog-actions>
   `,
   styles: [

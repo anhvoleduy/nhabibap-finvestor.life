@@ -12,6 +12,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/auth.service';
 
 @Component({
@@ -27,6 +28,7 @@ import { AuthService } from '../../../core/auth.service';
     MatButtonModule,
     MatIconModule,
     MatProgressBarModule,
+    TranslateModule,
   ],
   template: `
     <div class="auth-page">
@@ -42,17 +44,17 @@ import { AuthService } from '../../../core/auth.service';
           <mat-progress-bar mode="indeterminate" />
         }
         <mat-card-content>
-          <h2 class="auth-title">Tạo tài khoản</h2>
+          <h2 class="auth-title">{{ 'AUTH.REGISTER.TITLE' | translate }}</h2>
 
           <form [formGroup]="form" (ngSubmit)="submit()">
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Họ và tên</mat-label>
+              <mat-label>{{ 'AUTH.FULL_NAME' | translate }}</mat-label>
               <mat-icon matPrefix>person</mat-icon>
               <input matInput formControlName="name" autocomplete="name" />
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Email</mat-label>
+              <mat-label>{{ 'COMMON.EMAIL' | translate }}</mat-label>
               <mat-icon matPrefix>email</mat-icon>
               <input
                 matInput
@@ -63,7 +65,7 @@ import { AuthService } from '../../../core/auth.service';
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Mật khẩu</mat-label>
+              <mat-label>{{ 'AUTH.PASSWORD' | translate }}</mat-label>
               <mat-icon matPrefix>lock</mat-icon>
               <input
                 matInput
@@ -71,7 +73,7 @@ import { AuthService } from '../../../core/auth.service';
                 formControlName="password"
                 autocomplete="new-password"
               />
-              <mat-hint>Tối thiểu 6 ký tự</mat-hint>
+              <mat-hint>{{ 'AUTH.PASSWORD_MIN_6' | translate }}</mat-hint>
             </mat-form-field>
 
             @if (error()) {
@@ -87,13 +89,15 @@ import { AuthService } from '../../../core/auth.service';
               class="submit-btn"
               [disabled]="loading() || form.invalid"
             >
-              Đăng ký
+              {{ 'AUTH.REGISTER.SUBMIT' | translate }}
             </button>
           </form>
 
           <div class="auth-footer">
-            <span>Đã có tài khoản?</span>
-            <a routerLink="/auth/login" class="auth-link">Đăng nhập</a>
+            <span>{{ 'AUTH.REGISTER.HAS_ACCOUNT' | translate }}</span>
+            <a routerLink="/auth/login" class="auth-link">{{
+              'AUTH.REGISTER.LOGIN_LINK' | translate
+            }}</a>
           </div>
         </mat-card-content>
       </mat-card>
@@ -214,6 +218,7 @@ export class RegisterComponent {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
+  private readonly translate = inject(TranslateService);
 
   form = this.fb.nonNullable.group({
     name: ['', Validators.required],
@@ -230,7 +235,10 @@ export class RegisterComponent {
     this.auth.register(this.form.getRawValue()).subscribe({
       next: () => this.router.navigate(['/boards']),
       error: (e) => {
-        this.error.set(e?.error?.message ?? 'Đăng ký thất bại');
+        this.error.set(
+          e?.error?.message ??
+            this.translate.instant('AUTH.REGISTER.ERROR_DEFAULT'),
+        );
         this.loading.set(false);
       },
     });

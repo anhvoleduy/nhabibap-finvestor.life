@@ -8,6 +8,7 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
+import { TranslateModule } from '@ngx-translate/core';
 import {
   CATEGORY_LABELS,
   CategoryType,
@@ -23,13 +24,14 @@ import {
     MatFormFieldModule,
     MatSelectModule,
     MatButtonModule,
+    TranslateModule,
   ],
   template: `
-    <h2 mat-dialog-title>Thêm danh mục</h2>
+    <h2 mat-dialog-title>{{ 'BOARDS.ADD_CAT.TITLE' | translate }}</h2>
     <mat-dialog-content style="padding-top:8px">
       <form [formGroup]="form">
         <mat-form-field appearance="outline" style="width:100%">
-          <mat-label>Loại danh mục</mat-label>
+          <mat-label>{{ 'BOARDS.ADD_CAT.TYPE' | translate }}</mat-label>
           <mat-select formControlName="type">
             @for (opt of availableTypes; track opt.value) {
               <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
@@ -39,9 +41,11 @@ import {
       </form>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close>Huỷ</button>
+      <button mat-button mat-dialog-close>
+        {{ 'COMMON.CANCEL' | translate }}
+      </button>
       <button mat-flat-button (click)="confirm()" [disabled]="form.invalid">
-        Thêm
+        {{ 'COMMON.ADD' | translate }}
       </button>
     </mat-dialog-actions>
   `,

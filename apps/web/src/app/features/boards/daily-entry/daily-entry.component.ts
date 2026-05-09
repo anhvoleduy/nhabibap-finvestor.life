@@ -23,6 +23,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { DecimalPipe } from '@angular/common';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
   AssetCategoryDto,
   AssetEntryDto,
@@ -60,6 +61,7 @@ interface AssetRow {
     MatSnackBarModule,
     VndCurrencyPipe,
     DecimalPipe,
+    TranslateModule,
   ],
   template: `
     @if (loading() || submitting()) {
@@ -69,10 +71,8 @@ interface AssetRow {
     <div class="page">
       <div class="page__header">
         <div>
-          <h2 class="page__title">Cập nhật giá trị</h2>
-          <p class="entry-hint">
-            Cập nhật giá trị thị trường cho tất cả tài sản
-          </p>
+          <h2 class="page__title">{{ 'DAILY_ENTRY.TITLE' | translate }}</h2>
+          <p class="entry-hint">{{ 'DAILY_ENTRY.SUBTITLE' | translate }}</p>
         </div>
         <div class="page__header-actions">
           <input
@@ -89,7 +89,11 @@ interface AssetRow {
               [disabled]="submitting()"
             >
               <mat-icon>save</mat-icon>
-              {{ submitting() ? 'Đang lưu...' : 'Lưu tất cả' }}
+              {{
+                submitting()
+                  ? ('DAILY_ENTRY.SAVING' | translate)
+                  : ('DAILY_ENTRY.SAVE_ALL' | translate)
+              }}
             </button>
           }
         </div>
@@ -98,12 +102,11 @@ interface AssetRow {
       @if (!loading() && assetRows().length === 0) {
         <div class="empty-state">
           <mat-icon class="empty-icon">inbox</mat-icon>
-          <p class="empty-title">Chưa có tài sản</p>
-          <p class="empty-sub">
-            Hãy thêm tài sản vào bảng trước khi nhập giá trị
-          </p>
+          <p class="empty-title">{{ 'ASSETS.EMPTY' | translate }}</p>
+          <p class="empty-sub">{{ 'DAILY_ENTRY.EMPTY_SUB' | translate }}</p>
           <button mat-stroked-button [routerLink]="['/boards', boardId()]">
-            <mat-icon>arrow_back</mat-icon> Về trang bảng
+            <mat-icon>arrow_back</mat-icon>
+            {{ 'DAILY_ENTRY.BACK' | translate }}
           </button>
         </div>
       }
@@ -120,9 +123,11 @@ interface AssetRow {
                       row.assetName
                     }}</mat-card-title>
                     <mat-card-subtitle>
-                      Vốn: {{ row.capital | vnd }}
+                      {{ 'DAILY_ENTRY.CAPITAL_LABEL' | translate }}
+                      {{ row.capital | vnd }}
                       @if (row.totalChi !== null) {
-                        &nbsp;·&nbsp; {{ row.totalChi | number: '1.0-4' }} Chỉ
+                        &nbsp;·&nbsp; {{ row.totalChi | number: '1.0-4' }}
+                        {{ chiUnit }}
                       }
                       @if (row.lastDate) {
                         &nbsp;·&nbsp; {{ row.lastDate }}:
@@ -137,9 +142,10 @@ interface AssetRow {
                           appearance="outline"
                           class="value-field"
                         >
-                          <mat-label
-                            >Giá/Chỉ {{ selectedDate() }} (VND)</mat-label
-                          >
+                          <mat-label>{{
+                            'DAILY_ENTRY.GOLD_PRICE_LABEL'
+                              | translate: { date: selectedDate() }
+                          }}</mat-label>
                           <input
                             matInput
                             type="number"
@@ -147,7 +153,8 @@ interface AssetRow {
                             min="0"
                           />
                           <mat-hint>
-                            × {{ row.totalChi | number: '1.0-4' }} Chỉ
+                            × {{ row.totalChi | number: '1.0-4' }}
+                            {{ chiUnit }}
                             @let goldVal = formValues()[row.assetId];
                             @if (goldVal !== '' && +goldVal > 0) {
                               &nbsp;=
@@ -157,12 +164,14 @@ interface AssetRow {
                         </mat-form-field>
                       } @else {
                         <p class="no-chi-hint">
-                          Hãy thêm giao dịch mua Vàng trước.
+                          {{ 'DAILY_ENTRY.ADD_GOLD_FIRST' | translate }}
                         </p>
                       }
                     } @else if (row.categoryType === 'SAVINGS') {
                       <mat-form-field appearance="outline" class="value-field">
-                        <mat-label>Lãi nhận được cuối kỳ (VND)</mat-label>
+                        <mat-label>{{
+                          'DAILY_ENTRY.SAVINGS_INTEREST' | translate
+                        }}</mat-label>
                         <input
                           matInput
                           type="number"
@@ -172,19 +181,19 @@ interface AssetRow {
                         <mat-hint>
                           @let interest = formValues()[row.assetId];
                           @if (interest !== '' && +interest > 0) {
-                            Giá trị = {{ row.capital | vnd }} +
-                            {{ +interest | vnd }} =
+                            {{ row.capital | vnd }} + {{ +interest | vnd }} =
                             {{ (row.capital ?? 0) + +interest | vnd }}
                           } @else {
-                            Giá trị = {{ row.capital | vnd }} + lãi
+                            {{ row.capital | vnd }} + lãi
                           }
                         </mat-hint>
                       </mat-form-field>
                     } @else {
                       <mat-form-field appearance="outline" class="value-field">
-                        <mat-label
-                          >Giá trị {{ selectedDate() }} (VND)</mat-label
-                        >
+                        <mat-label>{{
+                          'DAILY_ENTRY.VALUE_LABEL'
+                            | translate: { date: selectedDate() }
+                        }}</mat-label>
                         <input
                           matInput
                           type="number"
@@ -335,8 +344,10 @@ export class DailyEntryComponent implements OnInit {
   private readonly api = inject(BoardApiService);
   private readonly fb = inject(FormBuilder);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
 
   readonly today = new Date().toISOString().slice(0, 10);
+  readonly chiUnit = 'Chỉ';
 
   boardId = signal('');
   loading = signal(true);
@@ -485,14 +496,20 @@ export class DailyEntryComponent implements OnInit {
       .subscribe({
         next: () => {
           this.submitting.set(false);
-          this.snackBar.open('Đã lưu thành công!', 'OK', { duration: 3000 });
+          this.snackBar.open(
+            this.translate.instant('DAILY_ENTRY.SAVE_SUCCESS'),
+            this.translate.instant('COMMON.OK'),
+            { duration: 3000 },
+          );
           this.router.navigate(['/boards', this.boardId()]);
         },
         error: () => {
           this.submitting.set(false);
-          this.snackBar.open('Lỗi khi lưu. Vui lòng thử lại.', 'OK', {
-            duration: 4000,
-          });
+          this.snackBar.open(
+            this.translate.instant('DAILY_ENTRY.SAVE_ERROR'),
+            this.translate.instant('COMMON.OK'),
+            { duration: 4000 },
+          );
         },
       });
   }

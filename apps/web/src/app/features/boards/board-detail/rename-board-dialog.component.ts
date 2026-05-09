@@ -8,6 +8,7 @@ import {
 } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -19,26 +20,29 @@ import { MatInputModule } from '@angular/material/input';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
+    TranslateModule,
   ],
   template: `
-    <h2 mat-dialog-title>Đổi tên danh mục</h2>
+    <h2 mat-dialog-title>{{ 'BOARDS.RENAME.TITLE' | translate }}</h2>
     <mat-dialog-content>
       <form [formGroup]="form" (ngSubmit)="confirm()" id="renameForm">
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Tên mới</mat-label>
+          <mat-label>{{ 'BOARDS.RENAME.NEW_NAME' | translate }}</mat-label>
           <input matInput formControlName="name" autocomplete="off" />
         </mat-form-field>
       </form>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close>Huỷ</button>
+      <button mat-button mat-dialog-close>
+        {{ 'COMMON.CANCEL' | translate }}
+      </button>
       <button
         mat-flat-button
         form="renameForm"
         type="submit"
         [disabled]="form.invalid"
       >
-        Lưu
+        {{ 'COMMON.SAVE' | translate }}
       </button>
     </mat-dialog-actions>
   `,

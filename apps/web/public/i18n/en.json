@@ -1,0 +1,194 @@
+{
+  "COMMON": {
+    "CANCEL": "Cancel",
+    "SAVE": "Save",
+    "CREATE": "Create",
+    "ADD": "Add",
+    "EDIT": "Edit",
+    "DELETE": "Delete",
+    "CLOSE": "Close",
+    "SHARE": "Share",
+    "NAME": "Name",
+    "EMAIL": "Email",
+    "DATE": "Date",
+    "AMOUNT": "Amount",
+    "AMOUNT_VND": "Amount (VND)",
+    "DESCRIPTION": "Description",
+    "TOTAL": "Total",
+    "NO_DATA": "No data yet",
+    "OK": "OK"
+  },
+  "AUTH": {
+    "PASSWORD": "Password",
+    "FULL_NAME": "Full name",
+    "PASSWORD_MIN_6": "Minimum 6 characters",
+    "LOGIN": {
+      "TITLE": "Sign in",
+      "SUBMIT": "Sign in",
+      "NO_ACCOUNT": "Don't have an account?",
+      "REGISTER_LINK": "Sign up",
+      "ERROR_DEFAULT": "Login failed"
+    },
+    "REGISTER": {
+      "TITLE": "Create account",
+      "SUBMIT": "Sign up",
+      "HAS_ACCOUNT": "Already have an account?",
+      "LOGIN_LINK": "Sign in",
+      "ERROR_DEFAULT": "Registration failed"
+    }
+  },
+  "SHELL": {
+    "NAV": {
+      "BOARDS": "Boards",
+      "SETTINGS": "Settings"
+    },
+    "LIGHT_MODE": "Light mode",
+    "DARK_MODE": "Dark mode",
+    "LOGOUT": "Logout",
+    "LANG_VI": "Tiếng Việt",
+    "LANG_EN": "English"
+  },
+  "ROLES": {
+    "OWNER": "Owner",
+    "EDITOR": "Editor",
+    "VIEWER": "Viewer"
+  },
+  "STATS": {
+    "TOTAL_CAPITAL": "Total capital",
+    "TOTAL_VALUE": "Current value",
+    "VALUE": "Value",
+    "PROFIT": "Profit",
+    "PROFIT_PCT": "Profit rate",
+    "PROFIT_PCT_COL": "Profit %",
+    "PCT": "Rate %"
+  },
+  "BOARDS": {
+    "LIST": {
+      "TITLE": "Investment Portfolios",
+      "SUBTITLE": "Manage and track your assets",
+      "CREATE": "New",
+      "EMPTY_TITLE": "No portfolios yet",
+      "EMPTY_SUB": "Create your first investment portfolio"
+    },
+    "CREATE": {
+      "TITLE": "New portfolio",
+      "CATEGORY_NAME": "Portfolio name"
+    },
+    "DETAIL": {
+      "RENAME": "Rename",
+      "DELETE": "Delete board",
+      "DELETE_CONFIRM": "Delete \"{{name}}\"? This action cannot be undone.",
+      "SHARE": "Share",
+      "UPDATE_VALUES": "Update values",
+      "ADD_CATEGORY": "Category",
+      "TABS": {
+        "OVERVIEW": "Overview",
+        "CASH_FLOW": "Cash flow"
+      }
+    },
+    "RENAME": {
+      "TITLE": "Rename portfolio",
+      "NEW_NAME": "New name"
+    },
+    "SHARE": {
+      "TITLE": "Share board",
+      "EMAIL": "User email",
+      "ROLE": "Role",
+      "SUCCESS": "Shared successfully!",
+      "MEMBERS": "Current members"
+    },
+    "ADD_CAT": {
+      "TITLE": "Add category",
+      "TYPE": "Category type"
+    }
+  },
+  "OVERVIEW": {
+    "CATEGORY": "Category",
+    "WEIGHT": "Weight"
+  },
+  "ASSETS": {
+    "ADD": "Add asset",
+    "CAPITAL": "Capital",
+    "CAPITAL_VND": "Capital (VND)",
+    "LAST_UPDATED": "Last updated",
+    "EMPTY": "No assets yet"
+  },
+  "NAV": {
+    "ADD_HISTORICAL": "Add historical data",
+    "DATE_FIELD": "Date (YYYY-MM-DD)",
+    "TOTAL_VALUE_VND": "Total asset value (VND)",
+    "TOTAL_CAPITAL_VND_OPTIONAL": "Total capital (VND, optional)",
+    "PERIOD": "Period",
+    "NET_VALUE": "Net asset value",
+    "GROWTH_PERIOD": "Growth {{period}}",
+    "CHART_NAV": "Net asset value",
+    "CHART_GROWTH": "Growth (%)"
+  },
+  "TIME": {
+    "MONTH": "Month",
+    "QUARTER": "Quarter",
+    "YEAR": "Year",
+    "MONTH_SHORT": "month",
+    "QUARTER_SHORT": "quarter",
+    "YEAR_SHORT": "year"
+  },
+  "CASH_FLOW": {
+    "TOTAL_INCOME": "Total income",
+    "TOTAL_EXPENSE": "Total expense",
+    "NET": "Net",
+    "INCOME": "Income",
+    "EXPENSE": "Expense"
+  },
+  "SETTINGS": {
+    "TITLE": "Account settings",
+    "SUBTITLE": "Manage your profile and security",
+    "PROFILE": {
+      "TITLE": "Personal information",
+      "NAME": "Full name",
+      "SAVE": "Save changes",
+      "SUCCESS": "Updated successfully",
+      "ERROR_DEFAULT": "Update failed"
+    },
+    "PASSWORD": {
+      "TITLE": "Change password",
+      "CURRENT": "Current password",
+      "NEW": "New password",
+      "CONFIRM": "Confirm new password",
+      "MIN_8": "Minimum 8 characters",
+      "MISMATCH": "Passwords do not match",
+      "SUBMIT": "Change password",
+      "SUCCESS": "Password changed successfully",
+      "ERROR_DEFAULT": "Password change failed"
+    }
+  },
+  "GOLD": {
+    "TITLE": "Gold purchase history — {{name}}",
+    "BUY_HISTORY": "Purchase history",
+    "BUY_DATE": "Purchase date",
+    "CHI_AMOUNT": "Chi amount",
+    "PRICE_PER_CHI": "Price/Chi",
+    "CHI_UNIT": "Chi",
+    "EMPTY": "No purchases yet."
+  },
+  "CRYPTO": {
+    "TITLE": "Deposit history — {{name}}",
+    "DEPOSIT_HISTORY": "Deposit history",
+    "DEPOSIT_DATE": "Deposit date",
+    "EMPTY": "No transactions yet."
+  },
+  "DAILY_ENTRY": {
+    "TITLE": "Update values",
+    "SUBTITLE": "Update market values for all assets",
+    "SAVING": "Saving...",
+    "SAVE_ALL": "Save all",
+    "EMPTY_SUB": "Add assets to this board before entering values",
+    "BACK": "Back to board",
+    "CAPITAL_LABEL": "Capital:",
+    "GOLD_PRICE_LABEL": "Price/Chi {{date}} (VND)",
+    "SAVINGS_INTEREST": "Interest received at end of term (VND)",
+    "VALUE_LABEL": "Value {{date}} (VND)",
+    "ADD_GOLD_FIRST": "Please add gold purchase transactions first.",
+    "SAVE_SUCCESS": "Saved successfully!",
+    "SAVE_ERROR": "Error saving. Please try again."
+  }
+}

@@ -4,6 +4,7 @@ import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -15,21 +16,24 @@ import { MatButtonModule } from '@angular/material/button';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
+    TranslateModule,
   ],
   template: `
-    <h2 mat-dialog-title>Tạo danh mục mới</h2>
+    <h2 mat-dialog-title>{{ 'BOARDS.CREATE.TITLE' | translate }}</h2>
     <mat-dialog-content>
       <form [formGroup]="form" (ngSubmit)="confirm()">
         <mat-form-field appearance="outline" style="width:100%">
-          <mat-label>Tên danh mục</mat-label>
+          <mat-label>{{ 'BOARDS.CREATE.CATEGORY_NAME' | translate }}</mat-label>
           <input matInput formControlName="name" />
         </mat-form-field>
       </form>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close>Huỷ</button>
+      <button mat-button mat-dialog-close>
+        {{ 'COMMON.CANCEL' | translate }}
+      </button>
       <button mat-flat-button (click)="confirm()" [disabled]="form.invalid">
-        Tạo
+        {{ 'COMMON.CREATE' | translate }}
       </button>
     </mat-dialog-actions>
   `,

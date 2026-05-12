@@ -32,7 +32,7 @@ import { CashFlowModule } from '../cash-flow/cash-flow.module';
           ssl: sslEnabled ? { rejectUnauthorized: false } : false,
           autoLoadEntities: true,
           synchronize: false,
-          migrationsRun: true,
+          migrationsRun: false,
           migrations: [__dirname + '/../migrations/*{.ts,.js}'],
         };
       },

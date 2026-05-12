@@ -7,14 +7,14 @@ import { SettingsComponent } from './settings.component';
 import { AuthService } from '../../core/auth.service';
 
 let auth: {
-  currentUser: ReturnType<typeof signal<{ name: string; email: string } | null>>;
+  currentUser: ReturnType<
+    typeof signal<{ name: string; email: string } | null>
+  >;
   updateProfile: ReturnType<typeof vi.fn>;
   updatePassword: ReturnType<typeof vi.fn>;
 };
 
-function setup(
-  overrides: Partial<typeof auth> = {},
-): {
+function setup(overrides: Partial<typeof auth> = {}): {
   fixture: ComponentFixture<SettingsComponent>;
   component: SettingsComponent;
 } {

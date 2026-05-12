@@ -205,12 +205,7 @@ describe('EntriesService', () => {
       const qb = makeNavQb([]);
       navRepo.createQueryBuilder.mockReturnValueOnce(qb);
 
-      await service.getNavHistory(
-        boardId,
-        userId,
-        '2026-01-01',
-        '2026-12-31',
-      );
+      await service.getNavHistory(boardId, userId, '2026-01-01', '2026-12-31');
 
       expect(qb.andWhere).toHaveBeenCalledWith('n.snapshotDate >= :from', {
         from: '2026-01-01',

@@ -30,7 +30,7 @@ import { BoardApiService } from '../../../core/board-api.service';
 import { AuthService } from '../../../core/auth.service';
 import { OverviewTabComponent } from './tabs/overview/overview-tab.component';
 import { CategoryAssetsTabComponent } from './tabs/category-assets/category-assets-tab.component';
-import { NavTabComponent } from './tabs/ytd/ytd-tab.component';
+import { NavTabComponent } from './tabs/nav/nav-tab.component';
 import { CashFlowTabComponent } from './tabs/cash-flow-tab/cash-flow-tab.component';
 import { ShareBoardDialogComponent } from './share-board-dialog.component';
 import { AddCategoryDialogComponent } from './add-category-dialog.component';

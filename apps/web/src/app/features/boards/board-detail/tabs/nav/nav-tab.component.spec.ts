@@ -3,7 +3,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { provideTranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { NavSnapshotDto } from '@nhabibap-myportfolio/shared-types';
-import { NavTabComponent } from './ytd-tab.component';
+import { NavTabComponent } from './nav-tab.component';
 import { BoardApiService } from '../../../../../core/board-api.service';
 
 function makeSnap(overrides: Partial<NavSnapshotDto> = {}): NavSnapshotDto {
@@ -117,7 +117,11 @@ describe('NavTabComponent', () => {
         's2',
         's1',
       ]);
-      expect(component.snapshots().map((s) => s.id)).toEqual(['s1', 's2', 's3']);
+      expect(component.snapshots().map((s) => s.id)).toEqual([
+        's1',
+        's2',
+        's3',
+      ]);
     });
   });
 

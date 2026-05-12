@@ -2,14 +2,13 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideTranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
-import {
-  CashFlowEntryDto,
-  FlowType,
-} from '@nhabibap-myportfolio/shared-types';
+import { CashFlowEntryDto, FlowType } from '@nhabibap-myportfolio/shared-types';
 import { CashFlowTabComponent } from './cash-flow-tab.component';
 import { BoardApiService } from '../../../../../core/board-api.service';
 
-function makeEntry(overrides: Partial<CashFlowEntryDto> = {}): CashFlowEntryDto {
+function makeEntry(
+  overrides: Partial<CashFlowEntryDto> = {},
+): CashFlowEntryDto {
   return {
     id: 'cf1',
     boardId: 'b1',

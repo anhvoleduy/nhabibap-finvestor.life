@@ -23,9 +23,7 @@ function makeCategory(
   };
 }
 
-function setup(
-  categories: AssetCategoryDto[],
-): {
+function setup(categories: AssetCategoryDto[]): {
   fixture: ComponentFixture<OverviewTabComponent>;
   component: OverviewTabComponent;
 } {

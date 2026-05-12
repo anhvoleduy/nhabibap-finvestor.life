@@ -119,9 +119,9 @@ describe('AssetsService', () => {
   describe('access control', () => {
     it('throws ForbiddenException when not a member', async () => {
       boardsService.getUserRole.mockResolvedValueOnce(null);
-      await expect(service.getCategories(boardId, userId)).rejects.toBeInstanceOf(
-        ForbiddenException,
-      );
+      await expect(
+        service.getCategories(boardId, userId),
+      ).rejects.toBeInstanceOf(ForbiddenException);
     });
   });
 

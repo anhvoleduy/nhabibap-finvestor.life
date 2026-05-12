@@ -6,13 +6,24 @@ import { join } from 'path';
 // Load .env from the monorepo root (adjust the relative path if your repo layout differs)
 loadEnv({ path: join(__dirname, '../../../.env') });
 
+const databaseUrl = process.env.DATABASE_URL;
+
+// SSL default: on when DATABASE_URL present (managed Postgres), unless explicitly disabled.
+const sslEnabled = databaseUrl
+  ? process.env.DATABASE_SSL !== 'false'
+  : process.env.DATABASE_SSL === 'true';
+
 export const dataSourceOptions: DataSourceOptions = {
   type: 'postgres',
-  host: process.env.DATABASE_HOST ?? 'localhost',
-  port: Number(process.env.DATABASE_PORT ?? 5432),
-  username: process.env.DATABASE_USER ?? 'appuser',
-  password: process.env.DATABASE_PASSWORD ?? 'apppass',
-  database: process.env.DATABASE_NAME ?? 'appdb',
+  ...(databaseUrl
+    ? { url: databaseUrl }
+    : {
+        host: process.env.DATABASE_HOST ?? 'localhost',
+        port: Number(process.env.DATABASE_PORT ?? 5432),
+        username: process.env.DATABASE_USER ?? 'appuser',
+        password: process.env.DATABASE_PASSWORD ?? 'apppass',
+        database: process.env.DATABASE_NAME ?? 'appdb',
+      }),
 
   // Glob patterns work for both `ts-node` (dev) and compiled `dist` (prod)
   entities: [join(__dirname, '/**/*.entity{.ts,.js}')],
@@ -26,8 +37,7 @@ export const dataSourceOptions: DataSourceOptions = {
     process.env.NODE_ENV === 'development' ? ['query', 'error'] : ['error'],
 
   // Enable SSL when connecting to managed Postgres (RDS, Supabase, Neon, etc.)
-  ssl:
-    process.env.DATABASE_SSL === 'true' ? { rejectUnauthorized: false } : false,
+  ssl: sslEnabled ? { rejectUnauthorized: false } : false,
 
   // Recommended pool sizing for serverful APIs; tune for your workload
   extra: {

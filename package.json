@@ -4,6 +4,9 @@
   "license": "MIT",
   "scripts": {
     "dev": "npx nx run-many -t serve --projects=api,web --parallel=2",
+    "build:api": "nx build api --configuration=production",
+    "build:web": "nx build web --configuration=production",
+    "start:prod": "node dist/apps/api/main.js",
     "typeorm": "TS_NODE_PROJECT=apps/api/tsconfig.app.json typeorm-ts-node-commonjs -d apps/api/src/data-source.ts",
     "migration:generate": "pnpm typeorm migration:generate apps/api/src/migrations/Migration",
     "migration:create": "typeorm-ts-node-commonjs migration:create apps/api/src/migrations/Migration",

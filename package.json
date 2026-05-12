@@ -17,8 +17,17 @@
   "private": true,
   "pnpm": {
     "onlyBuiltDependencies": [
+      "@nestjs/core",
+      "@parcel/watcher",
+      "@scarf/scarf",
+      "@swc/core",
       "bcrypt",
-      "@nestjs/core"
+      "esbuild",
+      "less",
+      "lmdb",
+      "msgpackr-extract",
+      "nx",
+      "unrs-resolver"
     ]
   },
   "dependencies": {

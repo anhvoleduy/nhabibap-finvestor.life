@@ -10,8 +10,15 @@ export class AppController {
 
   @Get()
   @Public()
-  @ApiOperation({ summary: 'Health check' })
+  @ApiOperation({ summary: 'Root' })
   getData() {
     return this.appService.getData();
+  }
+
+  @Get('health')
+  @Public()
+  @ApiOperation({ summary: 'Liveness probe' })
+  health() {
+    return { status: 'ok', timestamp: new Date().toISOString() };
   }
 }

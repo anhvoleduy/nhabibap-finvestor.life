@@ -46,7 +46,11 @@
     "DARK_MODE": "Chế độ tối",
     "LOGOUT": "Đăng xuất",
     "LANG_VI": "Tiếng Việt",
-    "LANG_EN": "English"
+    "LANG_EN": "English",
+    "COLLAPSE": "Thu gọn thanh điều hướng",
+    "EXPAND": "Mở rộng thanh điều hướng",
+    "MENU": "Menu",
+    "CLOSE": "Đóng menu"
   },
   "ROLES": {
     "OWNER": "Chủ sở hữu",

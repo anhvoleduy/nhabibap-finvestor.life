@@ -2,9 +2,20 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
+  HostListener,
   inject,
+  signal,
 } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  NavigationEnd,
+  Router,
+  RouterLink,
+  RouterLinkActive,
+  RouterOutlet,
+} from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -12,6 +23,9 @@ import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../../core/auth.service';
 import { ThemeService } from '../../../core/theme.service';
 import { LanguageService } from '../../../core/language.service';
+
+const COLLAPSE_KEY = 'shell.sidebar.collapsed';
+const MOBILE_BREAKPOINT = 768;
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -27,13 +41,52 @@ import { LanguageService } from '../../../core/language.service';
     TranslateModule,
   ],
   template: `
-    <div class="shell">
+    <div
+      class="shell"
+      [class.shell--collapsed]="collapsed()"
+      [class.shell--mobile-open]="mobileOpen()"
+    >
+      <button
+        mat-icon-button
+        class="mobile-toggle"
+        (click)="openMobile()"
+        [attr.aria-label]="'SHELL.MENU' | translate"
+      >
+        <mat-icon>menu</mat-icon>
+      </button>
+
+      @if (mobileOpen()) {
+        <div class="backdrop" (click)="closeMobile()" aria-hidden="true"></div>
+      }
+
       <nav class="sidebar">
         <div class="sidebar__brand">
           <div class="brand-icon">
             <mat-icon>trending_up</mat-icon>
           </div>
           <span class="brand-name">Portfolio</span>
+          <button
+            mat-icon-button
+            class="collapse-btn collapse-btn--desktop"
+            (click)="toggleCollapsed()"
+            [matTooltip]="
+              collapsed()
+                ? ('SHELL.EXPAND' | translate)
+                : ('SHELL.COLLAPSE' | translate)
+            "
+          >
+            <mat-icon>{{
+              collapsed() ? 'chevron_right' : 'chevron_left'
+            }}</mat-icon>
+          </button>
+          <button
+            mat-icon-button
+            class="collapse-btn collapse-btn--mobile"
+            (click)="closeMobile()"
+            [attr.aria-label]="'SHELL.CLOSE' | translate"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
         </div>
 
         <div class="sidebar__nav">
@@ -41,18 +94,26 @@ import { LanguageService } from '../../../core/language.service';
             routerLink="/boards"
             routerLinkActive="nav-item--active"
             class="nav-item"
+            [matTooltip]="collapsed() ? ('SHELL.NAV.BOARDS' | translate) : ''"
+            matTooltipPosition="right"
           >
             <mat-icon>dashboard</mat-icon>
-            <span>{{ 'SHELL.NAV.BOARDS' | translate }}</span>
+            <span class="nav-item__label">{{
+              'SHELL.NAV.BOARDS' | translate
+            }}</span>
           </a>
           <a
             routerLink="/settings"
             routerLinkActive="nav-item--active"
             [routerLinkActiveOptions]="{ exact: true }"
             class="nav-item"
+            [matTooltip]="collapsed() ? ('SHELL.NAV.SETTINGS' | translate) : ''"
+            matTooltipPosition="right"
           >
             <mat-icon>settings</mat-icon>
-            <span>{{ 'SHELL.NAV.SETTINGS' | translate }}</span>
+            <span class="nav-item__label">{{
+              'SHELL.NAV.SETTINGS' | translate
+            }}</span>
           </a>
         </div>
 
@@ -109,28 +170,40 @@ import { LanguageService } from '../../../core/language.service';
   `,
   styles: [
     `
+      :host {
+        --sidebar-width: 240px;
+        --sidebar-width-collapsed: 72px;
+      }
+
       .shell {
         display: flex;
         height: 100vh;
         overflow: hidden;
         background: var(--mat-sys-background);
+        position: relative;
       }
 
       .sidebar {
-        width: 240px;
+        width: var(--sidebar-width);
         flex-shrink: 0;
         display: flex;
         flex-direction: column;
         background: var(--mat-sys-surface);
         border-right: 1px solid var(--mat-sys-outline-variant);
+        transition: width 200ms ease;
+      }
+
+      .shell--collapsed .sidebar {
+        width: var(--sidebar-width-collapsed);
       }
 
       .sidebar__brand {
         display: flex;
         align-items: center;
         gap: 10px;
-        padding: 20px 16px;
+        padding: 16px 12px;
         border-bottom: 1px solid var(--mat-sys-outline-variant);
+        min-height: 64px;
       }
 
       .brand-icon {
@@ -152,10 +225,28 @@ import { LanguageService } from '../../../core/language.service';
       }
 
       .brand-name {
+        flex: 1;
         font-size: 16px;
         font-weight: 700;
         color: var(--mat-sys-on-surface);
         letter-spacing: -0.3px;
+        white-space: nowrap;
+        overflow: hidden;
+        opacity: 1;
+        transition: opacity 150ms;
+      }
+
+      .shell--collapsed .brand-name {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .collapse-btn {
+        flex-shrink: 0;
+      }
+
+      .collapse-btn--mobile {
+        display: none;
       }
 
       .sidebar__nav {
@@ -164,6 +255,7 @@ import { LanguageService } from '../../../core/language.service';
         display: flex;
         flex-direction: column;
         gap: 2px;
+        overflow-y: auto;
       }
 
       .nav-item {
@@ -176,6 +268,8 @@ import { LanguageService } from '../../../core/language.service';
         font-weight: 500;
         color: var(--mat-sys-on-surface-variant);
         text-decoration: none;
+        white-space: nowrap;
+        overflow: hidden;
         transition:
           background 150ms,
           color 150ms;
@@ -195,6 +289,22 @@ import { LanguageService } from '../../../core/language.service';
           );
           color: var(--mat-sys-on-surface);
         }
+      }
+
+      .nav-item__label {
+        opacity: 1;
+        transition: opacity 150ms;
+      }
+
+      .shell--collapsed .nav-item {
+        justify-content: center;
+        padding: 10px;
+      }
+
+      .shell--collapsed .nav-item__label {
+        opacity: 0;
+        width: 0;
+        pointer-events: none;
       }
 
       .nav-item--active {
@@ -226,6 +336,7 @@ import { LanguageService } from '../../../core/language.service';
           var(--mat-sys-on-surface) 4%,
           transparent
         );
+        overflow: hidden;
       }
 
       .avatar {
@@ -246,6 +357,21 @@ import { LanguageService } from '../../../core/language.service';
       .user-info {
         flex: 1;
         min-width: 0;
+        opacity: 1;
+        transition: opacity 150ms;
+      }
+
+      .shell--collapsed .user-info,
+      .shell--collapsed .footer-actions {
+        opacity: 0;
+        height: 0;
+        pointer-events: none;
+        overflow: hidden;
+      }
+
+      .shell--collapsed .user-section {
+        justify-content: center;
+        padding: 8px;
       }
 
       .user-name {
@@ -282,6 +408,93 @@ import { LanguageService } from '../../../core/language.service';
         overflow-y: auto;
         min-width: 0;
       }
+
+      .mobile-toggle {
+        display: none;
+        position: fixed;
+        top: 8px;
+        left: 8px;
+        z-index: 30;
+        background: var(--mat-sys-surface);
+        border: 1px solid var(--mat-sys-outline-variant);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+      }
+
+      .backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        z-index: 40;
+        animation: fade-in 150ms ease;
+      }
+
+      @keyframes fade-in {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .sidebar {
+          position: fixed;
+          top: 0;
+          bottom: 0;
+          left: 0;
+          z-index: 50;
+          width: min(82vw, 300px) !important;
+          transform: translateX(-100%);
+          transition: transform 220ms ease;
+          box-shadow: 4px 0 16px rgba(0, 0, 0, 0.18);
+        }
+
+        .shell--mobile-open .sidebar {
+          transform: translateX(0);
+        }
+
+        /* on mobile, ignore desktop collapsed state — drawer always full */
+        .shell--collapsed .sidebar {
+          width: min(82vw, 300px) !important;
+        }
+
+        .shell--collapsed .brand-name,
+        .shell--collapsed .nav-item__label,
+        .shell--collapsed .user-info,
+        .shell--collapsed .footer-actions {
+          opacity: 1;
+          width: auto;
+          height: auto;
+          pointer-events: auto;
+        }
+
+        .shell--collapsed .nav-item {
+          justify-content: flex-start;
+          padding: 10px 12px;
+        }
+
+        .shell--collapsed .user-section {
+          justify-content: flex-start;
+          padding: 8px 12px;
+        }
+
+        .mobile-toggle {
+          display: inline-flex;
+        }
+
+        .collapse-btn--desktop {
+          display: none;
+        }
+
+        .collapse-btn--mobile {
+          display: inline-flex;
+        }
+
+        .content {
+          padding-top: 56px;
+        }
+      }
     `,
   ],
 })
@@ -289,6 +502,21 @@ export class ShellComponent {
   readonly auth = inject(AuthService);
   readonly theme = inject(ThemeService);
   readonly lang = inject(LanguageService);
+  private readonly router = inject(Router);
+
+  collapsed = signal(localStorage.getItem(COLLAPSE_KEY) === '1');
+  mobileOpen = signal(false);
+
+  constructor() {
+    this.router.events
+      .pipe(
+        filter((e) => e instanceof NavigationEnd),
+        takeUntilDestroyed(inject(DestroyRef)),
+      )
+      .subscribe(() => {
+        if (this.mobileOpen()) this.mobileOpen.set(false);
+      });
+  }
 
   initials = computed(() => {
     const name = this.auth.currentUser()?.name ?? '';
@@ -302,5 +530,31 @@ export class ShellComponent {
 
   toggleLang() {
     this.lang.setLanguage(this.lang.currentLang() === 'vi' ? 'en' : 'vi');
+  }
+
+  toggleCollapsed() {
+    const next = !this.collapsed();
+    this.collapsed.set(next);
+    localStorage.setItem(COLLAPSE_KEY, next ? '1' : '0');
+  }
+
+  openMobile() {
+    this.mobileOpen.set(true);
+  }
+
+  closeMobile() {
+    this.mobileOpen.set(false);
+  }
+
+  @HostListener('window:resize')
+  onResize() {
+    if (window.innerWidth > MOBILE_BREAKPOINT && this.mobileOpen()) {
+      this.mobileOpen.set(false);
+    }
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape() {
+    if (this.mobileOpen()) this.mobileOpen.set(false);
   }
 }

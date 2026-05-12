@@ -46,7 +46,11 @@
     "DARK_MODE": "Dark mode",
     "LOGOUT": "Logout",
     "LANG_VI": "Tiếng Việt",
-    "LANG_EN": "English"
+    "LANG_EN": "English",
+    "COLLAPSE": "Collapse sidebar",
+    "EXPAND": "Expand sidebar",
+    "MENU": "Menu",
+    "CLOSE": "Close menu"
   },
   "ROLES": {
     "OWNER": "Owner",

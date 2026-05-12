@@ -102,6 +102,59 @@ describe('CategoryAssetsTabComponent', () => {
     });
   });
 
+  describe('isGold computed', () => {
+    it('true for GOLD category', () => {
+      const { component } = setup(makeCategory(CategoryType.GOLD));
+      expect(component.isGold()).toBe(true);
+    });
+
+    it('false for non-GOLD category', () => {
+      const { component } = setup(makeCategory(CategoryType.ETF));
+      expect(component.isGold()).toBe(false);
+    });
+  });
+
+  describe('totalChi computed', () => {
+    it('sums totalChi across all gold assets', () => {
+      const assets = [
+        makeAsset({ id: 'a1', totalChi: 1.5 }),
+        makeAsset({ id: 'a2', totalChi: 2.25 }),
+        makeAsset({ id: 'a3', totalChi: 0.5 }),
+      ];
+      const { component } = setup(makeCategory(CategoryType.GOLD, assets));
+      expect(component.totalChi()).toBe(4.25);
+    });
+
+    it('treats null totalChi as 0', () => {
+      const assets = [
+        makeAsset({ id: 'a1', totalChi: 3 }),
+        makeAsset({ id: 'a2', totalChi: null }),
+      ];
+      const { component } = setup(makeCategory(CategoryType.GOLD, assets));
+      expect(component.totalChi()).toBe(3);
+    });
+
+    it('returns 0 when no assets', () => {
+      const { component } = setup(makeCategory(CategoryType.GOLD, []));
+      expect(component.totalChi()).toBe(0);
+    });
+  });
+
+  describe('total chi stat card rendering', () => {
+    it('renders extra stat card when GOLD', () => {
+      const assets = [makeAsset({ totalChi: 1 })];
+      const { fixture } = setup(makeCategory(CategoryType.GOLD, assets));
+      const cards = fixture.nativeElement.querySelectorAll('app-stat-card');
+      expect(cards.length).toBe(4);
+    });
+
+    it('omits extra stat card when not GOLD', () => {
+      const { fixture } = setup(makeCategory(CategoryType.ETF));
+      const cards = fixture.nativeElement.querySelectorAll('app-stat-card');
+      expect(cards.length).toBe(3);
+    });
+  });
+
   describe('addAsset', () => {
     it('skips when form invalid', () => {
       const { component } = setup(makeCategory(CategoryType.ETF));

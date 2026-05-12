@@ -63,6 +63,13 @@ import { CryptoBuyDialogComponent } from './crypto-buy-dialog.component';
             "
           />
         }
+        @if (isGold()) {
+          <app-stat-card
+            [label]="'STATS.TOTAL_CHI' | translate"
+            [value]="totalChi()"
+            [unit]="'GOLD.CHI_UNIT' | translate"
+          />
+        }
       </div>
 
       <div class="cat-tab__toolbar">
@@ -309,6 +316,10 @@ export class CategoryAssetsTabComponent {
   private readonly dialog = inject(MatDialog);
 
   isCash = computed(() => this.category().type === 'CASH');
+  isGold = computed(() => this.category().type === 'GOLD');
+  totalChi = computed(() =>
+    this.category().assets.reduce((s, a) => s + (a.totalChi ?? 0), 0),
+  );
 
   showAddForm = signal(false);
   editingAssetId = signal<string | null>(null);

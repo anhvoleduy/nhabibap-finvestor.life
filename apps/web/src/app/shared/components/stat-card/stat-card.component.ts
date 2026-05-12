@@ -19,6 +19,10 @@ import { VndCurrencyPipe } from '../../pipes/vnd-currency.pipe';
               {{ (value() ?? 0) >= 0 ? 'trending_up' : 'trending_down' }}
             </mat-icon>
           }
+        } @else if (unit()) {
+          <span class="value-text">
+            {{ value() | number: '1.0-4' }} {{ unit() }}
+          </span>
         } @else {
           <span class="value-text">{{ value() | vnd }}</span>
         }
@@ -90,5 +94,6 @@ export class StatCardComponent {
   label = input.required<string>();
   value = input.required<number | null>();
   isPercent = input(false);
+  unit = input<string>('');
   valueClass = input<string>('');
 }

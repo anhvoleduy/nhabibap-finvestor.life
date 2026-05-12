@@ -64,7 +64,8 @@
     "PROFIT": "Profit",
     "PROFIT_PCT": "Profit rate",
     "PROFIT_PCT_COL": "Profit %",
-    "PCT": "Rate %"
+    "PCT": "Rate %",
+    "TOTAL_CHI": "Bought"
   },
   "BOARDS": {
     "LIST": {

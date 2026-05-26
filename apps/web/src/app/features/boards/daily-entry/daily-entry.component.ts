@@ -472,7 +472,7 @@ export class DailyEntryComponent implements OnInit {
     const values = this.form.getRawValue() as Record<string, number | ''>;
     const rowMap = new Map(this.assetRows().map((r) => [r.assetId, r]));
     const entries = Object.entries(values)
-      .filter(([, v]) => v !== '' && v !== null && Number(v) > 0)
+      .filter(([, v]) => v !== '' && v !== null && !isNaN(Number(v)))
       .map(([assetId, inputValue]) => {
         const row = rowMap.get(assetId);
         let currentValue = Number(inputValue);

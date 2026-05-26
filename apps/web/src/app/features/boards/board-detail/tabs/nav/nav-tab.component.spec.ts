@@ -123,6 +123,17 @@ describe('NavTabComponent', () => {
         's3',
       ]);
     });
+
+    it('computes growthAmount as diff vs previous period (null for first)', () => {
+      const snaps = [
+        makeSnap({ id: 's1', snapshotDate: '2026-01-31', totalValue: 1000 }),
+        makeSnap({ id: 's2', snapshotDate: '2026-02-28', totalValue: 1500 }),
+        makeSnap({ id: 's3', snapshotDate: '2026-03-31', totalValue: 1200 }),
+      ];
+      const { component } = setup(snaps);
+      const rev = component.reversedSnapshots();
+      expect(rev.map((s) => s.growthAmount)).toEqual([-300, 500, null]);
+    });
   });
 
   describe('load', () => {

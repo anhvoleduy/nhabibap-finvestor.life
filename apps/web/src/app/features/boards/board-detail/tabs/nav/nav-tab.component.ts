@@ -147,11 +147,19 @@ type Granularity = 'monthly' | 'quarterly' | 'yearly';
                     (snap.periodGrowth ?? 0) >= 0 ? '#22c55e' : '#ef4444'
                   "
                 >
-                  {{
-                    snap.periodGrowth !== null
-                      ? (snap.periodGrowth | number: '1.2-2') + '%'
-                      : '—'
-                  }}
+                  <div>
+                    {{
+                      snap.periodGrowth !== null
+                        ? (snap.periodGrowth | number: '1.2-2') + '%'
+                        : '—'
+                    }}
+                  </div>
+                  @if (snap.growthAmount !== null) {
+                    <div class="growth-amount">
+                      {{ snap.growthAmount > 0 ? '+' : ''
+                      }}{{ snap.growthAmount | vnd }}
+                    </div>
+                  }
                 </td>
                 <td class="row-actions">
                   <button mat-icon-button (click)="startEdit(snap)">
@@ -263,6 +271,11 @@ type Granularity = 'monthly' | 'quarterly' | 'yearly';
       .editing-row {
         background: var(--mat-sys-surface-variant);
       }
+      .growth-amount {
+        font-size: 12px;
+        opacity: 0.75;
+        margin-top: 2px;
+      }
     `,
   ],
 })
@@ -273,7 +286,16 @@ export class NavTabComponent implements OnChanges {
   private readonly translate = inject(TranslateService);
 
   snapshots = signal<NavSnapshotDto[]>([]);
-  reversedSnapshots = computed(() => [...this.snapshots()].reverse());
+  reversedSnapshots = computed(() => {
+    const ordered = this.snapshots();
+    return ordered
+      .map((snap, i) => ({
+        ...snap,
+        growthAmount:
+          i > 0 ? snap.totalValue - ordered[i - 1].totalValue : null,
+      }))
+      .reverse();
+  });
   granularity = signal<Granularity>('monthly');
   showAddForm = signal(false);
   editingId = signal<string | null>(null);

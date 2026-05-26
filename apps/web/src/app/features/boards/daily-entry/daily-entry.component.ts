@@ -32,6 +32,7 @@ import {
   DailyEntriesDto,
 } from '@nhabibap-myportfolio/shared-types';
 import { BoardApiService } from '../../../core/board-api.service';
+import { NumberFormatDirective } from '../../../shared/directives/number-format.directive';
 import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
 
 interface AssetRow {
@@ -59,6 +60,7 @@ interface AssetRow {
     MatCardModule,
     MatProgressBarModule,
     MatSnackBarModule,
+    NumberFormatDirective,
     VndCurrencyPipe,
     DecimalPipe,
     TranslateModule,
@@ -122,16 +124,38 @@ interface AssetRow {
                     <mat-card-title class="asset-name">{{
                       row.assetName
                     }}</mat-card-title>
-                    <mat-card-subtitle>
-                      {{ 'DAILY_ENTRY.CAPITAL_LABEL' | translate }}
-                      {{ row.capital | vnd }}
-                      @if (row.totalChi !== null) {
-                        &nbsp;·&nbsp; {{ row.totalChi | number: '1.0-4' }}
-                        {{ chiUnit }}
-                      }
+                    <mat-card-subtitle class="asset-stats">
+                      <div class="stat-row">
+                        <span class="stat-label">{{
+                          'DAILY_ENTRY.CAPITAL_LABEL' | translate
+                        }}</span>
+                        <span class="stat-value">{{ row.capital | vnd }}</span>
+                        @if (row.totalChi !== null) {
+                          <span class="stat-extra">
+                            · {{ row.totalChi | number: '1.0-4' }}
+                            {{ chiUnit }}
+                          </span>
+                        }
+                      </div>
                       @if (row.lastDate) {
-                        &nbsp;·&nbsp; {{ row.lastDate }}:
-                        {{ row.lastValue | vnd }}
+                        <div class="stat-row">
+                          <span class="stat-label">{{ row.lastDate }}</span>
+                          <span class="stat-value">{{
+                            row.lastValue | vnd
+                          }}</span>
+                          @let pct = profitPct(row);
+                          @if (pct !== null) {
+                            <span
+                              class="stat-delta"
+                              [class.stat-delta--up]="pct > 0"
+                              [class.stat-delta--down]="pct < 0"
+                            >
+                              {{ pct > 0 ? '↑' : pct < 0 ? '↓' : '·' }}
+                              {{ pct > 0 ? '+' : ''
+                              }}{{ pct | number: '1.1-2' }}%
+                            </span>
+                          }
+                        </div>
                       }
                     </mat-card-subtitle>
                   </mat-card-header>
@@ -148,9 +172,8 @@ interface AssetRow {
                           }}</mat-label>
                           <input
                             matInput
-                            type="number"
+                            appNumberFormat
                             [formControlName]="row.assetId"
-                            min="0"
                           />
                           <mat-hint>
                             × {{ row.totalChi | number: '1.0-4' }}
@@ -174,9 +197,8 @@ interface AssetRow {
                         }}</mat-label>
                         <input
                           matInput
-                          type="number"
+                          appNumberFormat
                           [formControlName]="row.assetId"
-                          min="0"
                         />
                         <mat-hint>
                           @let interest = formValues()[row.assetId];
@@ -196,9 +218,8 @@ interface AssetRow {
                         }}</mat-label>
                         <input
                           matInput
-                          type="number"
+                          appNumberFormat
                           [formControlName]="row.assetId"
-                          min="0"
                         />
                         <mat-hint>
                           @let otherVal = formValues()[row.assetId];
@@ -324,10 +345,83 @@ interface AssetRow {
         font-weight: 500;
       }
 
+      .asset-stats {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        margin-top: 6px;
+      }
+
+      .stat-row {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        flex-wrap: wrap;
+        font-size: 13px;
+        line-height: 1.4;
+      }
+
+      .stat-label {
+        color: var(--mat-sys-on-surface-variant);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        flex-shrink: 0;
+      }
+
+      .stat-value {
+        color: var(--mat-sys-on-surface);
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+        font-family:
+          ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono',
+          monospace;
+        font-size: 14px;
+      }
+
+      .stat-extra {
+        color: var(--mat-sys-on-surface-variant);
+        font-size: 12px;
+      }
+
+      .stat-delta {
+        font-size: 12px;
+        font-weight: 600;
+        padding: 2px 6px;
+        border-radius: 6px;
+        background: color-mix(
+          in srgb,
+          var(--mat-sys-on-surface-variant) 12%,
+          transparent
+        );
+        color: var(--mat-sys-on-surface-variant);
+        font-variant-numeric: tabular-nums;
+      }
+
+      .stat-delta--up {
+        color: #1b873b;
+        background: color-mix(in srgb, #1b873b 14%, transparent);
+      }
+
+      .stat-delta--down {
+        color: #c0392b;
+        background: color-mix(in srgb, #c0392b 14%, transparent);
+      }
+
       .value-field {
         width: 100%;
         margin-top: 8px;
         display: block;
+      }
+
+      .value-field input.mat-mdc-input-element {
+        font-family:
+          ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono',
+          monospace;
+        font-variant-numeric: tabular-nums;
+        font-size: 18px;
+        font-weight: 500;
+        letter-spacing: 0.5px;
       }
 
       .no-chi-hint {
@@ -458,6 +552,13 @@ export class DailyEntryComponent implements OnInit {
       },
       error: () => this.loading.set(false),
     });
+  }
+
+  profitPct(row: AssetRow): number | null {
+    if (row.capital === null || row.capital === 0 || row.lastValue === null) {
+      return null;
+    }
+    return ((row.lastValue - row.capital) / row.capital) * 100;
   }
 
   onDateChange(event: Event) {

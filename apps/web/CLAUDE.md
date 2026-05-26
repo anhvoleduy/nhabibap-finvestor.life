@@ -24,3 +24,30 @@
 
 - Enable `withComponentInputBinding()` in app config so route params bind via `input()`.
 - Lazy-load feature routes with `loadChildren` + barrel `routes.ts` per feature.
+
+## Testing (required after every change)
+
+Root `CLAUDE.md` has full policy. Web-specific rules:
+
+### Unit specs (`*.spec.ts` colocated)
+
+- Every new component, service, store, pipe, directive ships with `.spec.ts`.
+- Standalone components: import the component directly in `TestBed.configureTestingModule({ imports: [Cmp] })`. No `declarations`.
+- Signals: assert on `signal()` value via `cmp.mySignal()`; trigger CD with `fixture.detectChanges()`.
+- `httpResource` / `resource`: stub `HttpClient` via `provideHttpClientTesting()` and flush with `HttpTestingController`.
+- MatDialog: spy on `MatDialog.prototype.open`, not via `{ provide: MatDialog }`. See memory `feedback_angular_testing_dialog`.
+- Routing inputs: pass via `ComponentRef.setInput('name', value)`.
+- Run: `nx test web` or `nx test web --watch` while iterating.
+
+### E2E (`apps/web-e2e`, Playwright)
+
+- Add e2e spec for any new route, form submission, auth flow, or critical user journey.
+- Update existing spec when changing selectors, copy, or flow steps.
+- Use semantic locators (`getByRole`, `getByLabel`); avoid CSS class selectors that churn.
+- Run: `nx e2e web-e2e` (api must be up — `pnpm dev` or compose).
+
+### Before "done"
+
+- `nx test web` passes.
+- `nx e2e web-e2e` passes (or note explicitly why skipped).
+- `nx lint web` clean.

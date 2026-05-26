@@ -13,11 +13,29 @@ pnpm workspaces, ESLint + Prettier, Playwright for e2e.
 ## Commands
 
 - `pnpm dev` — runs web + api in parallel
-- `pnpm test` — `nx run-many -t test`
-- `pnpm test:affected` — `nx affected -t test`
-- `pnpm lint` — `nx run-many -t lint`
+- `nx run-many -t test` — all unit tests
+- `nx affected -t test` — unit tests for changed projects
+- `nx run-many -t e2e` — all e2e (api-e2e Jest + web-e2e Playwright)
+- `nx affected -t e2e` — e2e for changed projects
+- `nx run-many -t lint` — lint all
 - `pnpm migration:generate` / `migration:run`
 - `docker compose up -d` — start Postgres
+
+## Testing policy (MANDATORY after code changes)
+
+Every code change ships with passing tests. No skipping for "trivial" edits.
+
+1. **New code** — add unit specs same commit. New API endpoint or new user-facing flow also needs e2e spec (`apps/api-e2e` or `apps/web-e2e`).
+2. **Changed code** — update affected unit + e2e specs. Behavior change = test change (no blind re-snapshot).
+3. **Bug fix** — add regression test that fails before fix, passes after.
+4. **Before reporting task done**:
+   - `nx affected -t test` — must pass.
+   - `nx affected -t e2e` if touched controllers, routes, UI flows, or `libs/shared-types`.
+   - `nx affected -t lint` — must pass.
+   - Skipped any step (e.g. no Postgres for e2e)? Say so explicitly in final summary.
+5. **Never** delete or `.skip` failing test to make CI green. Fix code or fix test on purpose.
+6. **`libs/shared-types` change** → re-run both `web` and `api` test suites; contract drift breaks both sides.
+7. Use the `test-affected` skill to run unit + lint on affected projects.
 
 ## Conventions
 

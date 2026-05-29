@@ -22,8 +22,18 @@
     "PASSWORD": "Mật khẩu",
     "FULL_NAME": "Họ và tên",
     "PASSWORD_MIN_6": "Tối thiểu 6 ký tự",
+    "SHOW_PASSWORD": "Hiện mật khẩu",
+    "HIDE_PASSWORD": "Ẩn mật khẩu",
+    "HERO": {
+      "TITLE": "Theo dõi mọi khoản đầu tư tại một nơi",
+      "SUBTITLE": "Thông tin danh mục theo thời gian thực, đơn giản hơn.",
+      "F1": "Định giá trực tiếp toàn bộ tài sản",
+      "F2": "Xem lãi lỗ chỉ trong nháy mắt",
+      "F3": "Dữ liệu của bạn, riêng tư và an toàn"
+    },
     "LOGIN": {
       "TITLE": "Đăng nhập",
+      "SUBTITLE": "Chào mừng trở lại",
       "SUBMIT": "Đăng nhập",
       "NO_ACCOUNT": "Chưa có tài khoản?",
       "REGISTER_LINK": "Đăng ký ngay",
@@ -31,6 +41,7 @@
     },
     "REGISTER": {
       "TITLE": "Tạo tài khoản",
+      "SUBTITLE": "Bắt đầu theo dõi chỉ trong vài phút",
       "SUBMIT": "Đăng ký",
       "HAS_ACCOUNT": "Đã có tài khoản?",
       "LOGIN_LINK": "Đăng nhập",

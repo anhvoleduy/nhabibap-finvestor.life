@@ -36,6 +36,22 @@ describe('RegisterComponent', () => {
     expect(component.form.invalid).toBe(true);
   });
 
+  it('toggles password visibility', () => {
+    const el: HTMLElement = fixture.nativeElement;
+    expect(
+      el.querySelector('input[formControlName="password"]'),
+    ).toHaveProperty('type', 'password');
+
+    const toggle = el.querySelector<HTMLButtonElement>('button[matSuffix]');
+    toggle?.click();
+    fixture.detectChanges();
+
+    expect(component.hidePassword()).toBe(false);
+    expect(
+      el.querySelector('input[formControlName="password"]'),
+    ).toHaveProperty('type', 'text');
+  });
+
   it('form is valid with all fields filled', () => {
     component.form.setValue({
       name: 'Alice',

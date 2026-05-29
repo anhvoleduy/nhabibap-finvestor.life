@@ -64,7 +64,7 @@ const MOBILE_BREAKPOINT = 768;
           <div class="brand-icon">
             <mat-icon>trending_up</mat-icon>
           </div>
-          <span class="brand-name">Portfolio</span>
+          <span class="brand-name">Finvestor.Life</span>
           <button
             mat-icon-button
             class="collapse-btn collapse-btn--desktop"

@@ -38,6 +38,22 @@ describe('LoginComponent', () => {
     expect(el.querySelector('input[type="password"]')).toBeTruthy();
   });
 
+  it('toggles password visibility', () => {
+    const el: HTMLElement = fixture.nativeElement;
+    expect(
+      el.querySelector('input[formControlName="password"]'),
+    ).toHaveProperty('type', 'password');
+
+    const toggle = el.querySelector<HTMLButtonElement>('button[matSuffix]');
+    toggle?.click();
+    fixture.detectChanges();
+
+    expect(component.hidePassword()).toBe(false);
+    expect(
+      el.querySelector('input[formControlName="password"]'),
+    ).toHaveProperty('type', 'text');
+  });
+
   it('form is invalid with empty fields', () => {
     expect(component.form.invalid).toBe(true);
   });

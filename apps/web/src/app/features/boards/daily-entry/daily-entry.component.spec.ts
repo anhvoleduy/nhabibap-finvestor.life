@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { ComponentFixture } from '@angular/core/testing';
-import { ActivatedRoute, provideRouter } from '@angular/router';
+import { ActivatedRoute, provideRouter, Router } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { of, throwError } from 'rxjs';
 import { provideTranslateService } from '@ngx-translate/core';
@@ -342,6 +342,31 @@ describe('DailyEntryComponent', () => {
       fixture.detectChanges();
 
       expect(component.formValues()['a1']).toBe('');
+    });
+  });
+
+  describe('cancel button', () => {
+    it('renders a cancel button that navigates back to the board on click', () => {
+      setup();
+      fixture.detectChanges();
+
+      const buttons = Array.from(
+        fixture.nativeElement.querySelectorAll('button'),
+      ) as HTMLButtonElement[];
+      const cancel = buttons.find(
+        (b) => b.querySelector('mat-icon')?.textContent?.trim() === 'close',
+      );
+      expect(cancel).toBeTruthy();
+
+      const navigateSpy = vi
+        .spyOn(TestBed.inject(Router), 'navigateByUrl')
+        .mockResolvedValue(true);
+      cancel!.click();
+
+      expect(navigateSpy).toHaveBeenCalled();
+      expect(navigateSpy.mock.calls[0][0].toString()).toContain(
+        '/boards/board-1',
+      );
     });
   });
 

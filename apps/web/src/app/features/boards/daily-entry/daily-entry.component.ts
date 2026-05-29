@@ -84,6 +84,14 @@ interface AssetRow {
             [max]="today"
             (change)="onDateChange($event)"
           />
+          <button
+            mat-stroked-button
+            [routerLink]="['/boards', boardId()]"
+            [disabled]="submitting()"
+          >
+            <mat-icon>close</mat-icon>
+            {{ 'COMMON.CANCEL' | translate }}
+          </button>
           @if (!loading() && assetRows().length > 0) {
             <button
               mat-flat-button

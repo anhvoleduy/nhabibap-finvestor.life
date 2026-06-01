@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://nhabibap-myportfolio.onrender.com/api/:path*"
+      "destination": "https://api.finvestor.life/api/:path*"
     },
     {
       "source": "/(.*)",

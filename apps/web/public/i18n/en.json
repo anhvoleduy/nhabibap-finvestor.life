@@ -206,5 +206,27 @@
     "ADD_GOLD_FIRST": "Please add gold purchase transactions first.",
     "SAVE_SUCCESS": "Saved successfully!",
     "SAVE_ERROR": "Error saving. Please try again."
+  },
+  "DCA": {
+    "TITLE": "DCA reminder — {{name}}",
+    "FREQUENCY": "Frequency",
+    "INTERVAL_DAYS": "Interval (days)",
+    "ANCHOR_DATE": "Start date",
+    "NEXT": "Next DCA",
+    "LAST_DONE": "Last done",
+    "MARK_DONE": "Mark done today",
+    "REMOVE": "Remove reminder",
+    "DUE": "DUE",
+    "SET_REMINDER": "DCA reminder",
+    "OVERDUE_BY": "Overdue by {{days}} day(s)",
+    "IN_DAYS": "In {{days}} day(s)",
+    "FREQ": {
+      "WEEKLY": "Weekly",
+      "BIWEEKLY": "Every 2 weeks",
+      "MONTHLY": "Monthly",
+      "QUARTERLY": "Quarterly",
+      "YEARLY": "Yearly",
+      "CUSTOM": "Custom"
+    }
   }
 }

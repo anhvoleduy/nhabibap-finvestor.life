@@ -303,4 +303,56 @@ describe('CategoryAssetsTabComponent', () => {
       expect(refreshed).toHaveBeenCalled();
     });
   });
+
+  describe('dcaInfo', () => {
+    it('returns null when asset has no schedule', () => {
+      const asset = makeAsset({ metadata: null });
+      const { component } = setup(makeCategory(CategoryType.ETF, [asset]));
+      expect(component.dcaInfo(asset)).toBeNull();
+    });
+
+    it('reports due status with overdue tooltip for a past schedule', () => {
+      const asset = makeAsset({
+        metadata: { dca: { frequency: 'WEEKLY', anchorDate: '2020-01-01' } },
+      });
+      const { component } = setup(makeCategory(CategoryType.ETF, [asset]));
+      const info = component.dcaInfo(asset);
+      expect(info?.status).toBe('due');
+      expect(info?.next).toBe('2020-01-01');
+      expect(info?.tooltip).toBe('DCA.OVERDUE_BY');
+    });
+
+    it('reports upcoming status with in-days tooltip for a future schedule', () => {
+      const asset = makeAsset({
+        metadata: { dca: { frequency: 'MONTHLY', anchorDate: '2999-01-01' } },
+      });
+      const { component } = setup(makeCategory(CategoryType.ETF, [asset]));
+      const info = component.dcaInfo(asset);
+      expect(info?.status).toBe('upcoming');
+      expect(info?.tooltip).toBe('DCA.IN_DAYS');
+    });
+  });
+
+  describe('openDcaSchedule', () => {
+    it('opens dialog and emits refreshed when changed=true', () => {
+      const asset = makeAsset();
+      const { component, refreshed } = setup(
+        makeCategory(CategoryType.GOLD, [asset]),
+        true,
+      );
+      component.openDcaSchedule(asset);
+      expect(dialogOpenSpy).toHaveBeenCalled();
+      expect(refreshed).toHaveBeenCalled();
+    });
+
+    it('does not emit refreshed when dialog returns false', () => {
+      const asset = makeAsset();
+      const { component, refreshed } = setup(
+        makeCategory(CategoryType.OPEN_FUND, [asset]),
+        false,
+      );
+      component.openDcaSchedule(asset);
+      expect(refreshed).not.toHaveBeenCalled();
+    });
+  });
 });

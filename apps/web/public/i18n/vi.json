@@ -206,5 +206,27 @@
     "ADD_GOLD_FIRST": "Hãy thêm giao dịch mua Vàng trước.",
     "SAVE_SUCCESS": "Đã lưu thành công!",
     "SAVE_ERROR": "Lỗi khi lưu. Vui lòng thử lại."
+  },
+  "DCA": {
+    "TITLE": "Nhắc DCA — {{name}}",
+    "FREQUENCY": "Tần suất",
+    "INTERVAL_DAYS": "Khoảng cách (ngày)",
+    "ANCHOR_DATE": "Ngày bắt đầu",
+    "NEXT": "DCA kế tiếp",
+    "LAST_DONE": "Lần gần nhất",
+    "MARK_DONE": "Đánh dấu đã mua hôm nay",
+    "REMOVE": "Xoá nhắc",
+    "DUE": "ĐẾN HẠN",
+    "SET_REMINDER": "Nhắc DCA",
+    "OVERDUE_BY": "Trễ {{days}} ngày",
+    "IN_DAYS": "Còn {{days}} ngày",
+    "FREQ": {
+      "WEEKLY": "Hàng tuần",
+      "BIWEEKLY": "2 tuần/lần",
+      "MONTHLY": "Hàng tháng",
+      "QUARTERLY": "Hàng quý",
+      "YEARLY": "Hàng năm",
+      "CUSTOM": "Tuỳ chỉnh"
+    }
   }
 }

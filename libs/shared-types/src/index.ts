@@ -4,6 +4,7 @@ export * from './lib/board.dto';
 export * from './lib/member.dto';
 export * from './lib/category.dto';
 export * from './lib/asset.dto';
+export * from './lib/dca.dto';
 export * from './lib/entry.dto';
 export * from './lib/nav.dto';
 export * from './lib/cash-flow.dto';

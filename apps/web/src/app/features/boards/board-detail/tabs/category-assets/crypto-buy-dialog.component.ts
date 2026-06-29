@@ -16,10 +16,16 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import {
+  MAT_DATE_LOCALE,
+  provideNativeDateAdapter,
+} from '@angular/material/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { AssetDto, CryptoBuyDto } from '@nhabibap-myportfolio/shared-types';
 import { BoardApiService } from '../../../../../core/board-api.service';
 import { VndCurrencyPipe } from '../../../../../shared/pipes/vnd-currency.pipe';
+import { dateToIso, isoToDate } from '../../../../../shared/util/date.util';
 
 export interface CryptoBuyDialogData {
   boardId: string;
@@ -31,6 +37,11 @@ export interface CryptoBuyDialogData {
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-crypto-buy-dialog',
   standalone: true,
+  // en-GB -> dd/mm/yyyy display, matching the previous native date input.
+  providers: [
+    provideNativeDateAdapter(),
+    { provide: MAT_DATE_LOCALE, useValue: 'en-GB' },
+  ],
   imports: [
     ReactiveFormsModule,
     MatDialogModule,
@@ -39,6 +50,7 @@ export interface CryptoBuyDialogData {
     MatInputModule,
     MatIconModule,
     MatProgressBarModule,
+    MatDatepickerModule,
     VndCurrencyPipe,
     TranslateModule,
   ],
@@ -55,7 +67,15 @@ export interface CryptoBuyDialogData {
       <form [formGroup]="form" (ngSubmit)="addBuy()" class="buy-form">
         <mat-form-field appearance="outline" class="field-date">
           <mat-label>{{ 'CRYPTO.DEPOSIT_DATE' | translate }}</mat-label>
-          <input matInput type="date" formControlName="buyDate" [max]="today" />
+          <input
+            matInput
+            [matDatepicker]="picker"
+            formControlName="buyDate"
+            [max]="todayDate"
+            (click)="picker.open()"
+          />
+          <mat-datepicker-toggle matIconSuffix [for]="picker" />
+          <mat-datepicker #picker />
         </mat-form-field>
         <mat-form-field appearance="outline" class="field-vnd">
           <mat-label>{{ 'COMMON.AMOUNT_VND' | translate }}</mat-label>
@@ -83,13 +103,16 @@ export interface CryptoBuyDialogData {
             @for (buy of buys(); track buy.id) {
               @if (editingBuyId() === buy.id) {
                 <tr>
-                  <td>
+                  <td class="date-cell">
                     <input
                       class="inline-input"
-                      type="date"
+                      [matDatepicker]="editPicker"
                       [formControl]="editForm.controls.buyDate"
-                      [max]="today"
+                      [max]="todayDate"
+                      (click)="editPicker.open()"
                     />
+                    <mat-datepicker-toggle [for]="editPicker" />
+                    <mat-datepicker #editPicker />
                   </td>
                   <td>
                     <input
@@ -215,6 +238,15 @@ export interface CryptoBuyDialogData {
         padding: 2px 0;
         text-align: inherit;
       }
+      .date-cell {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+      }
+      .date-cell mat-datepicker-toggle {
+        --mat-icon-button-touch-target-display: none;
+        flex: 0 0 auto;
+      }
     `,
   ],
 })
@@ -224,7 +256,7 @@ export class CryptoBuyDialogComponent implements OnInit {
   private readonly api = inject(BoardApiService);
   private readonly fb = inject(FormBuilder);
 
-  readonly today = new Date().toISOString().slice(0, 10);
+  readonly todayDate = new Date();
 
   loading = signal(true);
   saving = signal(false);
@@ -233,7 +265,7 @@ export class CryptoBuyDialogComponent implements OnInit {
   editingBuyId = signal<string | null>(null);
 
   form = this.fb.nonNullable.group({
-    buyDate: [this.today, Validators.required],
+    buyDate: [this.todayDate as Date, Validators.required],
     amountVnd: [
       null as unknown as number,
       [Validators.required, Validators.min(1)],
@@ -241,7 +273,7 @@ export class CryptoBuyDialogComponent implements OnInit {
   });
 
   editForm = this.fb.nonNullable.group({
-    buyDate: [this.today, Validators.required],
+    buyDate: [this.todayDate as Date, Validators.required],
     amountVnd: [
       null as unknown as number,
       [Validators.required, Validators.min(1)],
@@ -271,7 +303,7 @@ export class CryptoBuyDialogComponent implements OnInit {
     this.saving.set(true);
     this.api
       .createCryptoBuy(this.data.boardId, this.data.catId, this.data.asset.id, {
-        buyDate,
+        buyDate: dateToIso(buyDate),
         amountVnd,
       })
       .subscribe({
@@ -280,7 +312,7 @@ export class CryptoBuyDialogComponent implements OnInit {
             [buy, ...prev].sort((a, b) => b.buyDate.localeCompare(a.buyDate)),
           );
           this.form.reset({
-            buyDate: this.today,
+            buyDate: new Date(),
             amountVnd: null as unknown as number,
           });
           this.saving.set(false);
@@ -291,7 +323,10 @@ export class CryptoBuyDialogComponent implements OnInit {
   }
 
   startEditBuy(buy: CryptoBuyDto) {
-    this.editForm.setValue({ buyDate: buy.buyDate, amountVnd: buy.amountVnd });
+    this.editForm.setValue({
+      buyDate: isoToDate(buy.buyDate),
+      amountVnd: buy.amountVnd,
+    });
     this.editingBuyId.set(buy.id);
   }
 
@@ -305,7 +340,7 @@ export class CryptoBuyDialogComponent implements OnInit {
         this.data.catId,
         this.data.asset.id,
         buy.id,
-        { buyDate, amountVnd },
+        { buyDate: dateToIso(buyDate), amountVnd },
       )
       .subscribe({
         next: (updated) => {

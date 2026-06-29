@@ -16,12 +16,27 @@ import { MatInputModule } from '@angular/material/input';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule } from '@ngx-translate/core';
-import { AssetCategoryDto, AssetDto } from '@nhabibap-myportfolio/shared-types';
+import {
+  AssetCategoryDto,
+  AssetDto,
+  DcaSchedule,
+  DCA_METADATA_KEY,
+} from '@nhabibap-myportfolio/shared-types';
 import { BoardApiService } from '../../../../../core/board-api.service';
 import { VndCurrencyPipe } from '../../../../../shared/pipes/vnd-currency.pipe';
 import { StatCardComponent } from '../../../../../shared/components/stat-card/stat-card.component';
+import {
+  dcaStatus,
+  daysUntilDca,
+  nextDcaDate,
+  DcaStatus,
+} from '../../../../../shared/util/dca.util';
 import { GoldBuyDialogComponent } from './gold-buy-dialog.component';
 import { CryptoBuyDialogComponent } from './crypto-buy-dialog.component';
+import {
+  DcaScheduleDialogComponent,
+  DcaScheduleDialogData,
+} from './dca-schedule-dialog.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -112,6 +127,9 @@ import { CryptoBuyDialogComponent } from './crypto-buy-dialog.component';
               <th>{{ 'STATS.PCT' | translate }}</th>
             }
             <th>{{ 'ASSETS.LAST_UPDATED' | translate }}</th>
+            @if (!isCash()) {
+              <th>{{ 'DCA.NEXT' | translate }}</th>
+            }
             <th></th>
           </tr>
         </thead>
@@ -154,6 +172,24 @@ import { CryptoBuyDialogComponent } from './crypto-buy-dialog.component';
                   </td>
                 }
                 <td>{{ asset.lastEntryDate ?? '—' }}</td>
+                @if (!isCash()) {
+                  <td>
+                    @let dcaEdit = dcaInfo(asset);
+                    @if (dcaEdit) {
+                      <span
+                        class="dca-badge"
+                        [class.dca-badge--due]="dcaEdit.status === 'due'"
+                      >
+                        {{ dcaEdit.next }}
+                        @if (dcaEdit.status === 'due') {
+                          · {{ 'DCA.DUE' | translate }}
+                        }
+                      </span>
+                    } @else {
+                      —
+                    }
+                  </td>
+                }
                 <td style="white-space:nowrap">
                   <button
                     mat-icon-button
@@ -196,7 +232,37 @@ import { CryptoBuyDialogComponent } from './crypto-buy-dialog.component';
                   </td>
                 }
                 <td>{{ asset.lastEntryDate ?? '—' }}</td>
+                @if (!isCash()) {
+                  <td>
+                    @let dca = dcaInfo(asset);
+                    @if (dca) {
+                      <span
+                        class="dca-badge"
+                        [class.dca-badge--due]="dca.status === 'due'"
+                        [matTooltip]="
+                          dca.tooltip | translate: dca.tooltipParams
+                        "
+                      >
+                        {{ dca.next }}
+                        @if (dca.status === 'due') {
+                          · {{ 'DCA.DUE' | translate }}
+                        }
+                      </span>
+                    } @else {
+                      <span class="dca-none">—</span>
+                    }
+                  </td>
+                }
                 <td style="white-space:nowrap">
+                  @if (!isCash()) {
+                    <button
+                      mat-icon-button
+                      [matTooltip]="'DCA.SET_REMINDER' | translate"
+                      (click)="openDcaSchedule(asset)"
+                    >
+                      <mat-icon>event_repeat</mat-icon>
+                    </button>
+                  }
                   @if (category().type === 'GOLD') {
                     <button
                       mat-icon-button
@@ -236,7 +302,7 @@ import { CryptoBuyDialogComponent } from './crypto-buy-dialog.component';
           @if (category().assets.length === 0) {
             <tr>
               <td
-                [attr.colspan]="isCash() ? 4 : 7"
+                [attr.colspan]="isCash() ? 4 : 8"
                 style="text-align:center; color:var(--mat-sys-on-surface-variant); padding:20px"
               >
                 {{ 'ASSETS.EMPTY' | translate }}
@@ -303,6 +369,23 @@ import { CryptoBuyDialogComponent } from './crypto-buy-dialog.component';
         padding: 2px 0;
         text-align: inherit;
       }
+      .dca-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+        background: var(--mat-sys-surface-container-high);
+        color: var(--mat-sys-on-surface-variant);
+      }
+      .dca-badge--due {
+        background: color-mix(in srgb, #ef4444 18%, transparent);
+        color: #ef4444;
+      }
+      .dca-none {
+        color: var(--mat-sys-on-surface-variant);
+      }
     `,
   ],
 })
@@ -314,6 +397,8 @@ export class CategoryAssetsTabComponent {
   private readonly api = inject(BoardApiService);
   private readonly fb = inject(FormBuilder);
   private readonly dialog = inject(MatDialog);
+
+  readonly today = new Date().toISOString().slice(0, 10);
 
   isCash = computed(() => this.category().type === 'CASH');
   isGold = computed(() => this.category().type === 'GOLD');
@@ -399,6 +484,43 @@ export class CategoryAssetsTabComponent {
         catId: this.category().id,
         asset,
       },
+    });
+    ref.afterClosed().subscribe((changed: boolean) => {
+      if (changed) this.refreshed.emit();
+    });
+  }
+
+  private readSchedule(asset: AssetDto): DcaSchedule | null {
+    const raw = asset.metadata?.[DCA_METADATA_KEY];
+    return raw ? (raw as DcaSchedule) : null;
+  }
+
+  dcaInfo(asset: AssetDto): {
+    next: string;
+    status: DcaStatus;
+    tooltip: string;
+    tooltipParams: { days: number };
+  } | null {
+    const schedule = this.readSchedule(asset);
+    if (!schedule) return null;
+    const status = dcaStatus(schedule, this.today);
+    const days = daysUntilDca(schedule, this.today);
+    return {
+      next: nextDcaDate(schedule),
+      status,
+      tooltip: status === 'due' ? 'DCA.OVERDUE_BY' : 'DCA.IN_DAYS',
+      tooltipParams: { days: Math.abs(days) },
+    };
+  }
+
+  openDcaSchedule(asset: AssetDto) {
+    const ref = this.dialog.open(DcaScheduleDialogComponent, {
+      width: '460px',
+      data: {
+        boardId: this.boardId(),
+        catId: this.category().id,
+        asset,
+      } satisfies DcaScheduleDialogData,
     });
     ref.afterClosed().subscribe((changed: boolean) => {
       if (changed) this.refreshed.emit();

@@ -17,10 +17,16 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import {
+  MAT_DATE_LOCALE,
+  provideNativeDateAdapter,
+} from '@angular/material/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { AssetDto, GoldBuyDto } from '@nhabibap-myportfolio/shared-types';
 import { BoardApiService } from '../../../../../core/board-api.service';
 import { VndCurrencyPipe } from '../../../../../shared/pipes/vnd-currency.pipe';
+import { dateToIso, isoToDate } from '../../../../../shared/util/date.util';
 
 export interface GoldBuyDialogData {
   boardId: string;
@@ -32,6 +38,11 @@ export interface GoldBuyDialogData {
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-gold-buy-dialog',
   standalone: true,
+  // en-GB -> dd/mm/yyyy display, matching the previous native date input.
+  providers: [
+    provideNativeDateAdapter(),
+    { provide: MAT_DATE_LOCALE, useValue: 'en-GB' },
+  ],
   imports: [
     DecimalPipe,
     ReactiveFormsModule,
@@ -41,6 +52,7 @@ export interface GoldBuyDialogData {
     MatInputModule,
     MatIconModule,
     MatProgressBarModule,
+    MatDatepickerModule,
     VndCurrencyPipe,
     TranslateModule,
   ],
@@ -57,7 +69,15 @@ export interface GoldBuyDialogData {
       <form [formGroup]="form" (ngSubmit)="addBuy()" class="buy-form">
         <mat-form-field appearance="outline" class="field-date">
           <mat-label>{{ 'GOLD.BUY_DATE' | translate }}</mat-label>
-          <input matInput type="date" formControlName="buyDate" [max]="today" />
+          <input
+            matInput
+            [matDatepicker]="picker"
+            formControlName="buyDate"
+            [max]="todayDate"
+            (click)="picker.open()"
+          />
+          <mat-datepicker-toggle matIconSuffix [for]="picker" />
+          <mat-datepicker #picker />
         </mat-form-field>
         <mat-form-field appearance="outline" class="field-chi">
           <mat-label>{{ 'GOLD.CHI_AMOUNT' | translate }}</mat-label>
@@ -97,13 +117,16 @@ export interface GoldBuyDialogData {
             @for (buy of buys(); track buy.id) {
               @if (editingBuyId() === buy.id) {
                 <tr>
-                  <td>
+                  <td class="date-cell">
                     <input
                       class="inline-input"
-                      type="date"
+                      [matDatepicker]="editPicker"
                       [formControl]="editForm.controls.buyDate"
-                      [max]="today"
+                      [max]="todayDate"
+                      (click)="editPicker.open()"
                     />
+                    <mat-datepicker-toggle [for]="editPicker" />
+                    <mat-datepicker #editPicker />
                   </td>
                   <td>
                     <input
@@ -252,6 +275,15 @@ export interface GoldBuyDialogData {
         padding: 2px 0;
         text-align: inherit;
       }
+      .date-cell {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+      }
+      .date-cell mat-datepicker-toggle {
+        --mat-icon-button-touch-target-display: none;
+        flex: 0 0 auto;
+      }
     `,
   ],
 })
@@ -261,7 +293,7 @@ export class GoldBuyDialogComponent implements OnInit {
   private readonly api = inject(BoardApiService);
   private readonly fb = inject(FormBuilder);
 
-  readonly today = new Date().toISOString().slice(0, 10);
+  readonly todayDate = new Date();
 
   loading = signal(true);
   saving = signal(false);
@@ -270,7 +302,7 @@ export class GoldBuyDialogComponent implements OnInit {
   editingBuyId = signal<string | null>(null);
 
   form = this.fb.nonNullable.group({
-    buyDate: [this.today, Validators.required],
+    buyDate: [this.todayDate as Date, Validators.required],
     chiAmount: [
       null as unknown as number,
       [Validators.required, Validators.min(0.0001)],
@@ -282,7 +314,7 @@ export class GoldBuyDialogComponent implements OnInit {
   });
 
   editForm = this.fb.nonNullable.group({
-    buyDate: [this.today, Validators.required],
+    buyDate: [this.todayDate as Date, Validators.required],
     chiAmount: [
       null as unknown as number,
       [Validators.required, Validators.min(0.0001)],
@@ -316,7 +348,7 @@ export class GoldBuyDialogComponent implements OnInit {
     this.saving.set(true);
     this.api
       .createGoldBuy(this.data.boardId, this.data.catId, this.data.asset.id, {
-        buyDate,
+        buyDate: dateToIso(buyDate),
         chiAmount,
         amountVnd,
       })
@@ -326,7 +358,7 @@ export class GoldBuyDialogComponent implements OnInit {
             [buy, ...prev].sort((a, b) => b.buyDate.localeCompare(a.buyDate)),
           );
           this.form.reset({
-            buyDate: this.today,
+            buyDate: new Date(),
             chiAmount: null as unknown as number,
             amountVnd: null as unknown as number,
           });
@@ -339,7 +371,7 @@ export class GoldBuyDialogComponent implements OnInit {
 
   startEditBuy(buy: GoldBuyDto) {
     this.editForm.setValue({
-      buyDate: buy.buyDate,
+      buyDate: isoToDate(buy.buyDate),
       chiAmount: buy.chiAmount,
       amountVnd: buy.amountVnd,
     });
@@ -356,7 +388,7 @@ export class GoldBuyDialogComponent implements OnInit {
         this.data.catId,
         this.data.asset.id,
         buy.id,
-        { buyDate, chiAmount, amountVnd },
+        { buyDate: dateToIso(buyDate), chiAmount, amountVnd },
       )
       .subscribe({
         next: (updated) => {

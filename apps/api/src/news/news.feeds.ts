@@ -14,11 +14,13 @@ export interface FeedSource {
  */
 export const NEWS_FEEDS: Record<CategoryType, FeedSource[]> = {
   [CategoryType.GOLD]: [
-    { source: 'CafeF', url: 'https://cafef.vn/vang.rss' },
+    // VN gold-price coverage: SJC / PNJ / DOJI / vàng miếng quotes + analysis.
+    { source: 'VnEconomy', url: 'https://vneconomy.vn/tai-chinh.rss' },
     {
-      source: 'Vietstock',
-      url: 'https://vietstock.vn/144/hang-hoa.rss',
+      source: '24h',
+      url: 'https://cdn.24h.com.vn/upload/rss/taichinhbatdongsan.rss',
     },
+    { source: 'Vietstock', url: 'https://vietstock.vn/144/hang-hoa.rss' },
   ],
   [CategoryType.OPEN_FUND]: [
     { source: 'CafeF', url: 'https://cafef.vn/thi-truong-chung-khoan.rss' },
@@ -44,4 +46,13 @@ export const NEWS_FEEDS: Record<CategoryType, FeedSource[]> = {
   [CategoryType.CASH]: [
     { source: 'CafeF', url: 'https://cafef.vn/tai-chinh-quoc-te.rss' },
   ],
+};
+
+/**
+ * Optional per-category title filter. GOLD feeds are broad VN finance feeds, so
+ * we keep only gold-relevant items (SJC / PNJ / DOJI / vàng quotes). Categories
+ * without an entry surface every item from their (already focused) feeds.
+ */
+export const NEWS_FILTERS: Partial<Record<CategoryType, RegExp>> = {
+  [CategoryType.GOLD]: /vàng|vang|SJC|PNJ|DOJI|gold|bảo tín|giá vàng/i,
 };

@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import axios from 'axios';
 import { CategoryType, NewsItemDto } from '@nhabibap-myportfolio/shared-types';
-import { FeedSource, NEWS_FEEDS } from './news.feeds';
+import { FeedSource, NEWS_FEEDS, NEWS_FILTERS } from './news.feeds';
 
 interface CacheEntry {
   items: NewsItemDto[];
@@ -29,8 +29,10 @@ export class NewsService {
       feeds.map((feed) => this.fetchFeed(feed)),
     );
 
+    const filter = NEWS_FILTERS[type];
     const items = results
       .flat()
+      .filter((item) => !filter || filter.test(item.title))
       .sort((a, b) => this.publishedTime(b) - this.publishedTime(a))
       .slice(0, MAX_ITEMS_PER_TYPE);
 

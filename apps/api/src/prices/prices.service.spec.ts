@@ -1,8 +1,17 @@
 import axios from 'axios';
+import { ConfigService } from '@nestjs/config';
 import { PricesService } from './prices.service';
 
 jest.mock('axios');
 const mockedGet = axios.get as jest.Mock;
+// Error path uses axios.isAxiosError; jest.mock stubs it out, so restore it.
+(axios as unknown as { isAxiosError: jest.Mock }).isAxiosError = jest
+  .fn()
+  .mockReturnValue(false);
+
+function makeConfig(apiKey?: string): ConfigService {
+  return { get: jest.fn().mockReturnValue(apiKey) } as unknown as ConfigService;
+}
 
 const CRYPTO = {
   bitcoin: { usd: 59214, usd_24h_change: -0.92 },
@@ -27,7 +36,7 @@ describe('PricesService', () => {
   let service: PricesService;
 
   beforeEach(() => {
-    service = new PricesService();
+    service = new PricesService(makeConfig());
     mockedGet.mockReset();
   });
 
@@ -65,6 +74,29 @@ describe('PricesService', () => {
       expect(items.find((i) => i.symbol === 'GOLD-SJC')).toBeUndefined();
       expect(items.find((i) => i.symbol === 'BTC')).toBeDefined();
       expect(items.find((i) => i.symbol === 'USD/VND')).toBeDefined();
+    });
+
+    it('sends the CoinGecko demo key header when configured', async () => {
+      service = new PricesService(makeConfig('cg-demo-123'));
+      mockedGet.mockImplementation((url: string) => routeByUrl(url));
+      await service.getQuotes();
+
+      const cgCall = mockedGet.mock.calls.find((c) =>
+        String(c[0]).includes('coingecko'),
+      );
+      expect(cgCall?.[1]?.headers).toEqual({
+        'x-cg-demo-api-key': 'cg-demo-123',
+      });
+    });
+
+    it('omits the header when no key is configured', async () => {
+      mockedGet.mockImplementation((url: string) => routeByUrl(url));
+      await service.getQuotes();
+
+      const cgCall = mockedGet.mock.calls.find((c) =>
+        String(c[0]).includes('coingecko'),
+      );
+      expect(cgCall?.[1]?.headers).toBeUndefined();
     });
 
     it('caches within the TTL (no second fetch burst)', async () => {

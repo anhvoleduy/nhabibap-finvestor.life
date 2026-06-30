@@ -21,11 +21,12 @@ const POLL_MS = 60_000;
     @if (quotes.value().length > 0) {
       <div class="ticker" role="marquee" aria-label="Realtime asset prices">
         <div class="ticker__track">
-          <!-- Duplicated run so the marquee scrolls seamlessly. -->
-          @for (pass of [0, 1]; track pass) {
+          <!-- Repeated runs so the marquee scrolls seamlessly even with few
+               items. Scroll distance = one run width (-25% of 4 runs). -->
+          @for (pass of [0, 1, 2, 3]; track pass) {
             <div
               class="ticker__run"
-              [attr.aria-hidden]="pass === 1 ? 'true' : null"
+              [attr.aria-hidden]="pass === 0 ? null : 'true'"
             >
               @for (q of quotes.value(); track q.symbol) {
                 <span class="ticker__item">
@@ -109,7 +110,7 @@ const POLL_MS = 60_000;
           transform: translateX(0);
         }
         to {
-          transform: translateX(-50%);
+          transform: translateX(-25%);
         }
       }
       @media (prefers-reduced-motion: reduce) {

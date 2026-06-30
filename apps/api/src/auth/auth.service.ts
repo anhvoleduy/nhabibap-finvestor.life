@@ -48,9 +48,12 @@ export class AuthService {
     if (!user) throw new UnauthorizedException('Invalid credentials');
     const valid = await bcrypt.compare(dto.password, user.passwordHash);
     if (!valid) throw new UnauthorizedException('Invalid credentials');
-    if (!user.emailVerified)
-      throw new UnauthorizedException('Email not verified');
-    return this.buildResponse(user.id, user.email, user.name);
+    return this.buildResponse(
+      user.id,
+      user.email,
+      user.name,
+      user.emailVerified,
+    );
   }
 
   async verifyEmail(token: string): Promise<AuthResponseDto> {
@@ -62,7 +65,12 @@ export class AuthService {
     )
       throw new BadRequestException('Verification token expired');
     const verified = await this.users.markEmailVerified(user);
-    return this.buildResponse(verified.id, verified.email, verified.name);
+    return this.buildResponse(
+      verified.id,
+      verified.email,
+      verified.name,
+      verified.emailVerified,
+    );
   }
 
   async resendVerification(email: string): Promise<MessageResponseDto> {
@@ -83,11 +91,12 @@ export class AuthService {
     id: string,
     email: string,
     name: string,
+    emailVerified: boolean,
   ): AuthResponseDto {
     const payload: JwtPayloadDto = { sub: id, email };
     return {
       accessToken: this.jwt.sign(payload),
-      user: { id, email, name },
+      user: { id, email, name, emailVerified },
     };
   }
 }

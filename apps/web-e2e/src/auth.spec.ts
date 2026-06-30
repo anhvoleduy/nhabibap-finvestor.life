@@ -166,3 +166,40 @@ test.describe('Register page', () => {
     await expect(page.locator('.error-msg')).toBeVisible();
   });
 });
+
+test.describe('Unverified banner', () => {
+  test('unverified user can log in and sees the verify banner', async ({
+    page,
+    request,
+  }) => {
+    const email = uniqueEmail('banner');
+    await registerUser(request, email);
+
+    await page.goto('/auth/login');
+    await page.fill('input[type="email"]', email);
+    await page.fill('input[type="password"]', 'password123');
+    await page.click('button[type="submit"]');
+
+    await expect(page).toHaveURL(/\/boards/, { timeout: 10000 });
+    await expect(page.locator('.verify-banner')).toBeVisible();
+
+    await page.locator('.verify-banner__action').click();
+    await expect(page.locator('.verify-banner__sent')).toBeVisible();
+  });
+
+  test('verified user does not see the verify banner', async ({
+    page,
+    request,
+  }) => {
+    const email = uniqueEmail('noban');
+    await registerAndVerify(request, email);
+
+    await page.goto('/auth/login');
+    await page.fill('input[type="email"]', email);
+    await page.fill('input[type="password"]', 'password123');
+    await page.click('button[type="submit"]');
+
+    await expect(page).toHaveURL(/\/boards/, { timeout: 10000 });
+    await expect(page.locator('.verify-banner')).toHaveCount(0);
+  });
+});

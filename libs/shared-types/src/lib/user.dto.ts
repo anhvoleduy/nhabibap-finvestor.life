@@ -12,6 +12,9 @@ export class UserDto {
   name!: string;
 
   @ApiProperty()
+  emailVerified!: boolean;
+
+  @ApiProperty()
   createdAt!: string;
 }
 

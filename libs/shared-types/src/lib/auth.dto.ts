@@ -36,6 +36,9 @@ export class AuthUserDto {
 
   @ApiProperty()
   name!: string;
+
+  @ApiProperty()
+  emailVerified!: boolean;
 }
 
 export class AuthResponseDto {

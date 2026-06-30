@@ -3,7 +3,7 @@ import { signal } from '@angular/core';
 import { provideRouter, Router, NavigationEnd } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideTranslateService } from '@ngx-translate/core';
-import { Subject } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
 import { ShellComponent } from './shell.component';
 import { AuthService } from '../../../core/auth.service';
 import { ThemeService } from '../../../core/theme.service';
@@ -13,9 +13,14 @@ const COLLAPSE_KEY = 'shell.sidebar.collapsed';
 
 let auth: {
   currentUser: ReturnType<
-    typeof signal<{ name: string; email: string } | null>
+    typeof signal<{
+      name: string;
+      email: string;
+      emailVerified?: boolean;
+    } | null>
   >;
   logout: ReturnType<typeof vi.fn>;
+  resendVerification: ReturnType<typeof vi.fn>;
 };
 let theme: {
   isDark: ReturnType<typeof signal<boolean>>;
@@ -34,6 +39,7 @@ function setup(): {
   auth = {
     currentUser: signal({ name: 'Jane Doe', email: 'jane@example.com' }),
     logout: vi.fn(),
+    resendVerification: vi.fn().mockReturnValue(of({ message: 'ok' })),
   };
   theme = { isDark: signal(false), toggle: vi.fn() };
   lang = { currentLang: signal('vi'), setLanguage: vi.fn() };
@@ -187,6 +193,74 @@ describe('ShellComponent', () => {
       const { component } = setup();
       auth.currentUser.set(null);
       expect(component.initials()).toBe('');
+    });
+  });
+
+  describe('unverified banner', () => {
+    it('unverified is false when emailVerified missing', () => {
+      const { component } = setup();
+      expect(component.unverified()).toBe(false);
+    });
+
+    it('unverified is true when emailVerified is false', () => {
+      const { component } = setup();
+      auth.currentUser.set({
+        name: 'Jane',
+        email: 'jane@example.com',
+        emailVerified: false,
+      });
+      expect(component.unverified()).toBe(true);
+    });
+
+    it('unverified is false when emailVerified is true', () => {
+      const { component } = setup();
+      auth.currentUser.set({
+        name: 'Jane',
+        email: 'jane@example.com',
+        emailVerified: true,
+      });
+      expect(component.unverified()).toBe(false);
+    });
+
+    it('resendVerification calls auth with current email and sets sent', () => {
+      const { component } = setup();
+      auth.currentUser.set({
+        name: 'Jane',
+        email: 'jane@example.com',
+        emailVerified: false,
+      });
+
+      component.resendVerification();
+
+      expect(auth.resendVerification).toHaveBeenCalledWith({
+        email: 'jane@example.com',
+      });
+      expect(component.resendState()).toBe('sent');
+    });
+
+    it('resendVerification sets error state on failure', () => {
+      const { component } = setup();
+      auth.resendVerification.mockReturnValue(
+        throwError(() => new Error('fail')),
+      );
+      auth.currentUser.set({
+        name: 'Jane',
+        email: 'jane@example.com',
+        emailVerified: false,
+      });
+
+      component.resendVerification();
+
+      expect(component.resendState()).toBe('error');
+    });
+
+    it('resendVerification no-op when no user email', () => {
+      const { component } = setup();
+      auth.currentUser.set(null);
+
+      component.resendVerification();
+
+      expect(auth.resendVerification).not.toHaveBeenCalled();
     });
   });
 });

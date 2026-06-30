@@ -146,7 +146,7 @@ describe('AuthService', () => {
       ).rejects.toThrow(UnauthorizedException);
     });
 
-    it('throws UnauthorizedException when email not verified', async () => {
+    it('allows login when email not yet verified (soft gating)', async () => {
       const hash = await bcrypt.hash('secret', 10);
       usersService.findByEmail.mockResolvedValue({
         ...mockUser,
@@ -154,9 +154,13 @@ describe('AuthService', () => {
         emailVerified: false,
       });
 
-      await expect(
-        service.login({ email: mockUser.email, password: 'secret' }),
-      ).rejects.toThrow(UnauthorizedException);
+      const result = await service.login({
+        email: mockUser.email,
+        password: 'secret',
+      });
+
+      expect(result.accessToken).toBe('jwt-token');
+      expect(result.user.emailVerified).toBe(false);
     });
   });
 

@@ -69,7 +69,13 @@
     "COLLAPSE": "Collapse sidebar",
     "EXPAND": "Expand sidebar",
     "MENU": "Menu",
-    "CLOSE": "Close menu"
+    "CLOSE": "Close menu",
+    "VERIFY_BANNER": {
+      "TEXT": "Your email is not verified yet.",
+      "RESEND": "Resend email",
+      "RETRY": "Try again",
+      "SENT": "Email sent"
+    }
   },
   "ROLES": {
     "OWNER": "Owner",

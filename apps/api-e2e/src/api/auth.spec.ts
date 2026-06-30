@@ -129,7 +129,7 @@ describe('Auth', () => {
       expect(res.data.user.email).toBe(email);
     });
 
-    it('rejects login before email is verified with 401', async () => {
+    it('allows login before email is verified (soft gating)', async () => {
       const email = uniqueEmail('unverified');
       await axios.post('/auth/register', {
         email,
@@ -137,13 +137,14 @@ describe('Auth', () => {
         name: 'Unverified User',
       });
 
-      const res = await axios.post(
-        '/auth/login',
-        { email, password: 'correct123' },
-        { validateStatus: () => true },
-      );
+      const res = await axios.post('/auth/login', {
+        email,
+        password: 'correct123',
+      });
 
-      expect(res.status).toBe(401);
+      expect(res.status).toBe(201);
+      expect(res.data.accessToken).toBeTruthy();
+      expect(res.data.user.emailVerified).toBe(false);
     });
 
     it('rejects wrong password with 401', async () => {

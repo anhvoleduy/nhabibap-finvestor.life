@@ -13,7 +13,12 @@ import { AuthService } from './auth.service';
 
 const mockResponse = {
   accessToken: 'test-jwt',
-  user: { id: 'u1', email: 'user@example.com', name: 'User' },
+  user: {
+    id: 'u1',
+    email: 'user@example.com',
+    name: 'User',
+    emailVerified: true,
+  },
 };
 
 describe('AuthService', () => {

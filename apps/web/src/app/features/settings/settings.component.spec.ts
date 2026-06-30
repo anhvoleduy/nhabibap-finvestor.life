@@ -8,10 +8,15 @@ import { AuthService } from '../../core/auth.service';
 
 let auth: {
   currentUser: ReturnType<
-    typeof signal<{ name: string; email: string } | null>
+    typeof signal<{
+      name: string;
+      email: string;
+      emailVerified?: boolean;
+    } | null>
   >;
   updateProfile: ReturnType<typeof vi.fn>;
   updatePassword: ReturnType<typeof vi.fn>;
+  resendVerification: ReturnType<typeof vi.fn>;
 };
 
 function setup(overrides: Partial<typeof auth> = {}): {
@@ -19,9 +24,14 @@ function setup(overrides: Partial<typeof auth> = {}): {
   component: SettingsComponent;
 } {
   auth = {
-    currentUser: signal({ name: 'Existing', email: 'old@e.com' }),
+    currentUser: signal({
+      name: 'Existing',
+      email: 'old@e.com',
+      emailVerified: false,
+    }),
     updateProfile: vi.fn().mockReturnValue(of({})),
     updatePassword: vi.fn().mockReturnValue(of({})),
+    resendVerification: vi.fn().mockReturnValue(of({})),
     ...overrides,
   } as never;
 
@@ -91,6 +101,48 @@ describe('SettingsComponent', () => {
 
       expect(component.profileError()).toBe('no');
       expect(component.profileLoading()).toBe(false);
+    });
+  });
+
+  describe('email verification', () => {
+    it('emailVerified true when user verified', () => {
+      const { component } = setup({
+        currentUser: signal({
+          name: 'Existing',
+          email: 'old@e.com',
+          emailVerified: true,
+        }),
+      });
+      expect(component.emailVerified()).toBe(true);
+    });
+
+    it('emailVerified false when user unverified', () => {
+      const { component } = setup();
+      expect(component.emailVerified()).toBe(false);
+    });
+
+    it('resendVerification calls auth and sets sent', () => {
+      const { component } = setup();
+      component.resendVerification();
+      expect(auth.resendVerification).toHaveBeenCalledWith({
+        email: 'old@e.com',
+      });
+      expect(component.resendState()).toBe('sent');
+    });
+
+    it('resendVerification sets error on failure', () => {
+      const { component } = setup({
+        resendVerification: vi.fn().mockReturnValue(throwError(() => ({}))),
+      });
+      component.resendVerification();
+      expect(component.resendState()).toBe('error');
+    });
+
+    it('resendVerification skips while sending', () => {
+      const { component } = setup();
+      component.resendState.set('sending');
+      component.resendVerification();
+      expect(auth.resendVerification).not.toHaveBeenCalled();
     });
   });
 

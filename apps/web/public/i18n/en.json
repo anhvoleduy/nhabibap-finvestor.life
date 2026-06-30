@@ -177,7 +177,12 @@
       "NAME": "Full name",
       "SAVE": "Save changes",
       "SUCCESS": "Updated successfully",
-      "ERROR_DEFAULT": "Update failed"
+      "ERROR_DEFAULT": "Update failed",
+      "EMAIL_VERIFIED": "Email verified",
+      "EMAIL_UNVERIFIED": "Email not verified yet",
+      "RESEND": "Resend",
+      "RESEND_RETRY": "Try again",
+      "RESENT": "Sent"
     },
     "PASSWORD": {
       "TITLE": "Change password",

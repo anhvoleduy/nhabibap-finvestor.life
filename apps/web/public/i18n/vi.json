@@ -177,7 +177,12 @@
       "NAME": "Họ tên",
       "SAVE": "Lưu thay đổi",
       "SUCCESS": "Cập nhật thành công",
-      "ERROR_DEFAULT": "Cập nhật thất bại"
+      "ERROR_DEFAULT": "Cập nhật thất bại",
+      "EMAIL_VERIFIED": "Email đã xác minh",
+      "EMAIL_UNVERIFIED": "Email chưa được xác minh",
+      "RESEND": "Gửi lại",
+      "RESEND_RETRY": "Thử lại",
+      "RESENT": "Đã gửi"
     },
     "PASSWORD": {
       "TITLE": "Đổi mật khẩu",

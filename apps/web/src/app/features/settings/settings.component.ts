@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   inject,
   signal,
 } from '@angular/core';
@@ -12,6 +13,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../core/auth.service';
 
@@ -28,6 +30,7 @@ import { AuthService } from '../../core/auth.service';
     MatIconModule,
     MatProgressBarModule,
     MatDividerModule,
+    MatTooltipModule,
     TranslateModule,
   ],
   template: `
@@ -62,6 +65,43 @@ import { AuthService } from '../../core/auth.service';
                 formControlName="email"
                 autocomplete="email"
               />
+              @if (emailVerified()) {
+                <mat-icon
+                  matSuffix
+                  class="email-verified"
+                  [matTooltip]="'SETTINGS.PROFILE.EMAIL_VERIFIED' | translate"
+                  >verified</mat-icon
+                >
+              } @else {
+                @switch (resendState()) {
+                  @case ('sent') {
+                    <span matSuffix class="email-resent">
+                      <mat-icon>check</mat-icon>
+                      {{ 'SETTINGS.PROFILE.RESENT' | translate }}
+                    </span>
+                  }
+                  @default {
+                    <button
+                      matSuffix
+                      mat-button
+                      type="button"
+                      class="email-resend"
+                      [disabled]="resendState() === 'sending'"
+                      [matTooltip]="
+                        'SETTINGS.PROFILE.EMAIL_UNVERIFIED' | translate
+                      "
+                      (click)="resendVerification()"
+                    >
+                      {{
+                        (resendState() === 'error'
+                          ? 'SETTINGS.PROFILE.RESEND_RETRY'
+                          : 'SETTINGS.PROFILE.RESEND'
+                        ) | translate
+                      }}
+                    </button>
+                  }
+                }
+              }
             </mat-form-field>
 
             @if (profileError()) {
@@ -240,6 +280,29 @@ import { AuthService } from '../../core/auth.service';
         background: #dcfce7;
         color: #166534;
       }
+
+      .email-verified {
+        color: #16a34a;
+      }
+
+      .email-resent {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 13px;
+        color: #166534;
+        white-space: nowrap;
+
+        mat-icon {
+          font-size: 18px;
+          width: 18px;
+          height: 18px;
+        }
+      }
+
+      .email-resend {
+        white-space: nowrap;
+      }
     `,
   ],
 })
@@ -272,6 +335,21 @@ export class SettingsComponent {
   pwLoading = signal(false);
   pwError = signal('');
   pwSuccess = signal(false);
+
+  emailVerified = computed(
+    () => this.auth.currentUser()?.emailVerified === true,
+  );
+  resendState = signal<'idle' | 'sending' | 'sent' | 'error'>('idle');
+
+  resendVerification() {
+    const email = this.auth.currentUser()?.email;
+    if (!email || this.resendState() === 'sending') return;
+    this.resendState.set('sending');
+    this.auth.resendVerification({ email }).subscribe({
+      next: () => this.resendState.set('sent'),
+      error: () => this.resendState.set('error'),
+    });
+  }
 
   submitProfile() {
     if (this.profileForm.invalid || this.profileForm.pristine) return;

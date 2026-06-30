@@ -55,8 +55,9 @@ describe('PriceTickerComponent', () => {
     const text = fixture.nativeElement.textContent as string;
     expect(text).toContain('Bitcoin');
     expect(text).toContain('Vàng SJC');
-    // changePct null → no arrow rendered for gold, present for BTC.
-    expect(text).toContain('▼');
+    // changePct present → a direction arrow icon is rendered (gold has none).
+    const arrows = fixture.nativeElement.querySelectorAll('.ticker__arrow');
+    expect(arrows.length).toBeGreaterThan(0);
   });
 
   it('renders nothing when the feed is empty', async () => {

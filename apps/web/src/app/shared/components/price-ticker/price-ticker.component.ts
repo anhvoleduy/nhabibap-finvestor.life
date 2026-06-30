@@ -7,6 +7,7 @@ import {
 } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { httpResource } from '@angular/common/http';
+import { MatIconModule } from '@angular/material/icon';
 import { PriceQuoteDto } from '@nhabibap-myportfolio/shared-types';
 
 const POLL_MS = 60_000;
@@ -15,7 +16,7 @@ const POLL_MS = 60_000;
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-price-ticker',
   standalone: true,
-  imports: [DecimalPipe],
+  imports: [DecimalPipe, MatIconModule],
   template: `
     @if (quotes.value().length > 0) {
       <div class="ticker" role="marquee" aria-label="Realtime asset prices">
@@ -38,7 +39,9 @@ const POLL_MS = 60_000;
                       [class.ticker__chg--up]="q.changePct >= 0"
                       [class.ticker__chg--down]="q.changePct < 0"
                     >
-                      {{ q.changePct >= 0 ? '▲' : '▼' }}
+                      <mat-icon class="ticker__arrow">{{
+                        q.changePct >= 0 ? 'arrow_drop_up' : 'arrow_drop_down'
+                      }}</mat-icon>
                       {{ q.changePct | number: '1.2-2' }}%
                     </span>
                   }
@@ -72,10 +75,11 @@ const POLL_MS = 60_000;
       }
       .ticker__item {
         display: inline-flex;
-        align-items: baseline;
+        align-items: center;
         gap: 6px;
         padding: 10px 20px;
         font-size: 14px;
+        white-space: nowrap;
       }
       .ticker__label {
         font-weight: 600;
@@ -83,6 +87,16 @@ const POLL_MS = 60_000;
       }
       .ticker__price {
         color: var(--mat-sys-on-surface-variant);
+      }
+      .ticker__chg {
+        display: inline-flex;
+        align-items: center;
+      }
+      .ticker__arrow {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        line-height: 18px;
       }
       .ticker__chg--up {
         color: #22c55e;

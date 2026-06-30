@@ -33,6 +33,7 @@ import {
 } from '../../../../../shared/util/dca.util';
 import { GoldBuyDialogComponent } from './gold-buy-dialog.component';
 import { CryptoBuyDialogComponent } from './crypto-buy-dialog.component';
+import { NewsSectionComponent } from './news-section.component';
 import {
   DcaScheduleDialogComponent,
   DcaScheduleDialogData,
@@ -54,6 +55,7 @@ import {
     VndCurrencyPipe,
     StatCardComponent,
     TranslateModule,
+    NewsSectionComponent,
   ],
   template: `
     <div class="cat-tab">
@@ -311,6 +313,8 @@ import {
           }
         </tbody>
       </table>
+
+      <app-news-section [type]="category().type" />
     </div>
   `,
   styles: [

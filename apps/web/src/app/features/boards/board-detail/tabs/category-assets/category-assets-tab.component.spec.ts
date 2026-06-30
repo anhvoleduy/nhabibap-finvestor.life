@@ -1,5 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideTranslateService } from '@ngx-translate/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { of } from 'rxjs';
@@ -75,6 +77,8 @@ function setup(
     imports: [CategoryAssetsTabComponent],
     providers: [
       provideAnimationsAsync(),
+      provideHttpClient(),
+      provideHttpClientTesting(),
       provideTranslateService(),
       { provide: BoardApiService, useValue: api },
     ],

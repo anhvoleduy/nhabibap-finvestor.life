@@ -177,6 +177,13 @@
       "ERROR_DEFAULT": "Đổi mật khẩu thất bại"
     }
   },
+  "NEWS": {
+    "TITLE": "Tin tức thị trường",
+    "LOADING": "Đang tải tin tức…",
+    "EMPTY": "Hiện chưa có tin tức.",
+    "ERROR": "Không tải được tin tức. Thử lại sau.",
+    "REFRESH": "Làm mới"
+  },
   "GOLD": {
     "TITLE": "Lịch sử mua vàng — {{name}}",
     "BUY_HISTORY": "Lịch sử mua",

@@ -9,6 +9,7 @@ import { BoardsModule } from '../boards/boards.module';
 import { AssetsModule } from '../assets/assets.module';
 import { EntriesModule } from '../entries/entries.module';
 import { CashFlowModule } from '../cash-flow/cash-flow.module';
+import { NewsModule } from '../news/news.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { CashFlowModule } from '../cash-flow/cash-flow.module';
     AssetsModule,
     EntriesModule,
     CashFlowModule,
+    NewsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

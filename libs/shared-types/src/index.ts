@@ -10,3 +10,4 @@ export * from './lib/nav.dto';
 export * from './lib/cash-flow.dto';
 export * from './lib/gold-buy.dto';
 export * from './lib/crypto-buy.dto';
+export * from './lib/news.dto';

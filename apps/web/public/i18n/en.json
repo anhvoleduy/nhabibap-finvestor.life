@@ -177,6 +177,13 @@
       "ERROR_DEFAULT": "Password change failed"
     }
   },
+  "NEWS": {
+    "TITLE": "Market news",
+    "LOADING": "Loading news…",
+    "EMPTY": "No news available right now.",
+    "ERROR": "Couldn't load news. Try again later.",
+    "REFRESH": "Refresh"
+  },
   "GOLD": {
     "TITLE": "Gold purchase history — {{name}}",
     "BUY_HISTORY": "Purchase history",

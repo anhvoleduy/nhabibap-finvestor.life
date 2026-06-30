@@ -53,3 +53,21 @@ export class JwtPayloadDto {
   @ApiProperty()
   email!: string;
 }
+
+export class VerifyEmailDto {
+  @ApiProperty()
+  @IsString()
+  @MinLength(1)
+  token!: string;
+}
+
+export class ResendVerificationDto {
+  @ApiProperty({ example: 'user@example.com' })
+  @IsEmail()
+  email!: string;
+}
+
+export class MessageResponseDto {
+  @ApiProperty()
+  message!: string;
+}

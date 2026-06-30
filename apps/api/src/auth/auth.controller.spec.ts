@@ -29,8 +29,14 @@ describe('AuthController', () => {
         {
           provide: AuthService,
           useValue: {
-            register: jest.fn().mockResolvedValue(mockAuthResponse),
+            register: jest
+              .fn()
+              .mockResolvedValue({ message: 'Check your email' }),
             login: jest.fn().mockResolvedValue(mockAuthResponse),
+            verifyEmail: jest.fn().mockResolvedValue(mockAuthResponse),
+            resendVerification: jest
+              .fn()
+              .mockResolvedValue({ message: 'Sent' }),
           },
         },
         {
@@ -58,7 +64,27 @@ describe('AuthController', () => {
       const result = await controller.register(dto);
 
       expect(authService.register).toHaveBeenCalledWith(dto);
+      expect(result).toEqual({ message: 'Check your email' });
+    });
+  });
+
+  describe('verifyEmail', () => {
+    it('delegates token to authService.verifyEmail', async () => {
+      const result = await controller.verifyEmail({ token: 'tok' });
+
+      expect(authService.verifyEmail).toHaveBeenCalledWith('tok');
       expect(result).toBe(mockAuthResponse);
+    });
+  });
+
+  describe('resendVerification', () => {
+    it('delegates email to authService.resendVerification', async () => {
+      const result = await controller.resendVerification({
+        email: 'a@b.com',
+      });
+
+      expect(authService.resendVerification).toHaveBeenCalledWith('a@b.com');
+      expect(result).toEqual({ message: 'Sent' });
     });
   });
 

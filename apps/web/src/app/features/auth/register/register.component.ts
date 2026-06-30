@@ -379,7 +379,10 @@ export class RegisterComponent {
     this.loading.set(true);
     this.error.set('');
     this.auth.register(this.form.getRawValue()).subscribe({
-      next: () => this.router.navigate(['/boards']),
+      next: () =>
+        this.router.navigate(['/auth/login'], {
+          queryParams: { registered: 1 },
+        }),
       error: (e) => {
         this.error.set(
           e?.error?.message ??

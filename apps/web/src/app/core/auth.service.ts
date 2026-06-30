@@ -5,7 +5,9 @@ import { tap } from 'rxjs';
 import {
   AuthResponseDto,
   LoginDto,
+  MessageResponseDto,
   RegisterDto,
+  ResendVerificationDto,
   UpdatePasswordDto,
   UpdateProfileDto,
   UserDto,
@@ -29,15 +31,26 @@ export class AuthService {
   }
 
   register(dto: RegisterDto) {
-    return this.http
-      .post<AuthResponseDto>('/api/auth/register', dto)
-      .pipe(tap((res) => this.persist(res)));
+    return this.http.post<MessageResponseDto>('/api/auth/register', dto);
   }
 
   login(dto: LoginDto) {
     return this.http
       .post<AuthResponseDto>('/api/auth/login', dto)
       .pipe(tap((res) => this.persist(res)));
+  }
+
+  verifyEmail(token: string) {
+    return this.http
+      .post<AuthResponseDto>('/api/auth/verify-email', { token })
+      .pipe(tap((res) => this.persist(res)));
+  }
+
+  resendVerification(dto: ResendVerificationDto) {
+    return this.http.post<MessageResponseDto>(
+      '/api/auth/resend-verification',
+      dto,
+    );
   }
 
   updateProfile(dto: UpdateProfileDto) {

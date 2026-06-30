@@ -37,7 +37,8 @@
       "SUBMIT": "Đăng nhập",
       "NO_ACCOUNT": "Chưa có tài khoản?",
       "REGISTER_LINK": "Đăng ký ngay",
-      "ERROR_DEFAULT": "Đăng nhập thất bại"
+      "ERROR_DEFAULT": "Đăng nhập thất bại",
+      "CHECK_EMAIL": "Đã tạo tài khoản. Kiểm tra email để xác minh địa chỉ trước khi đăng nhập."
     },
     "REGISTER": {
       "TITLE": "Tạo tài khoản",
@@ -46,6 +47,13 @@
       "HAS_ACCOUNT": "Đã có tài khoản?",
       "LOGIN_LINK": "Đăng nhập",
       "ERROR_DEFAULT": "Đăng ký thất bại"
+    },
+    "VERIFY": {
+      "VERIFYING": "Đang xác minh email…",
+      "SUCCESS": "Đã xác minh email!",
+      "REDIRECTING": "Đang chuyển đến bảng của bạn…",
+      "FAILED": "Xác minh thất bại",
+      "BACK_TO_LOGIN": "Quay lại đăng nhập"
     }
   },
   "SHELL": {

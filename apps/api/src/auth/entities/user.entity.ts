@@ -22,6 +22,15 @@ export class User {
   @Column()
   name!: string;
 
+  @Column({ default: false })
+  emailVerified!: boolean;
+
+  @Column({ type: 'varchar', nullable: true })
+  emailVerificationToken!: string | null;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  emailVerificationTokenExpiresAt!: Date | null;
+
   @CreateDateColumn()
   createdAt!: Date;
 

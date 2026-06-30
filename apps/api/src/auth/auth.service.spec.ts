@@ -1,15 +1,23 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { JwtService } from '@nestjs/jwt';
-import { ConflictException, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
+import { EmailService } from '../email/email.service';
 
 const mockUser = {
   id: 'user-1',
   email: 'test@example.com',
   name: 'Test User',
   passwordHash: 'hashed',
+  emailVerified: true,
+  emailVerificationToken: null,
+  emailVerificationTokenExpiresAt: null,
   createdAt: new Date(),
 } as import('../auth/entities/user.entity').User;
 
@@ -17,6 +25,7 @@ describe('AuthService', () => {
   let service: AuthService;
   let usersService: jest.Mocked<UsersService>;
   let jwtService: jest.Mocked<JwtService>;
+  let emailService: jest.Mocked<EmailService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -27,11 +36,18 @@ describe('AuthService', () => {
           useValue: {
             create: jest.fn(),
             findByEmail: jest.fn(),
+            findByVerificationToken: jest.fn(),
+            setVerificationToken: jest.fn(),
+            markEmailVerified: jest.fn(),
           },
         },
         {
           provide: JwtService,
           useValue: { sign: jest.fn().mockReturnValue('jwt-token') },
+        },
+        {
+          provide: EmailService,
+          useValue: { sendVerificationEmail: jest.fn() },
         },
       ],
     }).compile();
@@ -39,11 +55,15 @@ describe('AuthService', () => {
     service = module.get(AuthService);
     usersService = module.get(UsersService);
     jwtService = module.get(JwtService);
+    emailService = module.get(EmailService);
   });
 
   describe('register', () => {
-    it('hashes password and creates user', async () => {
-      usersService.create.mockResolvedValue(mockUser);
+    it('hashes password, creates unverified user, and sends verification email', async () => {
+      usersService.create.mockResolvedValue({
+        ...mockUser,
+        emailVerified: false,
+      });
 
       const result = await service.register({
         email: mockUser.email,
@@ -51,17 +71,22 @@ describe('AuthService', () => {
         name: mockUser.name,
       });
 
-      expect(usersService.create).toHaveBeenCalledWith(
-        mockUser.email,
-        expect.any(String),
-        mockUser.name,
-      );
-      const [, hash] = usersService.create.mock.calls[0];
+      const [email, hash, name, token, expiresAt] =
+        usersService.create.mock.calls[0];
+      expect(email).toBe(mockUser.email);
+      expect(name).toBe(mockUser.name);
       expect(await bcrypt.compare('password123', hash)).toBe(true);
-      expect(result).toEqual({
-        accessToken: 'jwt-token',
-        user: { id: mockUser.id, email: mockUser.email, name: mockUser.name },
-      });
+      expect(typeof token).toBe('string');
+      expect(token.length).toBeGreaterThan(0);
+      expect(expiresAt.getTime()).toBeGreaterThan(Date.now());
+
+      expect(emailService.sendVerificationEmail).toHaveBeenCalledWith(
+        mockUser.email,
+        mockUser.name,
+        token,
+      );
+      expect(result.message).toMatch(/verify/i);
+      expect(result).not.toHaveProperty('accessToken');
     });
 
     it('propagates ConflictException from UsersService', async () => {
@@ -76,11 +101,12 @@ describe('AuthService', () => {
           name: 'Dup',
         }),
       ).rejects.toThrow(ConflictException);
+      expect(emailService.sendVerificationEmail).not.toHaveBeenCalled();
     });
   });
 
   describe('login', () => {
-    it('returns token for valid credentials', async () => {
+    it('returns token for valid, verified credentials', async () => {
       const hash = await bcrypt.hash('secret', 10);
       usersService.findByEmail.mockResolvedValue({
         ...mockUser,
@@ -118,6 +144,92 @@ describe('AuthService', () => {
       await expect(
         service.login({ email: mockUser.email, password: 'wrong' }),
       ).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('throws UnauthorizedException when email not verified', async () => {
+      const hash = await bcrypt.hash('secret', 10);
+      usersService.findByEmail.mockResolvedValue({
+        ...mockUser,
+        passwordHash: hash,
+        emailVerified: false,
+      });
+
+      await expect(
+        service.login({ email: mockUser.email, password: 'secret' }),
+      ).rejects.toThrow(UnauthorizedException);
+    });
+  });
+
+  describe('verifyEmail', () => {
+    it('marks user verified and returns token for valid token', async () => {
+      const unverified = {
+        ...mockUser,
+        emailVerified: false,
+        emailVerificationToken: 'tok',
+        emailVerificationTokenExpiresAt: new Date(Date.now() + 10000),
+      };
+      usersService.findByVerificationToken.mockResolvedValue(unverified);
+      usersService.markEmailVerified.mockResolvedValue(mockUser);
+
+      const result = await service.verifyEmail('tok');
+
+      expect(usersService.markEmailVerified).toHaveBeenCalledWith(unverified);
+      expect(result.accessToken).toBe('jwt-token');
+    });
+
+    it('throws BadRequestException for unknown token', async () => {
+      usersService.findByVerificationToken.mockResolvedValue(null);
+
+      await expect(service.verifyEmail('nope')).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+
+    it('throws BadRequestException for expired token', async () => {
+      usersService.findByVerificationToken.mockResolvedValue({
+        ...mockUser,
+        emailVerified: false,
+        emailVerificationToken: 'tok',
+        emailVerificationTokenExpiresAt: new Date(Date.now() - 1000),
+      });
+
+      await expect(service.verifyEmail('tok')).rejects.toThrow(
+        BadRequestException,
+      );
+      expect(usersService.markEmailVerified).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('resendVerification', () => {
+    it('issues new token and sends email for unverified user', async () => {
+      usersService.findByEmail.mockResolvedValue({
+        ...mockUser,
+        emailVerified: false,
+      });
+
+      const result = await service.resendVerification(mockUser.email);
+
+      expect(usersService.setVerificationToken).toHaveBeenCalled();
+      expect(emailService.sendVerificationEmail).toHaveBeenCalled();
+      expect(result.message).toBeDefined();
+    });
+
+    it('does nothing but returns message when user missing', async () => {
+      usersService.findByEmail.mockResolvedValue(null);
+
+      const result = await service.resendVerification('ghost@example.com');
+
+      expect(usersService.setVerificationToken).not.toHaveBeenCalled();
+      expect(emailService.sendVerificationEmail).not.toHaveBeenCalled();
+      expect(result.message).toBeDefined();
+    });
+
+    it('does not resend for already verified user', async () => {
+      usersService.findByEmail.mockResolvedValue(mockUser);
+
+      await service.resendVerification(mockUser.email);
+
+      expect(emailService.sendVerificationEmail).not.toHaveBeenCalled();
     });
   });
 });

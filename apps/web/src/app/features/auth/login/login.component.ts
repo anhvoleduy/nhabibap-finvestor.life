@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   inject,
+  input,
   signal,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -75,6 +76,13 @@ import { AuthService } from '../../../core/auth.service';
 
             <h2 class="auth-title">{{ 'AUTH.LOGIN.TITLE' | translate }}</h2>
             <p class="auth-subtitle">{{ 'AUTH.LOGIN.SUBTITLE' | translate }}</p>
+
+            @if (registered()) {
+              <div class="notice-msg">
+                <mat-icon>mark_email_read</mat-icon>
+                <span>{{ 'AUTH.LOGIN.CHECK_EMAIL' | translate }}</span>
+              </div>
+            }
 
             <form [formGroup]="form" (ngSubmit)="submit()">
               <mat-form-field appearance="outline" class="full-width">
@@ -306,6 +314,24 @@ import { AuthService } from '../../../core/auth.service';
         }
       }
 
+      .notice-msg {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 12px;
+        margin-bottom: 16px;
+        border-radius: 8px;
+        background: var(--mat-sys-primary-container);
+        color: var(--mat-sys-on-primary-container);
+        font-size: 14px;
+
+        mat-icon {
+          font-size: 18px;
+          width: 18px;
+          height: 18px;
+        }
+      }
+
       .submit-btn {
         width: 100%;
         height: 48px;
@@ -355,6 +381,10 @@ export class LoginComponent {
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
   private readonly translate = inject(TranslateService);
+
+  readonly registered = input(false, {
+    transform: (v: string | boolean) => v === true || v === '1' || v === 'true',
+  });
 
   form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],

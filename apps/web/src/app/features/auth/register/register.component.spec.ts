@@ -19,7 +19,10 @@ describe('RegisterComponent', () => {
     await TestBed.configureTestingModule({
       imports: [RegisterComponent],
       providers: [
-        provideRouter([{ path: 'boards', component: RegisterComponent }]),
+        provideRouter([
+          { path: 'boards', component: RegisterComponent },
+          { path: 'auth/login', component: RegisterComponent },
+        ]),
         provideAnimationsAsync(),
         provideTranslateService(),
         { provide: AuthService, useValue: authService },
@@ -76,12 +79,7 @@ describe('RegisterComponent', () => {
   });
 
   it('submit() calls auth.register with form values', () => {
-    authService.register.mockReturnValue(
-      of({
-        accessToken: 'tok',
-        user: { id: '1', email: 'alice@example.com', name: 'Alice' },
-      }),
-    );
+    authService.register.mockReturnValue(of({ message: 'Check your email' }));
     component.form.setValue({
       name: 'Alice',
       email: 'alice@example.com',
@@ -97,13 +95,8 @@ describe('RegisterComponent', () => {
     });
   });
 
-  it('navigates to /boards on success', () => {
-    authService.register.mockReturnValue(
-      of({
-        accessToken: 'tok',
-        user: { id: '1', email: 'alice@example.com', name: 'Alice' },
-      }),
-    );
+  it('navigates to login with registered flag on success', () => {
+    authService.register.mockReturnValue(of({ message: 'Check your email' }));
     component.form.setValue({
       name: 'Alice',
       email: 'alice@example.com',
@@ -113,7 +106,9 @@ describe('RegisterComponent', () => {
 
     component.submit();
 
-    expect(spy).toHaveBeenCalledWith(['/boards']);
+    expect(spy).toHaveBeenCalledWith(['/auth/login'], {
+      queryParams: { registered: 1 },
+    });
   });
 
   it('sets error signal and clears loading on API error', () => {

@@ -28,6 +28,10 @@ export class UsersService {
     return this.repo.findOneBy({ email });
   }
 
+  findByVerificationToken(token: string) {
+    return this.repo.findOneBy({ emailVerificationToken: token });
+  }
+
   async searchByEmail(
     email: string,
   ): Promise<Pick<User, 'id' | 'email' | 'name'>[]> {
@@ -43,10 +47,36 @@ export class UsersService {
     email: string,
     passwordHash: string,
     name: string,
+    verificationToken: string,
+    verificationTokenExpiresAt: Date,
   ): Promise<User> {
     const existing = await this.findByEmail(email);
     if (existing) throw new ConflictException('Email already in use');
-    const user = this.repo.create({ email, passwordHash, name });
+    const user = this.repo.create({
+      email,
+      passwordHash,
+      name,
+      emailVerified: false,
+      emailVerificationToken: verificationToken,
+      emailVerificationTokenExpiresAt: verificationTokenExpiresAt,
+    });
+    return this.repo.save(user);
+  }
+
+  async setVerificationToken(
+    user: User,
+    token: string,
+    expiresAt: Date,
+  ): Promise<User> {
+    user.emailVerificationToken = token;
+    user.emailVerificationTokenExpiresAt = expiresAt;
+    return this.repo.save(user);
+  }
+
+  async markEmailVerified(user: User): Promise<User> {
+    user.emailVerified = true;
+    user.emailVerificationToken = null;
+    user.emailVerificationTokenExpiresAt = null;
     return this.repo.save(user);
   }
 

@@ -85,17 +85,27 @@ describe('UsersService', () => {
   });
 
   describe('create', () => {
-    it('saves and returns new user', async () => {
+    it('saves and returns new unverified user with token', async () => {
       repo.findOneBy.mockResolvedValue(null);
       repo.create.mockReturnValue(mockUser);
       repo.save.mockResolvedValue(mockUser);
+      const expiresAt = new Date(Date.now() + 1000);
 
-      const result = await service.create('new@example.com', 'hash', 'New');
+      const result = await service.create(
+        'new@example.com',
+        'hash',
+        'New',
+        'tok',
+        expiresAt,
+      );
 
       expect(repo.create).toHaveBeenCalledWith({
         email: 'new@example.com',
         passwordHash: 'hash',
         name: 'New',
+        emailVerified: false,
+        emailVerificationToken: 'tok',
+        emailVerificationTokenExpiresAt: expiresAt,
       });
       expect(result).toBe(mockUser);
     });
@@ -104,9 +114,52 @@ describe('UsersService', () => {
       repo.findOneBy.mockResolvedValue(mockUser);
 
       await expect(
-        service.create('test@example.com', 'hash', 'Dup'),
+        service.create('test@example.com', 'hash', 'Dup', 'tok', new Date()),
       ).rejects.toThrow(ConflictException);
       expect(repo.save).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('findByVerificationToken', () => {
+    it('calls findOneBy with token', async () => {
+      repo.findOneBy.mockResolvedValue(mockUser);
+      const result = await service.findByVerificationToken('tok');
+      expect(repo.findOneBy).toHaveBeenCalledWith({
+        emailVerificationToken: 'tok',
+      });
+      expect(result).toBe(mockUser);
+    });
+  });
+
+  describe('setVerificationToken', () => {
+    it('updates token + expiry and saves', async () => {
+      const user = { ...mockUser } as User;
+      repo.save.mockImplementation((u) => Promise.resolve(u));
+      const expiresAt = new Date(Date.now() + 1000);
+
+      const result = await service.setVerificationToken(user, 'new', expiresAt);
+
+      expect(result.emailVerificationToken).toBe('new');
+      expect(result.emailVerificationTokenExpiresAt).toBe(expiresAt);
+      expect(repo.save).toHaveBeenCalledWith(user);
+    });
+  });
+
+  describe('markEmailVerified', () => {
+    it('sets verified, clears token, and saves', async () => {
+      const user = {
+        ...mockUser,
+        emailVerified: false,
+        emailVerificationToken: 'tok',
+        emailVerificationTokenExpiresAt: new Date(),
+      } as User;
+      repo.save.mockImplementation((u) => Promise.resolve(u));
+
+      const result = await service.markEmailVerified(user);
+
+      expect(result.emailVerified).toBe(true);
+      expect(result.emailVerificationToken).toBeNull();
+      expect(result.emailVerificationTokenExpiresAt).toBeNull();
     });
   });
 });

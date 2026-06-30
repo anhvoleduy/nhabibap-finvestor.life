@@ -133,17 +133,44 @@ describe('AuthService', () => {
 
       const req = httpMock.expectOne('/api/auth/register');
       expect(req.request.method).toBe('POST');
-      req.flush(mockResponse);
+      req.flush({ message: 'Check your email' });
     });
 
-    it('persists token and user after register', () => {
+    it('does NOT persist token after register (verification required)', () => {
       service
         .register({ email: 'new@example.com', password: 'pass', name: 'New' })
         .subscribe();
-      httpMock.expectOne('/api/auth/register').flush(mockResponse);
+      httpMock
+        .expectOne('/api/auth/register')
+        .flush({ message: 'Check your email' });
+
+      expect(service.token()).toBeNull();
+      expect(service.currentUser()).toBeNull();
+    });
+  });
+
+  describe('verifyEmail', () => {
+    it('POSTs token and persists returned auth', () => {
+      service.verifyEmail('tok').subscribe();
+
+      const req = httpMock.expectOne('/api/auth/verify-email');
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual({ token: 'tok' });
+      req.flush(mockResponse);
 
       expect(service.token()).toBe('test-jwt');
       expect(service.currentUser()).toEqual(mockResponse.user);
+    });
+  });
+
+  describe('resendVerification', () => {
+    it('POSTs email to /api/auth/resend-verification', () => {
+      service.resendVerification({ email: 'new@example.com' }).subscribe();
+
+      const req = httpMock.expectOne('/api/auth/resend-verification');
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual({ email: 'new@example.com' });
+      req.flush({ message: 'Sent' });
     });
   });
 

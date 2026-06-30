@@ -1,9 +1,14 @@
 import axios from 'axios';
-import { authHeader, registerAndLogin, uniqueEmail } from '../support/helpers';
+import {
+  authHeader,
+  getVerificationToken,
+  registerAndLogin,
+  uniqueEmail,
+} from '../support/helpers';
 
 describe('Auth', () => {
   describe('POST /auth/register', () => {
-    it('creates account and returns token + user', async () => {
+    it('creates account and returns a message (no token until verified)', async () => {
       const email = uniqueEmail('reg');
       const res = await axios.post('/auth/register', {
         email,
@@ -12,10 +17,8 @@ describe('Auth', () => {
       });
 
       expect(res.status).toBe(201);
-      expect(res.data.accessToken).toBeTruthy();
-      expect(res.data.user.email).toBe(email);
-      expect(res.data.user.id).toBeTruthy();
-      expect(res.data.user).not.toHaveProperty('passwordHash');
+      expect(res.data.message).toBeTruthy();
+      expect(res.data).not.toHaveProperty('accessToken');
     });
 
     it('rejects duplicate email with 409', async () => {
@@ -56,14 +59,65 @@ describe('Auth', () => {
     });
   });
 
-  describe('POST /auth/login', () => {
-    it('returns token for valid credentials', async () => {
-      const email = uniqueEmail('login');
+  describe('POST /auth/verify-email', () => {
+    it('verifies email with valid token and returns auth token', async () => {
+      const email = uniqueEmail('verify');
       await axios.post('/auth/register', {
         email,
-        password: 'correct123',
-        name: 'Login User',
+        password: 'secret123',
+        name: 'Verify User',
       });
+      const token = await getVerificationToken(email);
+
+      const res = await axios.post('/auth/verify-email', { token });
+
+      expect(res.status).toBe(201);
+      expect(res.data.accessToken).toBeTruthy();
+      expect(res.data.user.email).toBe(email);
+      expect(res.data.user).not.toHaveProperty('passwordHash');
+    });
+
+    it('rejects an unknown token with 400', async () => {
+      const res = await axios.post(
+        '/auth/verify-email',
+        { token: 'nonexistent-token' },
+        { validateStatus: () => true },
+      );
+
+      expect(res.status).toBe(400);
+    });
+  });
+
+  describe('POST /auth/resend-verification', () => {
+    it('returns 200 for an unverified account', async () => {
+      const email = uniqueEmail('resend');
+      await axios.post('/auth/register', {
+        email,
+        password: 'secret123',
+        name: 'Resend User',
+      });
+
+      const res = await axios.post('/auth/resend-verification', { email });
+
+      expect(res.status).toBe(200);
+      expect(res.data.message).toBeTruthy();
+    });
+
+    it('returns 200 even for an unknown email (no enumeration)', async () => {
+      const res = await axios.post('/auth/resend-verification', {
+        email: 'nobody-unknown@test.local',
+      });
+
+      expect(res.status).toBe(200);
+    });
+  });
+
+  describe('POST /auth/login', () => {
+    it('returns token for valid, verified credentials', async () => {
+      const { email } = await registerAndLogin(
+        uniqueEmail('login'),
+        'correct123',
+      );
 
       const res = await axios.post('/auth/login', {
         email,
@@ -73,6 +127,23 @@ describe('Auth', () => {
       expect(res.status).toBe(201);
       expect(res.data.accessToken).toBeTruthy();
       expect(res.data.user.email).toBe(email);
+    });
+
+    it('rejects login before email is verified with 401', async () => {
+      const email = uniqueEmail('unverified');
+      await axios.post('/auth/register', {
+        email,
+        password: 'correct123',
+        name: 'Unverified User',
+      });
+
+      const res = await axios.post(
+        '/auth/login',
+        { email, password: 'correct123' },
+        { validateStatus: () => true },
+      );
+
+      expect(res.status).toBe(401);
     });
 
     it('rejects wrong password with 401', async () => {

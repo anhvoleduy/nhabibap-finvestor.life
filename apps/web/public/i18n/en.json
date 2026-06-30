@@ -37,7 +37,8 @@
       "SUBMIT": "Sign in",
       "NO_ACCOUNT": "Don't have an account?",
       "REGISTER_LINK": "Sign up",
-      "ERROR_DEFAULT": "Login failed"
+      "ERROR_DEFAULT": "Login failed",
+      "CHECK_EMAIL": "Account created. Check your email to verify your address before signing in."
     },
     "REGISTER": {
       "TITLE": "Create account",
@@ -46,6 +47,13 @@
       "HAS_ACCOUNT": "Already have an account?",
       "LOGIN_LINK": "Sign in",
       "ERROR_DEFAULT": "Registration failed"
+    },
+    "VERIFY": {
+      "VERIFYING": "Verifying your email…",
+      "SUCCESS": "Email verified!",
+      "REDIRECTING": "Taking you to your boards…",
+      "FAILED": "Verification failed",
+      "BACK_TO_LOGIN": "Back to sign in"
     }
   },
   "SHELL": {

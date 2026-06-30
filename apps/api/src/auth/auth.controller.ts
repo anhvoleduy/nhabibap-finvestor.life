@@ -17,10 +17,13 @@ import {
 import {
   AuthResponseDto,
   LoginDto,
+  MessageResponseDto,
   RegisterDto,
+  ResendVerificationDto,
   UpdatePasswordDto,
   UpdateProfileDto,
   UserDto,
+  VerifyEmailDto,
 } from '@nhabibap-myportfolio/shared-types';
 import { AuthService } from './auth.service';
 import { AuthenticatedRequest } from './jwt-auth.guard';
@@ -38,7 +41,7 @@ export class AuthController {
   @Post('register')
   @Public()
   @ApiOperation({ summary: 'Register new account' })
-  @ApiResponse({ status: 201, type: AuthResponseDto })
+  @ApiResponse({ status: 201, type: MessageResponseDto })
   register(@Body() dto: RegisterDto) {
     return this.authService.register(dto);
   }
@@ -49,6 +52,24 @@ export class AuthController {
   @ApiResponse({ status: 200, type: AuthResponseDto })
   login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
+  }
+
+  @Post('verify-email')
+  @Public()
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Verify email with token' })
+  @ApiResponse({ status: 200, type: AuthResponseDto })
+  verifyEmail(@Body() dto: VerifyEmailDto) {
+    return this.authService.verifyEmail(dto.token);
+  }
+
+  @Post('resend-verification')
+  @Public()
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Resend verification email' })
+  @ApiResponse({ status: 200, type: MessageResponseDto })
+  resendVerification(@Body() dto: ResendVerificationDto) {
+    return this.authService.resendVerification(dto.email);
   }
 
   @Get('me')

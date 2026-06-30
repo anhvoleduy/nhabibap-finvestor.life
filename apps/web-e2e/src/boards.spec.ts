@@ -1,4 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
+import { getVerificationToken } from './support/auth';
 
 const API = 'http://localhost:3000';
 
@@ -11,8 +12,12 @@ async function setupUser(
   email: string,
   password = 'password123',
 ) {
-  const res = await request.post(`${API}/auth/register`, {
+  await request.post(`${API}/auth/register`, {
     data: { email, password, name: 'Board E2E User' },
+  });
+  const token = await getVerificationToken(email);
+  const res = await request.post(`${API}/auth/verify-email`, {
+    data: { token },
   });
   const body = await res.json();
   return body.accessToken as string;

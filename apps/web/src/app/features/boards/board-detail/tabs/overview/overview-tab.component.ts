@@ -16,6 +16,7 @@ import {
 } from '@nhabibap-myportfolio/shared-types';
 import { VndCurrencyPipe } from '../../../../../shared/pipes/vnd-currency.pipe';
 import { StatCardComponent } from '../../../../../shared/components/stat-card/stat-card.component';
+import { PriceTickerComponent } from '../../../../../shared/components/price-ticker/price-ticker.component';
 
 const CATEGORY_COLORS: Record<CategoryType, string> = {
   GOLD: '#f59e0b',
@@ -35,10 +36,13 @@ const CATEGORY_COLORS: Record<CategoryType, string> = {
     BaseChartDirective,
     VndCurrencyPipe,
     StatCardComponent,
+    PriceTickerComponent,
     TranslateModule,
   ],
   template: `
     <div class="overview">
+      <app-price-ticker />
+
       <div class="overview__stats">
         <app-stat-card
           [label]="'STATS.TOTAL_CAPITAL' | translate"

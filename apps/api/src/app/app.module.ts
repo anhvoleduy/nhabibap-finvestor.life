@@ -10,6 +10,7 @@ import { AssetsModule } from '../assets/assets.module';
 import { EntriesModule } from '../entries/entries.module';
 import { CashFlowModule } from '../cash-flow/cash-flow.module';
 import { NewsModule } from '../news/news.module';
+import { PricesModule } from '../prices/prices.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { NewsModule } from '../news/news.module';
     EntriesModule,
     CashFlowModule,
     NewsModule,
+    PricesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

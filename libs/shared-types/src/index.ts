@@ -11,3 +11,4 @@ export * from './lib/cash-flow.dto';
 export * from './lib/gold-buy.dto';
 export * from './lib/crypto-buy.dto';
 export * from './lib/news.dto';
+export * from './lib/price.dto';

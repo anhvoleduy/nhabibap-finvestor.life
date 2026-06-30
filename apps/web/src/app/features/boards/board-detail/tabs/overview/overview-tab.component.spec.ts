@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideTranslateService } from '@ngx-translate/core';
 import {
   AssetCategoryDto,
@@ -29,7 +31,11 @@ function setup(categories: AssetCategoryDto[]): {
 } {
   TestBed.configureTestingModule({
     imports: [OverviewTabComponent],
-    providers: [provideTranslateService()],
+    providers: [
+      provideTranslateService(),
+      provideHttpClient(),
+      provideHttpClientTesting(),
+    ],
   });
   const fixture = TestBed.createComponent(OverviewTabComponent);
   fixture.componentRef.setInput('categories', categories);

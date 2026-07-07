@@ -16,10 +16,6 @@ export const NEWS_FEEDS: Record<CategoryType, FeedSource[]> = {
   [CategoryType.GOLD]: [
     // VN gold-price coverage: SJC / PNJ / DOJI / vàng miếng quotes + analysis.
     { source: 'VnEconomy', url: 'https://vneconomy.vn/tai-chinh.rss' },
-    {
-      source: '24h',
-      url: 'https://cdn.24h.com.vn/upload/rss/taichinhbatdongsan.rss',
-    },
     { source: 'Vietstock', url: 'https://vietstock.vn/144/hang-hoa.rss' },
   ],
   [CategoryType.OPEN_FUND]: [

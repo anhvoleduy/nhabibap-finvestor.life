@@ -61,6 +61,20 @@ describe('NewsService', () => {
       expect(items.find((i) => i.title === 'No date item')).toBeUndefined();
     });
 
+    it('drops stale items older than the max age, even if title matches', async () => {
+      const stale = `<?xml version="1.0"?>
+<rss><channel>
+  <item>
+    <title>Giá vàng hôm nay 23/1</title>
+    <link>https://24h.com.vn/old.html</link>
+    <pubDate>Wed, 23 Jan 2019 10:14:02 +0700</pubDate>
+  </item>
+</channel></rss>`;
+      mockedGet.mockResolvedValue({ data: stale });
+      const items = await service.getNews(CategoryType.GOLD);
+      expect(items).toEqual([]);
+    });
+
     it('caches results within the TTL (no refetch)', async () => {
       mockedGet.mockResolvedValue({ data: RSS });
       await service.getNews(CategoryType.CASH);

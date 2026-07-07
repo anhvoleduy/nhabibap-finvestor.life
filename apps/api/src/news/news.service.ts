@@ -11,6 +11,8 @@ interface CacheEntry {
 const CACHE_TTL_MS = 15 * 60 * 1000;
 const FEED_TIMEOUT_MS = 8000;
 const MAX_ITEMS_PER_TYPE = 20;
+/** Drop items older than this so a stale/frozen feed can't inject ancient news. */
+const MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
 
 @Injectable()
 export class NewsService {
@@ -30,9 +32,11 @@ export class NewsService {
     );
 
     const filter = NEWS_FILTERS[type];
+    const minTime = Date.now() - MAX_AGE_MS;
     const items = results
       .flat()
       .filter((item) => !filter || filter.test(item.title))
+      .filter((item) => this.isRecent(item, minTime))
       .sort((a, b) => this.publishedTime(b) - this.publishedTime(a))
       .slice(0, MAX_ITEMS_PER_TYPE);
 
@@ -43,6 +47,13 @@ export class NewsService {
   private publishedTime(item: NewsItemDto): number {
     const t = item.publishedAt ? Date.parse(item.publishedAt) : NaN;
     return Number.isNaN(t) ? 0 : t;
+  }
+
+  /** Keep dateless items (some feeds omit pubDate); drop only known-old ones. */
+  private isRecent(item: NewsItemDto, minTime: number): boolean {
+    if (!item.publishedAt) return true;
+    const t = Date.parse(item.publishedAt);
+    return Number.isNaN(t) || t >= minTime;
   }
 
   private async fetchFeed(feed: FeedSource): Promise<NewsItemDto[]> {

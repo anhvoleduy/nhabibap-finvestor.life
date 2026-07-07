@@ -61,7 +61,12 @@ export class NewsService {
       const res = await axios.get<string>(feed.url, {
         timeout: FEED_TIMEOUT_MS,
         responseType: 'text',
-        headers: { 'User-Agent': 'FinvestorBot/1.0 (+news)' },
+        headers: {
+          // Bot UAs get blocked by some VN news WAFs; use a browser UA.
+          'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 ' +
+            '(KHTML, like Gecko) Chrome/124.0 Safari/537.36',
+        },
       });
       return this.parseRss(res.data, feed.source);
     } catch (err) {

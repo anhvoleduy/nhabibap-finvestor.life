@@ -15,6 +15,10 @@ export interface FeedSource {
 export const NEWS_FEEDS: Record<CategoryType, FeedSource[]> = {
   [CategoryType.GOLD]: [
     // VN gold-price coverage: SJC / PNJ / DOJI / vàng miếng quotes + analysis.
+    // Multiple domains: some VN sites (e.g. vneconomy) geo-block foreign
+    // datacenter IPs, so prod only sees a subset — keep the source list wide.
+    { source: 'CafeF', url: 'https://cafef.vn/thi-truong-chung-khoan.rss' },
+    { source: 'CafeF', url: 'https://cafef.vn/tai-chinh-quoc-te.rss' },
     { source: 'VnEconomy', url: 'https://vneconomy.vn/tai-chinh.rss' },
     { source: 'Vietstock', url: 'https://vietstock.vn/144/hang-hoa.rss' },
   ],

@@ -51,7 +51,7 @@ describe('NewsService', () => {
       const items = await service.getNews(CategoryType.GOLD);
       expect(mockedGet).toHaveBeenCalled();
       expect(items.length).toBeGreaterThan(0);
-      expect(items[0].source).toBe('VnEconomy');
+      expect(items[0].source).toBe('CafeF');
     });
 
     it('GOLD: keeps only gold-relevant items by title keyword', async () => {

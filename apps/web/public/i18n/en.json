@@ -59,7 +59,8 @@
   "SHELL": {
     "NAV": {
       "BOARDS": "Boards",
-      "SETTINGS": "Settings"
+      "SETTINGS": "Settings",
+      "DCA_CALENDAR": "DCA Calendar"
     },
     "LIGHT_MODE": "Light mode",
     "DARK_MODE": "Dark mode",
@@ -253,6 +254,14 @@
       "QUARTERLY": "Quarterly",
       "YEARLY": "Yearly",
       "CUSTOM": "Custom"
+    },
+    "CALENDAR": {
+      "TITLE": "DCA reminder calendar",
+      "SUBTITLE": "Every DCA reminder across your boards. A missed reminder rolls forward to today until you mark it done.",
+      "TODAY": "Today",
+      "PREV": "Previous month",
+      "NEXT": "Next month",
+      "EMPTY": "No DCA reminders set yet."
     }
   }
 }

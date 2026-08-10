@@ -59,6 +59,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'dca-calendar',
+        loadComponent: () =>
+          import('./features/dca-calendar/dca-calendar.component').then(
+            (m) => m.DcaCalendarComponent,
+          ),
+      },
+      {
         path: 'settings',
         loadComponent: () =>
           import('./features/settings/settings.component').then(

@@ -1,5 +1,10 @@
 import { DcaSchedule } from '@nhabibap-myportfolio/shared-types';
-import { dcaStatus, daysUntilDca, nextDcaDate } from './dca.util';
+import {
+  dcaStatus,
+  daysUntilDca,
+  nextDcaDate,
+  effectiveDcaDate,
+} from './dca.util';
 
 describe('dca.util', () => {
   describe('nextDcaDate', () => {
@@ -86,6 +91,29 @@ describe('dca.util', () => {
     it('is negative when overdue', () => {
       const s: DcaSchedule = { frequency: 'WEEKLY', anchorDate: '2026-01-01' };
       expect(daysUntilDca(s, '2026-01-04')).toBe(-3);
+    });
+  });
+
+  describe('effectiveDcaDate', () => {
+    it('returns the scheduled date when it is still in the future', () => {
+      const s: DcaSchedule = { frequency: 'WEEKLY', anchorDate: '2026-01-10' };
+      expect(effectiveDcaDate(s, '2026-01-05')).toBe('2026-01-10');
+    });
+
+    it('returns the scheduled date when it is due exactly today', () => {
+      const s: DcaSchedule = { frequency: 'WEEKLY', anchorDate: '2026-01-05' };
+      expect(effectiveDcaDate(s, '2026-01-05')).toBe('2026-01-05');
+    });
+
+    it('rolls an overdue, undone reminder forward to today', () => {
+      const s: DcaSchedule = { frequency: 'WEEKLY', anchorDate: '2026-01-01' };
+      expect(effectiveDcaDate(s, '2026-01-04')).toBe('2026-01-04');
+    });
+
+    it('keeps rolling forward day by day while still missed', () => {
+      const s: DcaSchedule = { frequency: 'WEEKLY', anchorDate: '2026-01-01' };
+      expect(effectiveDcaDate(s, '2026-01-04')).toBe('2026-01-04');
+      expect(effectiveDcaDate(s, '2026-01-05')).toBe('2026-01-05');
     });
   });
 });

@@ -62,3 +62,16 @@ export function daysUntilDca(schedule: DcaSchedule, todayIso: string): number {
       MS_PER_DAY,
   );
 }
+
+/**
+ * Date to show the reminder on for a given day.
+ * A missed reminder (next date in the past, not yet done) rolls forward to
+ * today — recomputed daily, so it keeps moving to "next day" until done.
+ */
+export function effectiveDcaDate(
+  schedule: DcaSchedule,
+  todayIso: string,
+): string {
+  const next = nextDcaDate(schedule);
+  return next < todayIso ? todayIso : next;
+}

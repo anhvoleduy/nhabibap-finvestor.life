@@ -59,7 +59,8 @@
   "SHELL": {
     "NAV": {
       "BOARDS": "Danh mục",
-      "SETTINGS": "Cài đặt"
+      "SETTINGS": "Cài đặt",
+      "DCA_CALENDAR": "Lịch DCA"
     },
     "LIGHT_MODE": "Chế độ sáng",
     "DARK_MODE": "Chế độ tối",
@@ -253,6 +254,14 @@
       "QUARTERLY": "Hàng quý",
       "YEARLY": "Hàng năm",
       "CUSTOM": "Tuỳ chỉnh"
+    },
+    "CALENDAR": {
+      "TITLE": "Lịch nhắc DCA",
+      "SUBTITLE": "Toàn bộ nhắc DCA trên các bảng của bạn. Nhắc bị bỏ lỡ sẽ tự chuyển sang hôm nay cho đến khi bạn đánh dấu đã mua.",
+      "TODAY": "Hôm nay",
+      "PREV": "Tháng trước",
+      "NEXT": "Tháng sau",
+      "EMPTY": "Chưa có nhắc DCA nào."
     }
   }
 }

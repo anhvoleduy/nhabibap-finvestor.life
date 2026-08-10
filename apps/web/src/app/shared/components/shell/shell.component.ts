@@ -103,6 +103,20 @@ const MOBILE_BREAKPOINT = 768;
             }}</span>
           </a>
           <a
+            routerLink="/dca-calendar"
+            routerLinkActive="nav-item--active"
+            class="nav-item"
+            [matTooltip]="
+              collapsed() ? ('SHELL.NAV.DCA_CALENDAR' | translate) : ''
+            "
+            matTooltipPosition="right"
+          >
+            <mat-icon>calendar_month</mat-icon>
+            <span class="nav-item__label">{{
+              'SHELL.NAV.DCA_CALENDAR' | translate
+            }}</span>
+          </a>
+          <a
             routerLink="/settings"
             routerLinkActive="nav-item--active"
             [routerLinkActiveOptions]="{ exact: true }"

@@ -283,7 +283,15 @@ const MOBILE_BREAKPOINT = 768;
 
       .shell--collapsed .brand-name {
         opacity: 0;
+        width: 0;
         pointer-events: none;
+      }
+
+      .shell--collapsed .sidebar__brand {
+        flex-direction: column;
+        justify-content: center;
+        gap: 8px;
+        padding: 16px 8px;
       }
 
       .collapse-btn {

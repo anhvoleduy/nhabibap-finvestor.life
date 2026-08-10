@@ -70,13 +70,7 @@
     "COLLAPSE": "Thu gọn thanh điều hướng",
     "EXPAND": "Mở rộng thanh điều hướng",
     "MENU": "Menu",
-    "CLOSE": "Đóng menu",
-    "VERIFY_BANNER": {
-      "TEXT": "Email của bạn chưa được xác minh.",
-      "RESEND": "Gửi lại email",
-      "RETRY": "Thử lại",
-      "SENT": "Đã gửi email"
-    }
+    "CLOSE": "Đóng menu"
   },
   "ROLES": {
     "OWNER": "Chủ sở hữu",

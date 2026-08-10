@@ -178,37 +178,6 @@ const MOBILE_BREAKPOINT = 768;
       </nav>
 
       <main class="content">
-        @if (unverified()) {
-          <div class="verify-banner" role="status">
-            <mat-icon class="verify-banner__icon">mark_email_unread</mat-icon>
-            <span class="verify-banner__text">{{
-              'SHELL.VERIFY_BANNER.TEXT' | translate
-            }}</span>
-            @switch (resendState()) {
-              @case ('sent') {
-                <span class="verify-banner__sent">
-                  <mat-icon>check</mat-icon>
-                  {{ 'SHELL.VERIFY_BANNER.SENT' | translate }}
-                </span>
-              }
-              @default {
-                <button
-                  mat-button
-                  class="verify-banner__action"
-                  [disabled]="resendState() === 'sending'"
-                  (click)="resendVerification()"
-                >
-                  {{
-                    (resendState() === 'error'
-                      ? 'SHELL.VERIFY_BANNER.RETRY'
-                      : 'SHELL.VERIFY_BANNER.RESEND'
-                    ) | translate
-                  }}
-                </button>
-              }
-            }
-          </div>
-        }
         <router-outlet />
       </main>
     </div>
@@ -462,48 +431,6 @@ const MOBILE_BREAKPOINT = 768;
         min-width: 0;
       }
 
-      .verify-banner {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 10px 16px;
-        background: var(--mat-sys-tertiary-container);
-        color: var(--mat-sys-on-tertiary-container);
-        font-size: 14px;
-        border-bottom: 1px solid var(--mat-sys-outline-variant);
-      }
-
-      .verify-banner__icon {
-        flex-shrink: 0;
-        font-size: 20px;
-        width: 20px;
-        height: 20px;
-      }
-
-      .verify-banner__text {
-        flex: 1;
-        min-width: 0;
-      }
-
-      .verify-banner__action {
-        flex-shrink: 0;
-        font-weight: 600;
-      }
-
-      .verify-banner__sent {
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        flex-shrink: 0;
-        font-weight: 600;
-
-        mat-icon {
-          font-size: 18px;
-          width: 18px;
-          height: 18px;
-        }
-      }
-
       .mobile-toggle {
         display: none;
         position: fixed;
@@ -601,11 +528,6 @@ export class ShellComponent {
 
   collapsed = signal(localStorage.getItem(COLLAPSE_KEY) === '1');
   mobileOpen = signal(false);
-  resendState = signal<'idle' | 'sending' | 'sent' | 'error'>('idle');
-
-  readonly unverified = computed(
-    () => this.auth.currentUser()?.emailVerified === false,
-  );
 
   constructor() {
     this.router.events
@@ -627,16 +549,6 @@ export class ShellComponent {
       .join('')
       .toUpperCase();
   });
-
-  resendVerification() {
-    const email = this.auth.currentUser()?.email;
-    if (!email || this.resendState() === 'sending') return;
-    this.resendState.set('sending');
-    this.auth.resendVerification({ email }).subscribe({
-      next: () => this.resendState.set('sent'),
-      error: () => this.resendState.set('error'),
-    });
-  }
 
   toggleLang() {
     this.lang.setLanguage(this.lang.currentLang() === 'vi' ? 'en' : 'vi');

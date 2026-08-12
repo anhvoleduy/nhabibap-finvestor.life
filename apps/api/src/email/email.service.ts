@@ -12,13 +12,16 @@ export class EmailService {
 
   constructor(private readonly cfg: ConfigService) {
     const apiKey = this.cfg.get<string>('BREVO_API_KEY');
-    this.brevo = apiKey ? new BrevoClient({ apiKey }) : null;
+    const isTest = this.cfg.get<string>('NODE_ENV') === 'test';
+    this.brevo = apiKey && !isTest ? new BrevoClient({ apiKey }) : null;
     this.from = this.cfg.get<string>('MAIL_FROM') ?? 'onboarding@brevo.dev';
     this.fromName = this.cfg.get<string>('MAIL_FROM_NAME') ?? 'Finvestor.Life';
     this.webUrl = this.cfg.get<string>('WEB_URL') ?? 'http://localhost:4200';
     if (!this.brevo) {
       this.logger.warn(
-        'BREVO_API_KEY not set — verification emails will not be sent.',
+        isTest
+          ? 'NODE_ENV=test — verification emails will not be sent.'
+          : 'BREVO_API_KEY not set — verification emails will not be sent.',
       );
     }
   }

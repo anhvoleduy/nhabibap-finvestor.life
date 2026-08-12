@@ -4,6 +4,9 @@
   "license": "MIT",
   "scripts": {
     "dev": "npx nx run-many -t serve --projects=api,web --parallel=2",
+    "e2e": "NODE_ENV=test nx run-many -t e2e",
+    "e2e:api": "NODE_ENV=test nx e2e api-e2e",
+    "e2e:web": "NODE_ENV=test nx e2e web-e2e",
     "build:api": "nx build api --configuration=production",
     "build:web": "nx build web --configuration=production",
     "start:prod": "node dist/apps/api/main.js",

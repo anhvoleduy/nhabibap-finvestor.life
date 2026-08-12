@@ -15,8 +15,10 @@ pnpm workspaces, ESLint + Prettier, Playwright for e2e.
 - `pnpm dev` — runs web + api in parallel
 - `nx run-many -t test` — all unit tests
 - `nx affected -t test` — unit tests for changed projects
-- `nx run-many -t e2e` — all e2e (api-e2e Jest + web-e2e Playwright)
-- `nx affected -t e2e` — e2e for changed projects
+- `nx run-many -t e2e` / `nx affected -t e2e` — e2e (api-e2e Jest + web-e2e Playwright).
+  **Prefix with `NODE_ENV=test`** (or use `pnpm e2e`, `pnpm e2e:api`, `pnpm e2e:web`) — the api server
+  reads real `BREVO_API_KEY` from `.env` otherwise and sends real emails via Brevo during tests.
+  `EmailService` no-ops when `NODE_ENV=test`.
 - `nx run-many -t lint` — lint all
 - `pnpm migration:generate` / `migration:run`
 - `docker compose up -d` — start Postgres

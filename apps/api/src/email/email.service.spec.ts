@@ -98,4 +98,19 @@ describe('EmailService', () => {
       expect(sendTransacEmailMock).not.toHaveBeenCalled();
     });
   });
+
+  describe('with NODE_ENV=test', () => {
+    it('skips sending even when BREVO_API_KEY is set (regression: e2e must not hit real Brevo)', async () => {
+      const module: TestingModule = await build({
+        BREVO_API_KEY: 'key',
+        NODE_ENV: 'test',
+      });
+      const service = module.get(EmailService);
+
+      await expect(
+        service.sendVerificationEmail('to@test.dev', 'Bob', 'tok'),
+      ).resolves.toBeUndefined();
+      expect(sendTransacEmailMock).not.toHaveBeenCalled();
+    });
+  });
 });

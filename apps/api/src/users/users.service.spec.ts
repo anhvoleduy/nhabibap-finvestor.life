@@ -1,9 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { ConflictException } from '@nestjs/common';
+import { ConflictException, NotFoundException } from '@nestjs/common';
 import { SelectQueryBuilder } from 'typeorm';
 import { UsersService } from './users.service';
 import { User } from '../auth/entities/user.entity';
+import { EmailService } from '../email/email.service';
 
 const mockUser = {
   id: 'user-1',
@@ -21,6 +22,7 @@ describe('UsersService', () => {
     create: jest.Mock;
     save: jest.Mock;
   };
+  let emailService: { sendVerificationEmail: jest.Mock };
 
   beforeEach(async () => {
     const qb = {
@@ -36,11 +38,15 @@ describe('UsersService', () => {
       create: jest.fn(),
       save: jest.fn(),
     };
+    emailService = {
+      sendVerificationEmail: jest.fn().mockResolvedValue(undefined),
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UsersService,
         { provide: getRepositoryToken(User), useValue: repo },
+        { provide: EmailService, useValue: emailService },
       ],
     }).compile();
 
@@ -160,6 +166,87 @@ describe('UsersService', () => {
       expect(result.emailVerified).toBe(true);
       expect(result.emailVerificationToken).toBeNull();
       expect(result.emailVerificationTokenExpiresAt).toBeNull();
+    });
+  });
+
+  describe('updateProfile', () => {
+    it('throws NotFoundException when user missing', async () => {
+      repo.findOneBy.mockResolvedValue(null);
+
+      await expect(
+        service.updateProfile('no-such', { name: 'X' }),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('updates name without touching verification state', async () => {
+      const user = {
+        ...mockUser,
+        emailVerified: true,
+        emailVerificationToken: null,
+      } as User;
+      repo.findOneBy.mockResolvedValue(user);
+      repo.save.mockImplementation((u) => Promise.resolve(u));
+
+      const result = await service.updateProfile('user-1', {
+        name: 'New Name',
+      });
+
+      expect(result.name).toBe('New Name');
+      expect(result.email).toBe(mockUser.email);
+      expect(result.emailVerified).toBe(true);
+      expect(emailService.sendVerificationEmail).not.toHaveBeenCalled();
+    });
+
+    it('throws ConflictException when new email already in use', async () => {
+      const user = { ...mockUser, emailVerified: true } as User;
+      repo.findOneBy
+        .mockResolvedValueOnce(user) // findById
+        .mockResolvedValueOnce({ ...mockUser, id: 'other' }); // findByEmail conflict
+
+      await expect(
+        service.updateProfile('user-1', { email: 'taken@example.com' }),
+      ).rejects.toThrow(ConflictException);
+      expect(repo.save).not.toHaveBeenCalled();
+    });
+
+    it('resets emailVerified and sends a new verification email when email changes', async () => {
+      const user = {
+        ...mockUser,
+        emailVerified: true,
+        emailVerificationToken: null,
+        emailVerificationTokenExpiresAt: null,
+      } as User;
+      repo.findOneBy
+        .mockResolvedValueOnce(user) // findById
+        .mockResolvedValueOnce(null); // findByEmail: no conflict
+      repo.save.mockImplementation((u) => Promise.resolve(u));
+
+      const result = await service.updateProfile('user-1', {
+        email: 'new@example.com',
+      });
+
+      expect(result.email).toBe('new@example.com');
+      expect(result.emailVerified).toBe(false);
+      expect(result.emailVerificationToken).toEqual(expect.any(String));
+      expect(result.emailVerificationTokenExpiresAt).toBeInstanceOf(Date);
+      expect(emailService.sendVerificationEmail).toHaveBeenCalledWith(
+        'new@example.com',
+        mockUser.name,
+        result.emailVerificationToken,
+      );
+    });
+
+    it('does not reset verification when email is unchanged', async () => {
+      const user = { ...mockUser, emailVerified: true } as User;
+      repo.findOneBy.mockResolvedValue(user);
+      repo.save.mockImplementation((u) => Promise.resolve(u));
+
+      const result = await service.updateProfile('user-1', {
+        email: mockUser.email,
+      });
+
+      expect(result.emailVerified).toBe(true);
+      expect(emailService.sendVerificationEmail).not.toHaveBeenCalled();
     });
   });
 });

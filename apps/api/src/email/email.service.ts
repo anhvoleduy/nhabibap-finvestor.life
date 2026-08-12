@@ -7,12 +7,14 @@ export class EmailService {
   private readonly logger = new Logger(EmailService.name);
   private readonly brevo: BrevoClient | null;
   private readonly from: string;
+  private readonly fromName: string;
   private readonly webUrl: string;
 
   constructor(private readonly cfg: ConfigService) {
     const apiKey = this.cfg.get<string>('BREVO_API_KEY');
     this.brevo = apiKey ? new BrevoClient({ apiKey }) : null;
     this.from = this.cfg.get<string>('MAIL_FROM') ?? 'onboarding@brevo.dev';
+    this.fromName = this.cfg.get<string>('MAIL_FROM_NAME') ?? 'Finvestor.Life';
     this.webUrl = this.cfg.get<string>('WEB_URL') ?? 'http://localhost:4200';
     if (!this.brevo) {
       this.logger.warn(
@@ -33,7 +35,7 @@ export class EmailService {
     }
     try {
       await this.brevo.transactionalEmails.sendTransacEmail({
-        sender: { email: this.from },
+        sender: { email: this.from, name: this.fromName },
         to: [{ email: to, name }],
         subject: 'Verify your email to activate your Finvestor account',
         htmlContent: this.verificationEmailHtml(name, link),

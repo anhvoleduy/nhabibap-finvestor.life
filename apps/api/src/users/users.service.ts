@@ -8,16 +8,21 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { randomBytes } from 'crypto';
 import {
   UpdatePasswordDto,
   UpdateProfileDto,
 } from '@nhabibap-myportfolio/shared-types';
 import { User } from '../auth/entities/user.entity';
+import { EmailService } from '../email/email.service';
+
+const TOKEN_TTL_MS = 24 * 60 * 60 * 1000;
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) private readonly repo: Repository<User>,
+    private readonly emailService: EmailService,
   ) {}
 
   findById(id: string) {
@@ -83,13 +88,28 @@ export class UsersService {
   async updateProfile(userId: string, dto: UpdateProfileDto): Promise<User> {
     const user = await this.findById(userId);
     if (!user) throw new NotFoundException('User not found');
+    let verificationToken: string | null = null;
     if (dto.email && dto.email !== user.email) {
       const conflict = await this.findByEmail(dto.email);
       if (conflict) throw new ConflictException('Email already in use');
+      verificationToken = randomBytes(32).toString('hex');
       user.email = dto.email;
+      user.emailVerified = false;
+      user.emailVerificationToken = verificationToken;
+      user.emailVerificationTokenExpiresAt = new Date(
+        Date.now() + TOKEN_TTL_MS,
+      );
     }
     if (dto.name) user.name = dto.name;
-    return this.repo.save(user);
+    const saved = await this.repo.save(user);
+    if (verificationToken) {
+      await this.emailService.sendVerificationEmail(
+        saved.email,
+        saved.name,
+        verificationToken,
+      );
+    }
+    return saved;
   }
 
   async updatePassword(userId: string, dto: UpdatePasswordDto): Promise<void> {

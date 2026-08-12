@@ -34,6 +34,7 @@ describe('EmailService', () => {
       const module: TestingModule = await build({
         BREVO_API_KEY: 'key',
         MAIL_FROM: 'from@test.dev',
+        MAIL_FROM_NAME: 'Finvestor.Life',
         WEB_URL: 'https://app.test',
       });
       service = module.get(EmailService);
@@ -46,7 +47,10 @@ describe('EmailService', () => {
 
       expect(sendTransacEmailMock).toHaveBeenCalledTimes(1);
       const arg = sendTransacEmailMock.mock.calls[0][0];
-      expect(arg.sender).toEqual({ email: 'from@test.dev' });
+      expect(arg.sender).toEqual({
+        email: 'from@test.dev',
+        name: 'Finvestor.Life',
+      });
       expect(arg.to).toEqual([{ email: 'to@test.dev', name: 'Bob' }]);
       expect(arg.htmlContent).toContain(
         'https://app.test/auth/verify-email?token=tok123',
@@ -60,6 +64,26 @@ describe('EmailService', () => {
       await expect(
         service.sendVerificationEmail('to@test.dev', 'Bob', 'tok'),
       ).rejects.toThrow(/boom/);
+    });
+  });
+
+  describe('without MAIL_FROM_NAME set', () => {
+    it('defaults sender name to Finvestor.Life', async () => {
+      sendTransacEmailMock.mockResolvedValue({});
+      const module: TestingModule = await build({
+        BREVO_API_KEY: 'key',
+        MAIL_FROM: 'from@test.dev',
+        WEB_URL: 'https://app.test',
+      });
+      const service = module.get(EmailService);
+
+      await service.sendVerificationEmail('to@test.dev', 'Bob', 'tok');
+
+      const arg = sendTransacEmailMock.mock.calls[0][0];
+      expect(arg.sender).toEqual({
+        email: 'from@test.dev',
+        name: 'Finvestor.Life',
+      });
     });
   });
 

@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 
-const sendMock = jest.fn();
-jest.mock('resend', () => ({
-  Resend: jest.fn().mockImplementation(() => ({
-    emails: { send: sendMock },
+const sendTransacEmailMock = jest.fn();
+jest.mock('@getbrevo/brevo', () => ({
+  BrevoClient: jest.fn().mockImplementation(() => ({
+    transactionalEmails: { sendTransacEmail: sendTransacEmailMock },
   })),
 }));
 
@@ -24,15 +24,15 @@ function build(config: Record<string, string | undefined>) {
 
 describe('EmailService', () => {
   beforeEach(() => {
-    sendMock.mockReset();
+    sendTransacEmailMock.mockReset();
   });
 
-  describe('with RESEND_API_KEY set', () => {
+  describe('with BREVO_API_KEY set', () => {
     let service: EmailService;
 
     beforeEach(async () => {
       const module: TestingModule = await build({
-        RESEND_API_KEY: 'key',
+        BREVO_API_KEY: 'key',
         MAIL_FROM: 'from@test.dev',
         WEB_URL: 'https://app.test',
       });
@@ -40,20 +40,22 @@ describe('EmailService', () => {
     });
 
     it('sends email with verification link', async () => {
-      sendMock.mockResolvedValue({ error: null });
+      sendTransacEmailMock.mockResolvedValue({});
 
       await service.sendVerificationEmail('to@test.dev', 'Bob', 'tok123');
 
-      expect(sendMock).toHaveBeenCalledTimes(1);
-      const arg = sendMock.mock.calls[0][0];
-      expect(arg.from).toBe('from@test.dev');
-      expect(arg.to).toBe('to@test.dev');
-      expect(arg.html).toContain('https://app.test/verify-email?token=tok123');
-      expect(arg.html).toContain('Bob');
+      expect(sendTransacEmailMock).toHaveBeenCalledTimes(1);
+      const arg = sendTransacEmailMock.mock.calls[0][0];
+      expect(arg.sender).toEqual({ email: 'from@test.dev' });
+      expect(arg.to).toEqual([{ email: 'to@test.dev', name: 'Bob' }]);
+      expect(arg.htmlContent).toContain(
+        'https://app.test/verify-email?token=tok123',
+      );
+      expect(arg.htmlContent).toContain('Bob');
     });
 
-    it('throws when Resend returns an error', async () => {
-      sendMock.mockResolvedValue({ error: { message: 'boom' } });
+    it('throws when Brevo rejects the request', async () => {
+      sendTransacEmailMock.mockRejectedValue(new Error('boom'));
 
       await expect(
         service.sendVerificationEmail('to@test.dev', 'Bob', 'tok'),
@@ -61,7 +63,7 @@ describe('EmailService', () => {
     });
   });
 
-  describe('without RESEND_API_KEY', () => {
+  describe('without BREVO_API_KEY', () => {
     it('skips sending and does not throw', async () => {
       const module: TestingModule = await build({});
       const service = module.get(EmailService);
@@ -69,7 +71,7 @@ describe('EmailService', () => {
       await expect(
         service.sendVerificationEmail('to@test.dev', 'Bob', 'tok'),
       ).resolves.toBeUndefined();
-      expect(sendMock).not.toHaveBeenCalled();
+      expect(sendTransacEmailMock).not.toHaveBeenCalled();
     });
   });
 });

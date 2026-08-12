@@ -34,6 +34,9 @@ importers:
       '@angular/router':
         specifier: ~21.2.0
         version: 21.2.11(@angular/common@21.2.11(@angular/core@21.2.11(@angular/compiler@21.2.11)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.11(@angular/compiler@21.2.11)(rxjs@7.8.2))(@angular/platform-browser@21.2.11(@angular/animations@21.2.11(@angular/core@21.2.11(@angular/compiler@21.2.11)(rxjs@7.8.2)))(@angular/common@21.2.11(@angular/core@21.2.11(@angular/compiler@21.2.11)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.11(@angular/compiler@21.2.11)(rxjs@7.8.2)))(rxjs@7.8.2)
+      '@getbrevo/brevo':
+        specifier: ^6.0.3
+        version: 6.0.3
       '@nestjs/common':
         specifier: ^11.0.0
         version: 11.1.19(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.1.14)(rxjs@7.8.2)
@@ -91,9 +94,6 @@ importers:
       reflect-metadata:
         specifier: ^0.1.13
         version: 0.1.14
-      resend:
-        specifier: ^6.16.0
-        version: 6.16.0
       rxjs:
         specifier: ~7.8.0
         version: 7.8.2
@@ -2120,6 +2120,13 @@ packages:
         integrity: sha512-GmzA9ckNokPypTg10pgpeHNQe7ph+iIKKmhKu3Ob9ANkswreCx7R3cKmY781K8QK3AqVL3xVh9A42JvIAbkkSA==,
       }
     engines: { node: ^20.17.0 || >=22.9.0 }
+
+  '@getbrevo/brevo@6.0.3':
+    resolution:
+      {
+        integrity: sha512-yWBLKoHC8P5HLZ8z6iRuqDYLpCRKPTUETnZOLZzNDWGFYL78y4SHOTxQVrKH5ROX7f4q+SQ19LD3GWtJlIuNXA==,
+      }
+    engines: { node: '>=18.0.0' }
 
   '@harperfast/extended-iterable@1.0.3':
     resolution:
@@ -4716,12 +4723,6 @@ packages:
     resolution:
       {
         integrity: sha512-Uy0+khmZqUrUGm5dmMqVlnvufZRSK0FbYzVgp0UMstm+F5+W2/jnEEQyc9vo1ZR/E5ZI/B1WjjoTqBqwJL6Krw==,
-      }
-
-  '@stablelib/base64@1.0.1':
-    resolution:
-      {
-        integrity: sha512-1bnPQqSxSuc3Ii6MhBysoWCg58j97aUjuCSZrGSmDxNqtytIi0k8utUenAwTZN4V5mXXYGsVUI9zeBqy+jBOSQ==,
       }
 
   '@standard-schema/spec@1.1.0':
@@ -7806,12 +7807,6 @@ packages:
         integrity: sha512-W+KJc2dmILlPplD/H4K9l9LcAHAfPtP6BY84uVLXQ6Evcz9Lcg33Y2z1IVblT6xdY54PXYVHEv+0Wpq8Io6zkA==,
       }
 
-  fast-sha256@1.3.0:
-    resolution:
-      {
-        integrity: sha512-n11RGP/lrWEFI/bWdygLxhI+pVeo1ZYIVwvvPkW7azl/rOy+F3HYRZ2K5zeE9mmkhQppyv9sQFx0JM9UabnpPQ==,
-      }
-
   fast-uri@3.1.2:
     resolution:
       {
@@ -10678,12 +10673,6 @@ packages:
       }
     engines: { node: '>= 0.4' }
 
-  postal-mime@2.7.4:
-    resolution:
-      {
-        integrity: sha512-0WdnFQYUrPGGTFu1uOqD2s7omwua8xaeYGdO6rb88oD5yJ/4pPHDA4sdWqfD8wQVfCny563n/HQS7zTFft+f/g==,
-      }
-
   postcss-calc@10.1.1:
     resolution:
       {
@@ -11298,18 +11287,6 @@ packages:
       {
         integrity: sha512-KigOCHcocU3XODJxsu8i/j8T9tzT4adHiecwORRQ0ZZFcp7ahwXuRU1m+yuO90C5ZUyGeGfocHDI14M3L3yDAQ==,
       }
-
-  resend@6.16.0:
-    resolution:
-      {
-        integrity: sha512-SaKISwHtxvAxneF84Njgnzg+zdngUu1vOT/paRU1De9QF+zXQR3GnwJHSh+mpJPjUhsGD4WxYi5CfKkXMkDqwg==,
-      }
-    engines: { node: '>=20' }
-    peerDependencies:
-      '@react-email/render': '*'
-    peerDependenciesMeta:
-      '@react-email/render':
-        optional: true
 
   resolve-cwd@3.0.0:
     resolution:
@@ -12102,12 +12079,6 @@ packages:
     resolution:
       {
         integrity: sha512-oeVtt7eWQS+Na6F//S4kJ2K2VbRlS9D43mAlMyVpVWovy9o+jfgH8O9agzANzaiLjclA0oYzUXEM4PurhSUChw==,
-      }
-
-  standardwebhooks@1.0.0:
-    resolution:
-      {
-        integrity: sha512-BbHGOQK9olHPMvQNHWul6MYlrRTAOKn03rOe4A8O3CLWhNf4YHBqq2HJKKC+sfqpxiBY52pNeesD6jIiLDz8jg==,
       }
 
   statuses@1.5.0:
@@ -14928,6 +14899,8 @@ snapshots:
 
   '@gar/promise-retry@1.0.3': {}
 
+  '@getbrevo/brevo@6.0.3': {}
+
   '@harperfast/extended-iterable@1.0.3':
     optional: true
 
@@ -17001,8 +16974,6 @@ snapshots:
 
   '@sqltools/formatter@1.2.5': {}
 
-  '@stablelib/base64@1.0.1': {}
-
   '@standard-schema/spec@1.1.0': {}
 
   '@swc-node/core@1.14.1(@swc/core@1.15.33(@swc/helpers@0.5.21))(@swc/types@0.1.26)':
@@ -18950,8 +18921,6 @@ snapshots:
   fast-levenshtein@2.0.6: {}
 
   fast-safe-stringify@2.1.1: {}
-
-  fast-sha256@1.3.0: {}
 
   fast-uri@3.1.2: {}
 
@@ -20956,8 +20925,6 @@ snapshots:
 
   possible-typed-array-names@1.1.0: {}
 
-  postal-mime@2.7.4: {}
-
   postcss-calc@10.1.1(postcss@8.5.14):
     dependencies:
       postcss: 8.5.14
@@ -21307,11 +21274,6 @@ snapshots:
   require-from-string@2.0.2: {}
 
   requires-port@1.0.0: {}
-
-  resend@6.16.0:
-    dependencies:
-      postal-mime: 2.7.4
-      standardwebhooks: 1.0.0
 
   resolve-cwd@3.0.0:
     dependencies:
@@ -21852,11 +21814,6 @@ snapshots:
   stackback@0.0.2: {}
 
   stackframe@1.3.4: {}
-
-  standardwebhooks@1.0.0:
-    dependencies:
-      '@stablelib/base64': 1.0.1
-      fast-sha256: 1.3.0
 
   statuses@1.5.0: {}
 

@@ -64,6 +64,8 @@ export class AuthService {
       user.emailVerificationTokenExpiresAt.getTime() < Date.now()
     )
       throw new BadRequestException('Verification token expired');
+    if (user.emailVerified)
+      return this.buildResponse(user.id, user.email, user.name, true);
     const verified = await this.users.markEmailVerified(user);
     return this.buildResponse(
       verified.id,

@@ -86,6 +86,24 @@ describe('Auth', () => {
 
       expect(res.status).toBe(400);
     });
+
+    it('replaying the same token after verification succeeds again instead of erroring (regression)', async () => {
+      const email = uniqueEmail('verify-replay');
+      await axios.post('/auth/register', {
+        email,
+        password: 'secret123',
+        name: 'Replay User',
+      });
+      const token = await getVerificationToken(email);
+
+      const first = await axios.post('/auth/verify-email', { token });
+      const second = await axios.post('/auth/verify-email', { token });
+
+      expect(first.status).toBe(201);
+      expect(second.status).toBe(201);
+      expect(second.data.accessToken).toBeTruthy();
+      expect(second.data.user.emailVerified).toBe(true);
+    });
   });
 
   describe('POST /auth/resend-verification', () => {

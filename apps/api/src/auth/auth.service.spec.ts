@@ -202,6 +202,35 @@ describe('AuthService', () => {
       );
       expect(usersService.markEmailVerified).not.toHaveBeenCalled();
     });
+
+    it('replaying same still-valid token after verification returns success instead of error (regression)', async () => {
+      const alreadyVerified = {
+        ...mockUser,
+        emailVerified: true,
+        emailVerificationToken: 'tok',
+        emailVerificationTokenExpiresAt: new Date(Date.now() + 10000),
+      };
+      usersService.findByVerificationToken.mockResolvedValue(alreadyVerified);
+
+      const result = await service.verifyEmail('tok');
+
+      expect(result.accessToken).toBe('jwt-token');
+      expect(result.user.emailVerified).toBe(true);
+      expect(usersService.markEmailVerified).not.toHaveBeenCalled();
+    });
+
+    it('replaying an already-verified token past its expiry still fails', async () => {
+      usersService.findByVerificationToken.mockResolvedValue({
+        ...mockUser,
+        emailVerified: true,
+        emailVerificationToken: 'tok',
+        emailVerificationTokenExpiresAt: new Date(Date.now() - 1000),
+      });
+
+      await expect(service.verifyEmail('tok')).rejects.toThrow(
+        BadRequestException,
+      );
+    });
   });
 
   describe('resendVerification', () => {

@@ -152,20 +152,21 @@ describe('UsersService', () => {
   });
 
   describe('markEmailVerified', () => {
-    it('sets verified, clears token, and saves', async () => {
+    it('sets verified and saves, keeping token until its natural expiry so a replayed request stays idempotent', async () => {
+      const expiresAt = new Date(Date.now() + 10000);
       const user = {
         ...mockUser,
         emailVerified: false,
         emailVerificationToken: 'tok',
-        emailVerificationTokenExpiresAt: new Date(),
+        emailVerificationTokenExpiresAt: expiresAt,
       } as User;
       repo.save.mockImplementation((u) => Promise.resolve(u));
 
       const result = await service.markEmailVerified(user);
 
       expect(result.emailVerified).toBe(true);
-      expect(result.emailVerificationToken).toBeNull();
-      expect(result.emailVerificationTokenExpiresAt).toBeNull();
+      expect(result.emailVerificationToken).toBe('tok');
+      expect(result.emailVerificationTokenExpiresAt).toBe(expiresAt);
     });
   });
 

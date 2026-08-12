@@ -80,8 +80,6 @@ export class UsersService {
 
   async markEmailVerified(user: User): Promise<User> {
     user.emailVerified = true;
-    user.emailVerificationToken = null;
-    user.emailVerificationTokenExpiresAt = null;
     return this.repo.save(user);
   }
 

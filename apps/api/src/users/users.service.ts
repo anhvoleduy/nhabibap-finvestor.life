@@ -6,7 +6,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Between, IsNull, LessThan, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
 import {
@@ -108,6 +108,37 @@ export class UsersService {
       );
     }
     return saved;
+  }
+
+  findUnverifiedDueForWarning(
+    createdAfter: Date,
+    createdBefore: Date,
+  ): Promise<User[]> {
+    return this.repo.find({
+      where: {
+        emailVerified: false,
+        unverifiedWarningEmailSentAt: IsNull(),
+        createdAt: Between(createdAfter, createdBefore),
+      },
+    });
+  }
+
+  findUnverifiedDueForDeletion(createdBefore: Date): Promise<User[]> {
+    return this.repo.find({
+      where: {
+        emailVerified: false,
+        createdAt: LessThan(createdBefore),
+      },
+    });
+  }
+
+  async markUnverifiedWarningEmailSent(user: User): Promise<void> {
+    user.unverifiedWarningEmailSentAt = new Date();
+    await this.repo.save(user);
+  }
+
+  async softDeleteUser(user: User): Promise<void> {
+    await this.repo.softRemove(user);
   }
 
   async updatePassword(userId: string, dto: UpdatePasswordDto): Promise<void> {

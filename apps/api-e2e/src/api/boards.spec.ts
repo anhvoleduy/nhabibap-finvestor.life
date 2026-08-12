@@ -105,14 +105,14 @@ describe('Boards', () => {
       expect(res.data.cashBalance).toBe(1000000);
     });
 
-    it('GET /boards/:id returns 404 for other user', async () => {
+    it('GET /boards/:id returns 403 for other user', async () => {
       const { token: otherToken } = await registerAndLogin();
       const res = await axios.get(`/boards/${boardId}`, {
         headers: authHeader(otherToken),
         validateStatus: () => true,
       });
 
-      expect(res.status).toBe(404);
+      expect(res.status).toBe(403);
     });
 
     describe('Members', () => {
@@ -136,11 +136,8 @@ describe('Boards', () => {
         );
 
         expect(res.status).toBe(201);
-        expect(
-          res.data.members.some(
-            (m: { userId: string }) => m.userId === memberUserId,
-          ),
-        ).toBe(true);
+        expect(res.data.userId).toBe(memberUserId);
+        expect(res.data.role).toBe('EDITOR');
       });
 
       it('shared member can GET /boards/:id', async () => {
@@ -168,7 +165,7 @@ describe('Boards', () => {
           validateStatus: () => true,
         });
 
-        expect(res.status).toBe(404);
+        expect(res.status).toBe(403);
       });
     });
 

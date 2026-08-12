@@ -1,6 +1,7 @@
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -33,6 +34,12 @@ export class User {
 
   @CreateDateColumn()
   createdAt!: Date;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  unverifiedWarningEmailSentAt!: Date | null;
+
+  @DeleteDateColumn()
+  deletedAt!: Date | null;
 
   @OneToMany(() => Board, (board) => board.owner)
   boards!: Board[];

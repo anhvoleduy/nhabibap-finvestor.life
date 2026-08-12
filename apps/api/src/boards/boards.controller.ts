@@ -20,6 +20,7 @@ import {
 import {
   AddMemberDto,
   BoardDto,
+  BoardMemberDto,
   BoardSummaryDto,
   CreateBoardDto,
   UpdateBoardDto,
@@ -76,7 +77,7 @@ export class BoardsController {
 
   @Post(':id/members')
   @ApiOperation({ summary: 'Share board with user' })
-  @ApiResponse({ status: 201, type: BoardDto })
+  @ApiResponse({ status: 201, type: BoardMemberDto })
   addMember(
     @Param('id') id: string,
     @Req() req: AuthenticatedRequest,

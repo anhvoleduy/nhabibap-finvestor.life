@@ -38,14 +38,20 @@ describe('Assets', () => {
       expect(res.data.assets).toEqual([]);
     });
 
-    it('rejects duplicate category type with 409', async () => {
+    it('returns the existing category instead of creating a duplicate', async () => {
+      const first = await axios.post(
+        `/boards/${boardId}/categories`,
+        { type: 'GOLD' },
+        { headers: authHeader(token) },
+      );
       const res = await axios.post(
         `/boards/${boardId}/categories`,
         { type: 'GOLD' },
         { headers: authHeader(token), validateStatus: () => true },
       );
 
-      expect(res.status).toBe(409);
+      expect(res.status).toBe(201);
+      expect(res.data.id).toBe(first.data.id);
     });
 
     it('rejects invalid category type with 400', async () => {

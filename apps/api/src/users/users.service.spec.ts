@@ -21,6 +21,8 @@ describe('UsersService', () => {
     createQueryBuilder: jest.Mock;
     create: jest.Mock;
     save: jest.Mock;
+    find: jest.Mock;
+    softRemove: jest.Mock;
   };
   let emailService: { sendVerificationEmail: jest.Mock };
 
@@ -37,6 +39,8 @@ describe('UsersService', () => {
       createQueryBuilder: jest.fn().mockReturnValue(qb),
       create: jest.fn(),
       save: jest.fn(),
+      find: jest.fn(),
+      softRemove: jest.fn(),
     };
     emailService = {
       sendVerificationEmail: jest.fn().mockResolvedValue(undefined),
@@ -248,6 +252,57 @@ describe('UsersService', () => {
 
       expect(result.emailVerified).toBe(true);
       expect(emailService.sendVerificationEmail).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('findUnverifiedDueForWarning', () => {
+    it('queries unverified users in the given window with no warning sent yet', async () => {
+      repo.find.mockResolvedValue([mockUser]);
+      const after = new Date('2026-07-01');
+      const before = new Date('2026-07-18');
+
+      const result = await service.findUnverifiedDueForWarning(after, before);
+
+      expect(repo.find).toHaveBeenCalledWith({
+        where: expect.objectContaining({ emailVerified: false }),
+      });
+      expect(result).toEqual([mockUser]);
+    });
+  });
+
+  describe('findUnverifiedDueForDeletion', () => {
+    it('queries unverified users created before the cutoff', async () => {
+      repo.find.mockResolvedValue([mockUser]);
+      const cutoff = new Date('2026-07-13');
+
+      const result = await service.findUnverifiedDueForDeletion(cutoff);
+
+      expect(repo.find).toHaveBeenCalledWith({
+        where: expect.objectContaining({ emailVerified: false }),
+      });
+      expect(result).toEqual([mockUser]);
+    });
+  });
+
+  describe('markUnverifiedWarningEmailSent', () => {
+    it('stamps unverifiedWarningEmailSentAt and saves', async () => {
+      const user = { ...mockUser, unverifiedWarningEmailSentAt: null } as User;
+      repo.save.mockImplementation((u) => Promise.resolve(u));
+
+      await service.markUnverifiedWarningEmailSent(user);
+
+      expect(user.unverifiedWarningEmailSentAt).toBeInstanceOf(Date);
+      expect(repo.save).toHaveBeenCalledWith(user);
+    });
+  });
+
+  describe('softDeleteUser', () => {
+    it('soft-removes the user via the repository', async () => {
+      repo.softRemove.mockResolvedValue(mockUser);
+
+      await service.softDeleteUser(mockUser);
+
+      expect(repo.softRemove).toHaveBeenCalledWith(mockUser);
     });
   });
 });

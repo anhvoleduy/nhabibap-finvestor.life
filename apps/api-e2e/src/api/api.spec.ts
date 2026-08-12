@@ -2,7 +2,7 @@ import axios from 'axios';
 
 describe('GET /api', () => {
   it('should return a message', async () => {
-    const res = await axios.get(`/api`);
+    const res = await axios.get(`/`);
 
     expect(res.status).toBe(200);
     expect(res.data).toEqual({ message: 'Hello API' });
@@ -11,7 +11,7 @@ describe('GET /api', () => {
 
 describe('GET /api/health', () => {
   it('returns 200 with status ok + timestamp', async () => {
-    const res = await axios.get('/api/health');
+    const res = await axios.get('/health');
 
     expect(res.status).toBe(200);
     expect(res.data.status).toBe('ok');
@@ -22,7 +22,7 @@ describe('GET /api/health', () => {
 
 describe('GET /api/ready', () => {
   it('returns 200 with db ok + latency when DB reachable', async () => {
-    const res = await axios.get('/api/ready');
+    const res = await axios.get('/ready');
 
     expect(res.status).toBe(200);
     expect(res.data.status).toBe('ok');

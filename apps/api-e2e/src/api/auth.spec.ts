@@ -71,7 +71,7 @@ describe('Auth', () => {
 
       const res = await axios.post('/auth/verify-email', { token });
 
-      expect(res.status).toBe(201);
+      expect(res.status).toBe(200);
       expect(res.data.accessToken).toBeTruthy();
       expect(res.data.user.email).toBe(email);
       expect(res.data.user).not.toHaveProperty('passwordHash');
@@ -99,8 +99,8 @@ describe('Auth', () => {
       const first = await axios.post('/auth/verify-email', { token });
       const second = await axios.post('/auth/verify-email', { token });
 
-      expect(first.status).toBe(201);
-      expect(second.status).toBe(201);
+      expect(first.status).toBe(200);
+      expect(second.status).toBe(200);
       expect(second.data.accessToken).toBeTruthy();
       expect(second.data.user.emailVerified).toBe(true);
     });

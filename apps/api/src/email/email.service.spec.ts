@@ -49,7 +49,7 @@ describe('EmailService', () => {
       expect(arg.sender).toEqual({ email: 'from@test.dev' });
       expect(arg.to).toEqual([{ email: 'to@test.dev', name: 'Bob' }]);
       expect(arg.htmlContent).toContain(
-        'https://app.test/verify-email?token=tok123',
+        'https://app.test/auth/verify-email?token=tok123',
       );
       expect(arg.htmlContent).toContain('Bob');
     });

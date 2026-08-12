@@ -26,7 +26,7 @@ export class EmailService {
     name: string,
     token: string,
   ): Promise<void> {
-    const link = `${this.webUrl}/verify-email?token=${token}`;
+    const link = `${this.webUrl}/auth/verify-email?token=${token}`;
     if (!this.brevo) {
       this.logger.warn(`Skipped verification email to ${to}. Link: ${link}`);
       return;
